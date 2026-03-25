@@ -1,33 +1,40 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { Howl } from 'howler';
+import type { Howl } from 'howler';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { BlunnoBlob } from '@/components/shared/BlunnoBlob';
 
-// Sound init (if files are missing, it will stay silent)
+// Lazy-init Howler on first interaction (lighter first paint on slow devices)
 let bubblePop: Howl | null = null;
 let hoverSound: Howl | null = null;
+let soundsReady: Promise<void> | null = null;
 
-if (typeof window !== 'undefined') {
-  bubblePop = new Howl({
-    src: ['/sounds/pop.mp3'],
-    volume: 0.4,
-    preload: false,
-    onloaderror: () => {
-      // Missing optional file is acceptable.
-    },
-  });
-  hoverSound = new Howl({
-    src: ['/sounds/hover-soft.mp3'],
-    volume: 0.15,
-    rate: 1.2,
-    onloaderror: () => {
-      // Missing optional file is acceptable.
-    },
-  });
+async function ensureSounds() {
+  if (typeof window === 'undefined') return;
+  if (soundsReady) return soundsReady;
+  soundsReady = (async () => {
+    const { Howl } = await import('howler');
+    bubblePop = new Howl({
+      src: ['/sounds/pop.mp3'],
+      volume: 0.4,
+      preload: false,
+      onloaderror: () => {
+        // Missing optional file is acceptable.
+      },
+    });
+    hoverSound = new Howl({
+      src: ['/sounds/hover-soft.mp3'],
+      volume: 0.15,
+      rate: 1.2,
+      onloaderror: () => {
+        // Missing optional file is acceptable.
+      },
+    });
+  })();
+  return soundsReady;
 }
 
 export default function WelcomePage() {
@@ -36,12 +43,14 @@ export default function WelcomePage() {
 
   const handleMouseEnter = () => {
     setIsHovered(true);
-    hoverSound?.play();
+    void ensureSounds().then(() => hoverSound?.play());
   };
 
   const handleBlobClick = () => {
-    bubblePop?.play();
-    router.push('/choose');
+    void ensureSounds().then(() => {
+      bubblePop?.play();
+      router.push('/choose');
+    });
   };
 
   return (

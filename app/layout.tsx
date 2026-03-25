@@ -1,5 +1,6 @@
 import './globals.css';
 import { Comfortaa } from 'next/font/google';
+import type { Metadata, Viewport } from 'next';
 
 const comfortaa = Comfortaa({
   subsets: ['latin', 'cyrillic'],
@@ -7,9 +8,29 @@ const comfortaa = Comfortaa({
   display: 'swap',
 });
 
-export const metadata = {
+export const viewport: Viewport = {
+  themeColor: '#BDB2FF',
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+};
+
+export const metadata: Metadata = {
   title: 'Blunno',
   description: 'Your gentle companion for anxiety and ADHD',
+  applicationName: 'Blunno',
+  appleWebApp: {
+    capable: true,
+    title: 'Blunno',
+    statusBarStyle: 'default',
+  },
+  icons: {
+    icon: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
 };
 
 export default function RootLayout({

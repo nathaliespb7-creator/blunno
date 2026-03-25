@@ -61,6 +61,8 @@ export const BlunnoBlob = () => {
           alt="Blunno"
           className="w-full h-full object-contain"
           draggable={false}
+          decoding="async"
+          fetchPriority="high"
           // лёгкий glass / glow вокруг, но без “прыгающих глаз”, т.к. это часть картинки
           style={{
             filter: 'drop-shadow(0 0 28px rgba(189,178,255,0.45))',
