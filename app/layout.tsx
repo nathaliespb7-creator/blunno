@@ -8,8 +8,10 @@ const comfortaa = Comfortaa({
   display: 'swap',
 });
 
+const shellBg = '#0d081b';
+
 export const viewport: Viewport = {
-  themeColor: '#BDB2FF',
+  themeColor: shellBg,
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
@@ -22,7 +24,8 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: 'Blunno',
-    statusBarStyle: 'default',
+    // Content draws under status bar; avoids light “stripe” with dark UI
+    statusBarStyle: 'black-translucent',
   },
   icons: {
     icon: [
@@ -39,8 +42,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={comfortaa.variable}>
-      <body className="bg-[#FFF0F5] font-sans overflow-x-hidden">
+    <html lang="en" className={`${comfortaa.variable} min-h-dvh overflow-x-hidden bg-[#0d081b]`}>
+      <body className="min-h-dvh w-full max-w-[100vw] overflow-x-hidden bg-[#0d081b] font-sans text-white antialiased">
         {children}
       </body>
     </html>
