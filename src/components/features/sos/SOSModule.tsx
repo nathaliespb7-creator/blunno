@@ -121,7 +121,7 @@ export const SOSModule = () => {
   }, []);
 
   return (
-    <div className="mx-auto w-full max-w-md px-4 py-8">
+    <div className="mx-auto w-full max-w-md px-4 pt-10 pb-8">
       <div className="flex flex-col items-center gap-6">
         <BlunnoBlob />
 

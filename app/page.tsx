@@ -1,6 +1,6 @@
 'use client';
 
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import type { Howl } from 'howler';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -93,58 +93,30 @@ export default function WelcomePage() {
         </div>
       </motion.div>
 
-      {/* Dynamic slogan */}
+      {/* Slogan */}
       <div className="mt-12 h-20 flex flex-col items-center justify-start text-center z-10 max-w-[92vw]">
-        <AnimatePresence mode="wait">
-          {!isHovered ? (
-            <motion.div
-              key="slogan"
-              initial={{ opacity: 0, y: 25, filter: 'blur(10px)' }}
-              animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-              exit={{ opacity: 0, y: -20, filter: 'blur(5px)' }}
-              transition={{ duration: 0.6 }}
-              className="text-center px-3 w-full max-w-[340px]"
-            >
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white/90 drop-shadow-[0_0_12px_rgba(255,255,255,0.3)] break-words">
-                No stress, no mess
-              </h2>
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.3 }}
-                className="mt-2 text-sm uppercase tracking-[0.16em] sm:tracking-[0.3em] font-light text-purple-200/40"
-              >
-                just{' '}
-                <span className="text-cyan-300/70 font-semibold drop-shadow-[0_0_8px_rgba(103,232,249,0.4)]">
-                  Blunno
-                </span>{' '}
-                best
-              </motion.p>
-            </motion.div>
-          ) : (
-            <motion.div
-              key="hint"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 1.1 }}
-              className="group"
-            >
-              <p className="text-white/80 text-lg md:text-xl font-medium tracking-wide">
-                Ready for a{' '}
-                <span className="text-purple-400 border-b-2 border-purple-400/30">
-                  fresh start?
-                </span>
-              </p>
-              <motion.div
-                animate={{ y: [0, 5, 0] }}
-                transition={{ repeat: Infinity, duration: 1.5 }}
-                className="mt-3 text-cyan-300/50"
-              >
-                Tap Blunno to choose a mode
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0, y: 25, filter: 'blur(10px)' }}
+          animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+          transition={{ duration: 0.6 }}
+          className="text-center px-3 w-full max-w-[340px]"
+        >
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-tight text-white/90 drop-shadow-[0_0_12px_rgba(255,255,255,0.3)] break-words">
+            No stress, no mess
+          </h2>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="mt-2 text-sm uppercase tracking-[0.16em] sm:tracking-[0.3em] font-light text-purple-200/40"
+          >
+            just{' '}
+            <span className="text-cyan-300/70 font-semibold drop-shadow-[0_0_8px_rgba(103,232,249,0.4)]">
+              Blunno
+            </span>{' '}
+            best
+          </motion.p>
+        </motion.div>
       </div>
     </div>
   );

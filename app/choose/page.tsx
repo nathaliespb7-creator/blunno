@@ -33,7 +33,10 @@ const Card = ({
 
 export default function ChoosePage() {
   return (
-    <main className="min-h-screen bg-gradient-to-b from-[#1a1040] to-[#0d0820] text-white px-6 py-10">
+    <main
+      className="min-h-screen bg-gradient-to-b from-[#1a1040] to-[#0d0820] text-white px-6 pb-10"
+      style={{ paddingTop: 'max(28px, calc(env(safe-area-inset-top) + 20px))' }}
+    >
       <div className="mx-auto w-full max-w-md">
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">Choose a mode</h1>
