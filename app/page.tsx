@@ -47,9 +47,9 @@ export default function WelcomePage() {
   };
 
   const handleBlobClick = () => {
+    router.push('/choose');
     void ensureSounds().then(() => {
       bubblePop?.play();
-      router.push('/choose');
     });
   };
 
