@@ -1,14 +1,31 @@
 import './globals.css';
-import { Comfortaa } from 'next/font/google';
+import { Inter, Roboto, Sarabun } from 'next/font/google';
 import type { Metadata, Viewport } from 'next';
 
-const comfortaa = Comfortaa({
-  subsets: ['latin', 'cyrillic'],
-  variable: '--font-comfortaa',
+import { Notification } from '@/components/ui';
+
+const sarabun = Sarabun({
+  subsets: ['latin', 'thai'],
+  variable: '--font-sarabun',
   display: 'swap',
+  weight: ['400', '700', '800'],
 });
 
-const shellBg = '#0d081b';
+const roboto = Roboto({
+  subsets: ['latin', 'cyrillic'],
+  variable: '--font-roboto',
+  display: 'swap',
+  weight: ['400', '700'],
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  variable: '--font-inter',
+  display: 'swap',
+  weight: ['400'],
+});
+
+const shellBg = '#0d0524';
 
 export const viewport: Viewport = {
   themeColor: shellBg,
@@ -24,7 +41,6 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     title: 'Blunno',
-    // Content draws under status bar; avoids light “stripe” with dark UI
     statusBarStyle: 'black-translucent',
   },
   icons: {
@@ -42,9 +58,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${comfortaa.variable} min-h-dvh overflow-x-hidden bg-[#0d081b]`}>
-      <body className="min-h-dvh w-full max-w-[100vw] overflow-x-hidden bg-[#0d081b] font-sans text-white antialiased">
+    <html
+      lang="en"
+      className={`${sarabun.variable} ${roboto.variable} ${inter.variable} min-h-dvh overflow-x-hidden bg-blunno-bg`}
+    >
+      <body className="min-h-dvh w-full max-w-[100vw] overflow-x-hidden font-sans text-blunno-foreground antialiased">
         {children}
+        <Notification />
       </body>
     </html>
   );

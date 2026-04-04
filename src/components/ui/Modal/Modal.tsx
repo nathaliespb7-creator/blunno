@@ -6,27 +6,46 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import { useBlunnoStore } from '@/store/blunnoStore';
 
-export interface ModalProps extends HTMLAttributes<HTMLDivElement> {
-  isOpen: boolean;
-  onClose: () => void;
+export interface ModalProps
+  extends Omit<
+    HTMLAttributes<HTMLDivElement>,
+    'onDrag' | 'onDragStart' | 'onDragEnd' | 'onAnimationStart' | 'onAnimationEnd'
+  > {
+  /** When set, visibility is tied to Zustand `ui.activeModal` and close calls `closeModal()` */
+  modalId?: string;
+  isOpen?: boolean;
+  onClose?: () => void;
   size?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
   closeOnOverlayClick?: boolean;
   closeOnEscape?: boolean;
 }
 
 const Modal = forwardRef<HTMLDivElement, ModalProps>(
-  ({ 
-    className,
-    isOpen,
-    onClose,
-    size = 'md',
-    closeOnOverlayClick = true,
-    closeOnEscape = true,
-    children,
-    ...props 
-  }, ref) => {
-    const animationPreference = useBlunnoStore(state => state.ui.animationPreference);
-    
+  (
+    {
+      className,
+      modalId,
+      isOpen: isOpenProp,
+      onClose: onCloseProp,
+      size = 'md',
+      closeOnOverlayClick = true,
+      closeOnEscape = true,
+      children,
+      ...props
+    },
+    ref
+  ) => {
+    const animationPreference = useBlunnoStore((s) => s.ui.animationPreference);
+    const activeModal = useBlunnoStore((s) => s.ui.activeModal);
+    const closeModal = useBlunnoStore((s) => s.closeModal);
+
+    const isOpen = modalId !== undefined ? activeModal === modalId : Boolean(isOpenProp);
+
+    const onClose = () => {
+      if (modalId !== undefined) closeModal();
+      else onCloseProp?.();
+    };
+
     const sizes = {
       sm: 'max-w-sm',
       md: 'max-w-md',
@@ -36,17 +55,18 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
     };
 
     useEffect(() => {
-      if (!closeOnEscape) return;
-      
+      if (!closeOnEscape || !isOpen) return;
+
       const handleEscape = (e: KeyboardEvent) => {
-        if (e.key === 'Escape' && isOpen) {
-          onClose();
+        if (e.key === 'Escape') {
+          if (modalId !== undefined) closeModal();
+          else onCloseProp?.();
         }
       };
 
       document.addEventListener('keydown', handleEscape);
       return () => document.removeEventListener('keydown', handleEscape);
-    }, [isOpen, onClose, closeOnEscape]);
+    }, [isOpen, closeOnEscape, modalId, closeModal, onCloseProp]);
 
     useEffect(() => {
       if (isOpen) {
@@ -73,18 +93,21 @@ const Modal = forwardRef<HTMLDivElement, ModalProps>(
               transition={{ duration: animationPreference === 'none' ? 0 : 0.2 }}
               className="absolute inset-0 bg-black/60 backdrop-blur-sm"
               onClick={closeOnOverlayClick ? onClose : undefined}
+              aria-hidden
             />
             <motion.div
               ref={ref}
+              role="dialog"
+              aria-modal="true"
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ 
+              transition={{
                 duration: animationPreference === 'none' ? 0 : 0.3,
-                ease: 'easeOut'
+                ease: 'easeOut',
               }}
               className={cn(
-                'relative w-full glass-card p-6',
+                'relative w-full glass-card rounded-screen border border-white/20 p-6 shadow-screen',
                 sizes[size],
                 className
               )}

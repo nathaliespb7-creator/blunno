@@ -54,7 +54,7 @@ export default function WelcomePage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-[#0d081b] overflow-hidden relative">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-blunno-bg overflow-hidden relative">
       {/* Grain effect */}
       <div
         className="fixed inset-0 pointer-events-none z-0 opacity-[0.06]"
