@@ -9,14 +9,25 @@ module.exports = {
   theme: {
     extend: {
       colors: {
+        blunno: {
+          bg: '#0d0524',
+          foreground: '#ffffff',
+          muted: '#c7c7c7',
+          blue: '#456ce8',
+          gold: '#e7b453',
+          lime: '#dde845',
+          magenta: '#c03b93',
+          coral: '#c03b3b',
+          cyan: '#6edae4',
+        },
         primary: {
           50: '#eff6ff',
           100: '#dbeafe',
           200: '#bfdbfe',
           300: '#93c5fd',
           400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#2563eb',
+          500: '#456ce8',
+          600: '#3a5dcc',
           700: '#1d4ed8',
           800: '#1e40af',
           900: '#1e3a8a',
@@ -39,7 +50,7 @@ module.exports = {
           200: '#a5f3fc',
           300: '#67e8f9',
           400: '#22d3ee',
-          500: '#06b6d4',
+          500: '#169fcc',
           600: '#0891b2',
           700: '#0e7490',
           800: '#155e75',
@@ -51,14 +62,41 @@ module.exports = {
           heavy: 'rgba(255, 255, 255, 0.25)',
         },
       },
+      fontFamily: {
+        sans: ['var(--font-sarabun)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        body: ['var(--font-roboto)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        ui: ['var(--font-inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+      },
+      fontSize: {
+        display: ['2.375rem', { lineHeight: '1.15', letterSpacing: '0.01em' }],
+      },
+      letterSpacing: {
+        figma: '0.2em',
+      },
       spacing: {
-        '18': '4.5rem',
-        '88': '22rem',
-        '128': '32rem',
+        18: '4.5rem',
+        88: '22rem',
+        128: '32rem',
+        figma: '1.25rem',
       },
       borderRadius: {
+        card: '12px',
+        screen: '25px',
+        cell: '15px',
         '4xl': '2rem',
         '5xl': '2.5rem',
+      },
+      boxShadow: {
+        screen: '0 4px 4px rgba(0, 0, 0, 0.25)',
+        'text-title': '0 4px 4px rgba(0, 0, 0, 0.25)',
+        insetCard: 'inset 0 4px 50px rgba(0, 0, 0, 0.25)',
+      },
+      backgroundImage: {
+        'blunno-sos': 'var(--gradient-sos)',
+        'blunno-planner': 'var(--gradient-planner)',
+        'blunno-play': 'var(--gradient-play)',
+        'blunno-relax': 'var(--gradient-relax)',
+        'blunno-slot': 'var(--gradient-slot)',
       },
       backdropBlur: {
         xs: '2px',
@@ -68,7 +106,7 @@ module.exports = {
         'slide-up': 'slideUp 0.4s ease-out',
         'bounce-gentle': 'bounceGentle 0.6s ease-out',
         'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-        'breathing': 'breathing 4s ease-in-out infinite',
+        breathing: 'breathing 4s ease-in-out infinite',
       },
       keyframes: {
         fadeIn: {
@@ -88,10 +126,6 @@ module.exports = {
           '0%, 100%': { transform: 'scale(1)' },
           '50%': { transform: 'scale(1.05)' },
         },
-      },
-      fontFamily: {
-        sans: ['var(--font-geist-sans)', 'system-ui', 'sans-serif'],
-        mono: ['var(--font-geist-mono)', 'monospace'],
       },
     },
   },

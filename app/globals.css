@@ -1,41 +1,83 @@
 @import "tailwindcss";
 
+/*
+  Blunno design tokens — extracted from Figma (file Blunno, Page 2 / Home & screens)
+  https://www.figma.com/design/ohWsdMYDCBhnV1wfm1s5Kc/Blunno
+*/
+
 :root {
-  --app-bg: #0d081b;
-  --foreground: #ededed;
-  
-  /* Design System Tokens */
-  --color-primary: #6366f1;
-  --color-primary-hover: #5855eb;
-  --color-secondary: #8b5cf6;
-  --color-accent: #06b6d4;
-  --color-success: #10b981;
-  --color-warning: #f59e0b;
-  --color-error: #ef4444;
-  
-  /* Glass morphism tokens */
+  /* Canvas / shell */
+  --app-bg: #0d0524;
+  --foreground: #ffffff;
+  --foreground-soft: #fffbfb;
+  --stroke-default: #000000;
+  --stroke-muted: #c7c7c7;
+
+  /* Brand & UI accents (from calendar / components) */
+  --color-blue-500: #456ce8;
+  --color-gold: #e7b453;
+  --color-lime: #dde845;
+  --color-magenta: #c03b93;
+  --color-coral: #c03b3b;
+  --color-cyan-accent: #6edae4;
+
+  /* Legacy aliases → map to Figma */
+  --color-primary: var(--color-blue-500);
+  --color-primary-hover: #3a5dcc;
+  --color-secondary: #6a3cae;
+  --color-accent: #169fcc;
+  --color-success: #0b4f66;
+  --color-warning: var(--color-gold);
+  --color-error: var(--color-coral);
+
+  /* Mode button gradients — Home frame */
+  --gradient-sos: linear-gradient(131deg, #2a1c29 5%, #905e8c 94%);
+  --gradient-planner: linear-gradient(127deg, #364547 4%, #83a9ad 93%);
+  --gradient-play: linear-gradient(131deg, #2c1948 1%, #6a3cae 100%);
+  --gradient-relax: linear-gradient(133deg, #81642f 21%, #e7b453 96%);
+  /* Planner time-slot cards */
+  --gradient-slot: linear-gradient(131deg, #0b4f66 8%, #169fcc 87%);
+
+  /* Glass / overlays */
   --glass-bg: rgba(255, 255, 255, 0.1);
   --glass-border: rgba(255, 255, 255, 0.25);
   --glass-hover-bg: rgba(255, 255, 255, 0.18);
   --glass-hover-border: rgba(255, 255, 255, 0.4);
-  
-  /* Spacing scale */
-  --space-xs: 0.25rem;
-  --space-sm: 0.5rem;
-  --space-md: 1rem;
-  --space-lg: 1.5rem;
-  --space-xl: 2rem;
-  --space-2xl: 3rem;
-  
-  /* Border radius scale */
+  --overlay-scrim: rgba(0, 0, 0, 0.6);
+
+  /* Elevation */
+  --shadow-screen: 0 4px 4px rgba(0, 0, 0, 0.25);
+  --shadow-text-title: 0 4px 4px rgba(0, 0, 0, 0.25);
+  --shadow-inset-card-strong: inset 0 4px 200px rgba(0, 0, 0, 0.25);
+  --shadow-inset-card-soft: inset 0 4px 50px rgba(0, 0, 0, 0.25);
+
+  /* Spacing scale (Figma: ~8 / 10 / 12 / 20 / padding cells 10–12) */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-2-5: 0.625rem;
+  --space-3: 0.75rem;
+  --space-3-5: 0.875rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-5-figma: 1.25rem;
+
+  /* Radius */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --radius-2xl: 1.5rem;
   --radius-3xl: 1.75rem;
-  
-  /* Typography scale */
+  --radius-card: 12px;
+  --radius-screen: 25px;
+  --radius-pill: 50px;
+  --radius-calendar-cell: 15px;
+
+  /* Typography scale — Sarabun / Roboto / Inter from Figma text styles */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -43,16 +85,40 @@
   --text-xl: 1.25rem;
   --text-2xl: 1.5rem;
   --text-3xl: 1.875rem;
+  --text-display: 2.375rem;
+  --leading-tight: 1.25;
+  --leading-snug: 1.4;
+  --leading-title: 3.18181818;
+  --tracking-wide: 0.01em;
+  --tracking-widest: 0.2em;
 }
 
 @theme inline {
   --color-background: var(--app-bg);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+
+  --color-blunno-bg: var(--app-bg);
+  --color-blunno-foreground: var(--foreground);
+  --color-blunno-muted: var(--stroke-muted);
+  --color-blunno-blue: var(--color-blue-500);
+  --color-blunno-gold: var(--color-gold);
+  --color-blunno-lime: var(--color-lime);
+  --color-blunno-magenta: var(--color-magenta);
+  --color-blunno-coral: var(--color-coral);
+  --color-blunno-cyan: var(--color-cyan-accent);
+
+  --font-sans: var(--font-sarabun), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+  --font-ui: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+
+  --radius-card: var(--radius-card);
+  --radius-screen: var(--radius-screen);
+
+  --shadow-screen: var(--shadow-screen);
+  --shadow-text-title: var(--shadow-text-title);
 }
 
-/* Full-bleed shell: no white band under status bar / notch; no horizontal drift */
+/* Full-bleed shell */
 html {
   background-color: var(--app-bg);
   min-height: 100dvh;
@@ -70,7 +136,17 @@ body {
   color: var(--foreground);
 }
 
-/* Component Base Classes */
+/* Utility: Figma title style (Sarabun extrabold + wide tracking) */
+.text-blunno-title {
+  font-family: var(--font-sarabun), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 800;
+  font-size: var(--text-xl);
+  line-height: var(--leading-title);
+  letter-spacing: var(--tracking-widest);
+  text-shadow: var(--shadow-text-title);
+}
+
+/* Component helpers */
 .glass-button {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
@@ -118,23 +194,31 @@ body {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(20px);
   }
-  to { 
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
 @keyframes bounceGentle {
-  0%, 20%, 50%, 80%, 100% {
+  0%,
+  20%,
+  50%,
+  80%,
+  100% {
     transform: translateY(0);
   }
   40% {
