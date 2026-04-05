@@ -83,7 +83,7 @@ export default function WelcomePage(): ReactElement {
           onKeyDown={(e) => e.key === 'Enter' && handleBlobClick()}
           role="button"
           tabIndex={0}
-          aria-label="Go to mode selection"
+          aria-label="Go to mood selection"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
           className="relative min-w-0 cursor-pointer outline-none"

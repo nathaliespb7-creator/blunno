@@ -5,17 +5,17 @@ import type { ReactElement } from 'react';
 
 import { cn } from '@/lib/utils';
 
-type ModeId = 'sos' | 'planner' | 'play' | 'relax';
+type MoodId = 'sos' | 'planner' | 'play' | 'relax';
 
-type ModeItem = {
-  id: ModeId;
+type MoodTile = {
+  id: MoodId;
   label: string;
   href: string;
   /** Figma: точные градиенты */
   gradient: string;
 };
 
-const MODES: readonly ModeItem[] = [
+const MOOD_TILES: readonly MoodTile[] = [
   {
     id: 'sos',
     label: 'SOS',
@@ -90,12 +90,12 @@ export default function ChoosePage(): ReactElement {
             'sm:text-xl md:text-[22px]'
           )}
         >
-          CHOOSE YOUR MODE
+          CHOOSE YOUR MOOD
         </h1>
 
         <nav
           className="flex min-h-0 w-full flex-1 flex-col items-stretch justify-center py-2"
-          aria-label="App modes"
+          aria-label="Choose your mood"
         >
           <div
             className={cn(
@@ -103,14 +103,14 @@ export default function ChoosePage(): ReactElement {
               'md:grid-cols-2 md:gap-4 lg:gap-5'
             )}
           >
-            {MODES.map((mode) => (
+            {MOOD_TILES.map((tile) => (
               <Link
-                key={mode.id}
-                href={mode.href}
+                key={tile.id}
+                href={tile.href}
                 className={tileClass}
-                style={{ backgroundImage: mode.gradient }}
+                style={{ backgroundImage: tile.gradient }}
               >
-                <span className="relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">{mode.label}</span>
+                <span className="relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">{tile.label}</span>
               </Link>
             ))}
           </div>
