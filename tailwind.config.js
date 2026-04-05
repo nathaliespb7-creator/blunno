@@ -67,6 +67,10 @@ module.exports = {
       },
       fontFamily: {
         sans: ['var(--font-comfortaa)', 'var(--font-sarabun)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        /** Welcome H1 — Poppins 700 (замена Toppan Bunkyu Midashi Gothic) */
+        welcome: ['var(--font-welcome-display)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        sarabun: ['var(--font-sarabun)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        tiro: ['var(--font-tiro-telugu)', 'serif'],
         body: ['var(--font-roboto)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         ui: ['var(--font-inter)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },

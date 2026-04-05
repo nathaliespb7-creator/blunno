@@ -1,5 +1,5 @@
 import './globals.css';
-import { Comfortaa, Inter, Roboto, Sarabun } from 'next/font/google';
+import { Comfortaa, Inter, Poppins, Roboto, Sarabun, Tiro_Telugu } from 'next/font/google';
 import type { Metadata, Viewport } from 'next';
 
 import { Notification } from '@/components/ui';
@@ -11,11 +11,27 @@ const comfortaa = Comfortaa({
   weight: ['400', '500', '600', '700'],
 });
 
+/** Figma Welcome: заголовок (замена Toppan Bunkyu Midashi Gothic) */
+const welcomeDisplay = Poppins({
+  subsets: ['latin'],
+  variable: '--font-welcome-display',
+  display: 'swap',
+  weight: ['700'],
+});
+
 const sarabun = Sarabun({
   subsets: ['latin', 'thai'],
   variable: '--font-sarabun',
   display: 'swap',
   weight: ['400', '700', '800'],
+});
+
+/** Слово BLUNNO на Welcome */
+const tiroTelugu = Tiro_Telugu({
+  subsets: ['latin'],
+  variable: '--font-tiro-telugu',
+  display: 'swap',
+  weight: ['400'],
 });
 
 const roboto = Roboto({
@@ -67,7 +83,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${comfortaa.variable} ${sarabun.variable} ${roboto.variable} ${inter.variable} min-h-dvh overflow-x-hidden bg-blunno-bg`}
+      className={`${welcomeDisplay.variable} ${tiroTelugu.variable} ${comfortaa.variable} ${sarabun.variable} ${roboto.variable} ${inter.variable} min-h-dvh overflow-x-hidden bg-blunno-bg`}
     >
       <body className="min-h-dvh w-full max-w-[100vw] overflow-x-hidden font-sans text-blunno-foreground antialiased">
         {children}

@@ -3,8 +3,13 @@
 import { motion, type TargetAndTransition } from 'framer-motion';
 import { useBlunnoStore, type BlunnoState, type BreathPhase } from '@/store/blunnoStore';
 import { BLUNNO_MASCOT_PNG } from '@/lib/assets';
+import { cn } from '@/lib/utils';
 
-export const BlunnoBlob = () => {
+type BlunnoBlobProps = {
+  className?: string;
+};
+
+export const BlunnoBlob = ({ className }: BlunnoBlobProps) => {
   const { currentState, breathPhase } = useBlunnoStore();
 
   // Анимации для общих состояний
@@ -42,7 +47,7 @@ export const BlunnoBlob = () => {
     breathPhase !== 'none' ? breathVariants[breathPhase] : stateVariants[currentState];
 
   return (
-    <div className="relative flex items-center justify-center p-8 select-none">
+    <div className={cn('relative flex select-none items-center justify-center p-4 sm:p-6', className)}>
       {/* Рассеянное свечение сзади (glass/glow) */}
       <motion.div
         className="pointer-events-none absolute rounded-full blur-3xl"
@@ -58,7 +63,7 @@ export const BlunnoBlob = () => {
 
       <motion.div
         animate={currentMotion}
-        className="relative z-10 h-[min(85vw,350px)] w-[min(85vw,350px)] max-h-[350px] max-w-[350px] cursor-pointer sm:h-80 sm:w-80"
+        className="relative z-10 h-[min(88vw,350px)] w-[min(88vw,350px)] max-h-[350px] max-w-[350px] cursor-pointer sm:h-80 sm:w-80"
         whileHover={{ scale: 1.02 }}
         transition={{ type: 'spring', stiffness: 400, damping: 17 }}
       >

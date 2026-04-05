@@ -90,7 +90,7 @@ export default function WelcomePage() {
               scale: isHovered ? 1.15 : 1,
             }}
             transition={{ duration: 0.5 }}
-            className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_50%_40%,rgba(45,212,191,0.28),rgba(139,92,246,0.18),transparent_70%)] blur-[72px]"
+            className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_50%_40%,rgba(110,218,228,0.28),rgba(139,92,246,0.18),transparent_70%)] blur-[72px]"
           />
 
           <div className="relative z-20 flex min-w-0 justify-center">
@@ -106,10 +106,12 @@ export default function WelcomePage() {
             'mt-8 flex w-full min-w-0 max-w-md flex-col items-center justify-center px-4 sm:max-w-lg md:mt-12'
           )}
         >
+          {/* Figma: #241305 на тёмном фоне нечитаем — белый для WCAG AA */}
           <h2
             className={cn(
-              'w-full max-w-[min(100%,28rem)] break-words text-balance font-medium leading-[1.35] text-white/90',
-              'text-[clamp(1.25rem,4.2vw,1.5rem)]'
+              'font-welcome w-full max-w-[min(100%,28rem)] break-words text-balance font-bold leading-tight text-white',
+              'text-3xl sm:text-4xl md:text-[38px]',
+              '[text-shadow:0_4px_4px_rgba(0,0,0,0.25)]'
             )}
           >
             No stress, no mess
@@ -120,14 +122,23 @@ export default function WelcomePage() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.22 }}
             className={cn(
-              'mt-1 w-full max-w-[min(100%,28rem)] font-bold uppercase leading-[1.3] tracking-wide text-balance',
-              'text-[clamp(1.75rem,5vw,2rem)]',
-              'flex flex-wrap items-baseline justify-center gap-x-2 gap-y-1'
+              'mt-2 w-full max-w-[min(100%,28rem)] text-balance',
+              'flex flex-wrap items-baseline justify-center gap-x-2 gap-y-2 uppercase leading-snug'
             )}
+            aria-label="JUST BLUNNO BEST"
           >
-            <span className="text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.35)]">just</span>
-            <span className="text-blunno-brandTeal [text-shadow:0_1px_2px_rgba(0,0,0,0.45)]">Blunno</span>
-            <span className="text-white [text-shadow:0_1px_2px_rgba(0,0,0,0.35)]">best</span>
+            <span className="font-sarabun text-[22px] text-[#FFFFFF] sm:text-2xl [text-shadow:0_1px_2px_rgba(0,0,0,0.35)]">
+              JUST
+            </span>
+            <span
+              className="font-tiro text-[26px] sm:text-3xl [text-shadow:0_1px_2px_rgba(0,0,0,0.35)]"
+              style={{ color: '#6EDAE4' }}
+            >
+              BLUNNO
+            </span>
+            <span className="font-sarabun text-[22px] text-[#FFFFFF] sm:text-2xl [text-shadow:0_1px_2px_rgba(0,0,0,0.35)]">
+              BEST
+            </span>
           </motion.p>
         </motion.div>
       </div>
