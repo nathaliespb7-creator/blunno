@@ -1,6 +1,13 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+import type { ReactElement } from 'react';
 
 import { cn } from '@/lib/utils';
+
+export const metadata: Metadata = {
+  title: 'Choose Mode - Blunno',
+  description: 'Choose your mode: SOS, Planner, Play, or Relax',
+};
 
 const safeTop = { paddingTop: 'max(36px, calc(env(safe-area-inset-top) + 28px))' } as const;
 
@@ -14,7 +21,7 @@ const modeTileClass = (variant: 'sos' | 'planner' | 'play' | 'relax') =>
     variant === 'relax' && 'bg-blunno-relax text-[#fffbfb]'
   );
 
-export default function ChoosePage() {
+export default function ChoosePage(): ReactElement {
   return (
     <main
       className="min-h-screen bg-blunno-bg px-5 pb-12 text-blunno-foreground"

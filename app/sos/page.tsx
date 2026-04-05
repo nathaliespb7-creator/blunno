@@ -1,10 +1,17 @@
 import Link from 'next/link';
+import type { Metadata } from 'next';
+import type { ReactElement } from 'react';
 
 import { SOSModule } from '@/components/features/sos/SOSModule';
 
+export const metadata: Metadata = {
+  title: 'SOS - Breathe with Blunno',
+  description: 'Emergency breathing exercises to help with anxiety and panic',
+};
+
 const safeTop = { paddingTop: 'max(36px, calc(env(safe-area-inset-top) + 28px))' } as const;
 
-export default function SosPage() {
+export default function SosPage(): ReactElement {
   return (
     <main className="min-h-screen overflow-x-hidden bg-blunno-bg text-blunno-foreground">
       <div className="mx-auto flex w-full max-w-md justify-end px-4 pb-3" style={safeTop}>

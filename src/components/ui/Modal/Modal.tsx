@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, HTMLAttributes, useEffect } from 'react';
+import { forwardRef, type HTMLAttributes, useEffect, type ReactElement } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';

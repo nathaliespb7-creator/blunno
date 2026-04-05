@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, type ReactElement } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -80,7 +80,7 @@ function NotificationItem({
  * Renders queued toasts from `useBlunnoStore` (`addNotification` / `removeNotification`).
  * Mount once near the app root (e.g. in a layout or page shell).
  */
-export function Notification() {
+export function Notification(): ReactElement | null {
   const notifications = useBlunnoStore((s) => s.ui.notifications);
 
   if (typeof window === 'undefined') return null;

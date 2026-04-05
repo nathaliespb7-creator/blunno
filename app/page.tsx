@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import type { Howl } from 'howler';
-import { useState } from 'react';
+import { useState, type ReactElement } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { BlunnoBlob } from '@/components/shared/BlunnoBlob';
@@ -13,32 +13,36 @@ let bubblePop: Howl | null = null;
 let hoverSound: Howl | null = null;
 let soundsReady: Promise<void> | null = null;
 
-async function ensureSounds() {
+async function ensureSounds(): Promise<void> {
   if (typeof window === 'undefined') return;
   if (soundsReady) return soundsReady;
   soundsReady = (async () => {
-    const { Howl } = await import('howler');
-    bubblePop = new Howl({
-      src: ['/sounds/pop.mp3'],
-      volume: 0.4,
-      preload: false,
-      onloaderror: () => {
-        // Missing optional file is acceptable.
-      },
-    });
-    hoverSound = new Howl({
-      src: ['/sounds/hover-soft.mp3'],
-      volume: 0.15,
-      rate: 1.2,
-      onloaderror: () => {
-        // Missing optional file is acceptable.
-      },
-    });
+    try {
+      const { Howl } = await import('howler');
+      bubblePop = new Howl({
+        src: ['/sounds/pop.mp3'],
+        volume: 0.4,
+        preload: false,
+        onloaderror: (id, error) => {
+          console.warn('Failed to load pop sound:', error);
+        },
+      });
+      hoverSound = new Howl({
+        src: ['/sounds/hover-soft.mp3'],
+        volume: 0.15,
+        rate: 1.2,
+        onloaderror: (id, error) => {
+          console.warn('Failed to load hover sound:', error);
+        },
+      });
+    } catch (error) {
+      console.warn('Failed to initialize audio:', error);
+    }
   })();
   return soundsReady;
 }
 
-export default function WelcomePage() {
+export default function WelcomePage(): ReactElement {
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
 

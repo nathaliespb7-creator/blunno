@@ -1,7 +1,15 @@
+import type { Metadata } from 'next';
+import type { ReactElement } from 'react';
+
 import { TopNav } from '@/components/shared/TopNav';
 import { Card } from '@/components/ui';
 
-export default function PlayPage() {
+export const metadata: Metadata = {
+  title: 'Play - Blunno',
+  description: 'Fun games and activities to help with focus and relaxation',
+};
+
+export default function PlayPage(): ReactElement {
   return (
     <main className="min-h-screen bg-blunno-bg text-blunno-foreground">
       <TopNav title="Play" />

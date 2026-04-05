@@ -1,7 +1,15 @@
+import type { Metadata } from 'next';
+import type { ReactElement } from 'react';
+
 import { TopNav } from '@/components/shared/TopNav';
 import { Card } from '@/components/ui';
 
-export default function RelaxPage() {
+export const metadata: Metadata = {
+  title: 'Relax - Blunno',
+  description: 'Relaxation exercises and peaceful activities',
+};
+
+export default function RelaxPage(): ReactElement {
   return (
     <main className="min-h-screen bg-blunno-bg text-blunno-foreground">
       <TopNav title="Relax" />
