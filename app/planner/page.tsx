@@ -163,14 +163,13 @@ export default function PlannerPage(): ReactElement {
   const submitNewTask = useCallback(() => {
     const text = draft.trim();
     if (!text) return;
-    const currentList = tasksByDayRef.current[selectedKey] ?? [];
-    if (currentList.length >= MAX_TASKS_PER_DAY) {
-      setLimitHint(true);
-      return;
-    }
+    
     setTasksByDay((prev) => {
       const list = prev[selectedKey] ?? [];
-      if (list.length >= MAX_TASKS_PER_DAY) return prev;
+      if (list.length >= MAX_TASKS_PER_DAY) {
+        setLimitHint(true);
+        return prev;
+      }
       return {
         ...prev,
         [selectedKey]: [...list, { id: newTaskId(), text, done: false }],
@@ -280,7 +279,7 @@ export default function PlannerPage(): ReactElement {
 
         <ul
           id={listId}
-          className="max-h-[280px] min-h-0 shrink overflow-y-auto overscroll-contain space-y-2 pr-0.5 touch-pan-y"
+          className="max-h-[40vh] min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-2 pr-0.5 touch-pan-y"
         >
           {tasks.length === 0 ? (
             <li className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-6 text-center text-sm text-white/50">
@@ -409,7 +408,7 @@ export default function PlannerPage(): ReactElement {
           )}
         </ul>
 
-        <div className="flex shrink-0 flex-col gap-1.5 pt-1">
+        <div className="flex shrink-0 flex-col gap-1.5 pt-2">
           {limitHint && (
             <p
               className="text-center font-sans text-xs leading-snug text-[#B8C5E8]/90"
@@ -424,7 +423,10 @@ export default function PlannerPage(): ReactElement {
               value={draft}
               onChange={(e) => setDraft(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === 'Enter') submitNewTask();
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  submitNewTask();
+                }
               }}
               placeholder="Add a gentle task…"
               maxLength={120}
@@ -441,13 +443,13 @@ export default function PlannerPage(): ReactElement {
             <button
               type="button"
               onClick={submitNewTask}
-              disabled={!canAdd || atTaskLimit}
+              disabled={!canAdd}
               className={cn(
                 'shrink-0 rounded-xl border border-[#6B9BD9]/35 bg-[#4A6FA8]/40 px-4 py-2.5 font-sans text-sm font-semibold text-white/95',
                 'transition-[transform,opacity,background] duration-200',
                 'hover:bg-[#5A7FB8]/55 active:scale-[0.98]',
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7EB8FF]/45',
-                (!canAdd || atTaskLimit) && 'cursor-not-allowed opacity-40'
+                !canAdd && 'cursor-not-allowed opacity-40'
               )}
             >
               Add
