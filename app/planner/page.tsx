@@ -1,466 +1,250 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactElement } from 'react';
+import { useState, useEffect, type ReactElement } from 'react';
 
-import { cn } from '@/lib/utils';
-
-type Task = {
+interface Task {
   id: string;
   text: string;
-  done: boolean;
-};
+  completed: boolean;
+}
 
-const DEFAULT_TASK_COUNT = 5;
-const MAX_EXTRA_TASKS = 3;
-/** 5 seeded examples + up to 3 user-added = 8 total */
-const MAX_TASKS_PER_DAY = DEFAULT_TASK_COUNT + MAX_EXTRA_TASKS;
-
-const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
-
-const EXAMPLE_TASKS: Task[] = [
-  { id: 'seed-0', text: 'Take a short walk', done: false },
-  { id: 'seed-1', text: 'Drink water', done: false },
-  { id: 'seed-2', text: 'Breathe deeply', done: false },
-  { id: 'seed-3', text: 'Stretch', done: false },
-  { id: 'seed-4', text: 'Write one good thing', done: false },
+const DEFAULT_TASKS: Task[] = [
+  { id: '1', text: 'Take a short walk', completed: false },
+  { id: '2', text: 'Drink water', completed: false },
+  { id: '3', text: 'Breathe deeply', completed: false },
+  { id: '4', text: 'Stretch', completed: false },
+  { id: '5', text: 'Write one good thing', completed: false },
 ];
+const MAX_EXTRA = 3;
+const MAX_TOTAL = DEFAULT_TASKS.length + MAX_EXTRA; // 8
 
-function toDateKey(d: Date): string {
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, '0');
-  const day = String(d.getDate()).padStart(2, '0');
-  return `${y}-${m}-${day}`;
+type TasksMap = Record<string, Task[]>;
+
+function getTodayKey(): string {
+  const now = new Date();
+  return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
 }
 
-function getMonday(d: Date): Date {
-  const date = new Date(d);
-  const day = date.getDay();
-  const diff = day === 0 ? -6 : 1 - day;
-  date.setDate(date.getDate() + diff);
-  date.setHours(0, 0, 0, 0);
-  return date;
-}
-
-function formatWeekRangeLabel(monday: Date): string {
-  const sunday = new Date(monday);
-  sunday.setDate(monday.getDate() + 6);
-  const y = monday.getFullYear();
-  const month = monday.toLocaleDateString('en-US', { month: 'long' });
-  if (monday.getMonth() === sunday.getMonth()) {
-    return `${month} ${monday.getDate()} – ${sunday.getDate()}, ${y}`;
+function getWeekDays(dateKey: string): Date[] {
+  const [year, month, day] = dateKey.split('-').map(Number);
+  const base = new Date(year, month - 1, day);
+  const dayOfWeek = base.getDay(); // 0 sun
+  const monday = new Date(base);
+  monday.setDate(base.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+  const week: Date[] = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    week.push(d);
   }
-  const start = monday.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
-  const end = sunday.toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
-  return `${start} – ${end}, ${y}`;
-}
-
-function newTaskId(): string {
-  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-    return crypto.randomUUID();
-  }
-  return `task-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+  return week;
 }
 
 export default function PlannerPage(): ReactElement {
-  const listId = useId();
-  const todayKey = useMemo(() => toDateKey(new Date()), []);
-  const weekMonday = useMemo(() => getMonday(new Date()), []);
+  const [selectedKey, setSelectedKey] = useState<string>(getTodayKey());
+  const [tasksMap, setTasksMap] = useState<TasksMap>(() => {
+    const today = getTodayKey();
+    return { [today]: [...DEFAULT_TASKS.map(t => ({ ...t }))] };
+  });
+  const [newTaskText, setNewTaskText] = useState('');
+  const [editing, setEditing] = useState<{ day: string; index: number } | null>(null);
+  const [editValue, setEditValue] = useState('');
 
-  const weekDays = useMemo(() => {
-    const days: { key: string; date: Date; dayNum: number; weekdayIndex: number }[] = [];
-    for (let i = 0; i < 7; i++) {
-      const d = new Date(weekMonday);
-      d.setDate(weekMonday.getDate() + i);
-      days.push({
-        key: toDateKey(d),
-        date: d,
-        dayNum: d.getDate(),
-        weekdayIndex: i,
-      });
+  const currentTasks = tasksMap[selectedKey] || [];
+
+  const weekDays = getWeekDays(selectedKey);
+
+  const addTask = () => {
+    if (!newTaskText.trim()) return;
+    if (currentTasks.length >= MAX_TOTAL) {
+      alert(`You can add up to ${MAX_EXTRA} extra tasks (max ${MAX_TOTAL} total).`);
+      return;
     }
-    return days;
-  }, [weekMonday]);
+    const newTask: Task = {
+      id: Date.now().toString(),
+      text: newTaskText.trim(),
+      completed: false,
+    };
+    setTasksMap(prev => ({
+      ...prev,
+      [selectedKey]: [...(prev[selectedKey] || []), newTask],
+    }));
+    setNewTaskText('');
+  };
 
-  const weekLabel = useMemo(() => formatWeekRangeLabel(weekMonday), [weekMonday]);
-
-  const [selectedKey, setSelectedKey] = useState(todayKey);
-  const [tasksByDay, setTasksByDay] = useState<Record<string, Task[]>>(() => ({
-    [todayKey]: EXAMPLE_TASKS.map((t) => ({ ...t })),
-  }));
-  const [draft, setDraft] = useState('');
-  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
-  const [editBuffer, setEditBuffer] = useState('');
-  const [limitHint, setLimitHint] = useState(false);
-  const editInputRef = useRef<HTMLInputElement | null>(null);
-  const tasksByDayRef = useRef(tasksByDay);
-  tasksByDayRef.current = tasksByDay;
-
-  const tasks = tasksByDay[selectedKey] ?? [];
-  const taskCount = tasks.length;
-  const atTaskLimit = taskCount >= MAX_TASKS_PER_DAY;
-  const canAdd = !atTaskLimit && draft.trim().length > 0;
-
-  useEffect(() => {
-    if (editingTaskId && editInputRef.current) {
-      editInputRef.current.focus();
-      editInputRef.current.select();
-    }
-  }, [editingTaskId]);
-
-  useEffect(() => {
-    if (!limitHint) return;
-    const t = window.setTimeout(() => setLimitHint(false), 4000);
-    return () => window.clearTimeout(t);
-  }, [limitHint]);
-
-  const toggleTask = useCallback((taskId: string) => {
-    setTasksByDay((prev) => {
-      const list = prev[selectedKey] ?? [];
-      return {
-        ...prev,
-        [selectedKey]: list.map((t) => (t.id === taskId ? { ...t, done: !t.done } : t)),
-      };
+  const toggleCompleted = (index: number) => {
+    setTasksMap(prev => {
+      const tasks = [...(prev[selectedKey] || [])];
+      tasks[index] = { ...tasks[index], completed: !tasks[index].completed };
+      return { ...prev, [selectedKey]: tasks };
     });
-  }, [selectedKey]);
+  };
 
-  const saveTaskText = useCallback(
-    (taskId: string, text: string) => {
-      const trimmed = text.trim();
-      if (!trimmed) return;
-      setTasksByDay((prev) => {
-        const list = prev[selectedKey] ?? [];
-        return {
-          ...prev,
-          [selectedKey]: list.map((t) => (t.id === taskId ? { ...t, text: trimmed } : t)),
-        };
-      });
-    },
-    [selectedKey]
-  );
+  const startEdit = (index: number, text: string) => {
+    setEditing({ day: selectedKey, index });
+    setEditValue(text);
+  };
 
-  const commitEdit = useCallback(() => {
-    if (!editingTaskId) return;
-    const trimmed = editBuffer.trim();
-    if (trimmed) {
-      saveTaskText(editingTaskId, trimmed);
-    }
-    setEditingTaskId(null);
-    setEditBuffer('');
-  }, [editBuffer, editingTaskId, saveTaskText]);
-
-  const cancelEdit = useCallback(() => {
-    setEditingTaskId(null);
-    setEditBuffer('');
-  }, []);
-
-  const startEdit = useCallback((task: Task) => {
-    setEditingTaskId(task.id);
-    setEditBuffer(task.text);
-  }, []);
-
-  /** Ref + functional update so limit checks match latest state (no stale closure). */
-  const submitNewTask = useCallback(() => {
-    const text = draft.trim();
-    if (!text) return;
-    
-    setTasksByDay((prev) => {
-      const list = prev[selectedKey] ?? [];
-      if (list.length >= MAX_TASKS_PER_DAY) {
-        setLimitHint(true);
-        return prev;
-      }
-      return {
-        ...prev,
-        [selectedKey]: [...list, { id: newTaskId(), text, done: false }],
-      };
+  const saveEdit = () => {
+    if (!editing) return;
+    if (editValue.trim() === '') return;
+    setTasksMap(prev => {
+      const tasks = [...(prev[editing.day] || [])];
+      tasks[editing.index] = { ...tasks[editing.index], text: editValue.trim() };
+      return { ...prev, [editing.day]: tasks };
     });
-    setDraft('');
-  }, [draft, selectedKey]);
+    setEditing(null);
+  };
+
+  const onKeyDownEdit = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') saveEdit();
+    if (e.key === 'Escape') setEditing(null);
+  };
+
+  const isToday = (date: Date): boolean => {
+    const today = new Date();
+    return date.toDateString() === today.toDateString();
+  };
+
+  const formatMonthRange = (week: Date[]): string => {
+    const start = week[0];
+    const end = week[6];
+    const startMonth = start.toLocaleString('en-US', { month: 'long' });
+    const endMonth = end.toLocaleString('en-US', { month: 'long' });
+    if (startMonth === endMonth) {
+      return `${startMonth} ${start.getDate()} – ${end.getDate()}, ${start.getFullYear()}`;
+    }
+    return `${startMonth} ${start.getDate()} – ${endMonth} ${end.getDate()}, ${start.getFullYear()}`;
+  };
 
   return (
-    <main
-      className={cn(
-        'relative flex h-dvh min-h-0 max-h-dvh w-full flex-col overflow-hidden overscroll-none bg-[#0B0B1A] text-white',
-        '[contain:layout_style]',
-        'px-4 sm:px-5',
-        'pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]'
-      )}
-    >
-      <header className="flex shrink-0 items-center justify-between gap-3 py-2">
-        <h1
-          className={cn(
-            'font-sans text-lg font-extrabold uppercase leading-tight tracking-figma [text-shadow:var(--shadow-text-title)]',
-            'sm:text-xl'
-          )}
-        >
-          PLANNER
-        </h1>
+    <main className="relative h-dvh max-h-dvh min-h-0 flex flex-col overflow-hidden overscroll-none bg-[#0B0B1A] text-white">
+      {/* Header */}
+      <div className="relative flex w-full shrink-0 items-center justify-between px-4 pt-6 pb-2">
+        <h1 className="text-xl font-bold tracking-wide">PLANNER</h1>
         <Link
           href="/choose"
-          aria-label="Back to mode selection"
-          className="rounded-xl border border-white/20 bg-white/5 p-2 text-white/90 transition-colors hover:border-white/35 hover:bg-white/10"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-[#1a1a2e]/90 text-white/95 shadow-md backdrop-blur-sm"
         >
-          <svg
-            aria-hidden="true"
-            viewBox="0 0 24 24"
-            className="h-6 w-6"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.7"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect x="4" y="3" width="11" height="18" rx="2" />
-            <path d="M15 12h5" />
-            <path d="M18 9l3 3-3 3" />
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
+            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+            <polyline points="9 22 9 12 15 12 15 22" />
           </svg>
         </Link>
-      </header>
-
-      <p className="shrink-0 text-center font-sans text-xs font-medium text-white/55 sm:text-sm">
-        {weekLabel}
-      </p>
-
-      <div
-        className="mt-2 flex shrink-0 justify-between gap-1 sm:gap-1.5"
-        role="tablist"
-        aria-label="This week"
-      >
-        {weekDays.map(({ key, dayNum, weekdayIndex }) => {
-          const selected = key === selectedKey;
-          const isToday = key === todayKey;
-          const isWeekend = weekdayIndex >= 5;
-          return (
-            <button
-              key={key}
-              type="button"
-              role="tab"
-              aria-selected={selected}
-              onClick={() => setSelectedKey(key)}
-              className={cn(
-                'flex min-w-0 flex-1 flex-col items-center rounded-xl border px-0.5 py-2 transition-colors duration-200 sm:px-1',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7EB8FF]/40',
-                selected
-                  ? 'border-[#5B8FD9]/55 bg-gradient-to-r from-blue-500/30 to-purple-500/30 shadow-[0_4px_20px_rgba(60,100,160,0.25)]'
-                  : isWeekend
-                    ? 'border-white/12 bg-gradient-to-br from-[#2a3318]/90 to-[#4a5c32]/85 hover:border-lime-200/20 hover:brightness-105'
-                    : 'border-white/12 bg-[#1E1E2F] hover:border-white/20 hover:bg-[#2a2a3d]'
-              )}
-            >
-              <span className="font-sans text-sm font-bold tabular-nums text-white sm:text-base">
-                {dayNum}
-              </span>
-              <span
-                className={cn(
-                  'mt-0.5 text-[10px] font-medium uppercase tracking-wide sm:text-[11px]',
-                  selected ? 'text-white/80' : isWeekend ? 'text-white/75' : 'text-white/80'
-                )}
-              >
-                {WEEKDAY_LABELS[weekdayIndex]}
-              </span>
-              <span
-                className={cn(
-                  'mt-1 h-1 w-1 rounded-full',
-                  isToday ? 'bg-[#E8D44A]/90' : 'bg-[#6B9BD9]/70',
-                  selected && 'opacity-100'
-                )}
-                aria-hidden
-              />
-            </button>
-          );
-        })}
       </div>
 
-      <div className="mt-3 flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
-        <p className="shrink-0 text-center font-sans text-xs text-white/50">
-          Gentle list for {selectedKey === todayKey ? 'today' : 'this day'} — no rush.
-        </p>
+      {/* Month range */}
+      <div className="shrink-0 px-4 pb-2 text-sm text-white/70">
+        {formatMonthRange(weekDays)}
+      </div>
 
-        <ul
-          id={listId}
-          className="max-h-[40vh] min-h-0 flex-1 overflow-y-auto overscroll-contain space-y-2 pr-0.5 touch-pan-y"
-        >
-          {tasks.length === 0 ? (
-            <li className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-6 text-center text-sm text-white/50">
-              Nothing here yet. Add a small step when you’re ready.
-            </li>
-          ) : (
-            tasks.map((task) => (
-              <li key={task.id}>
-                <div
-                  className={cn(
-                    'flex items-stretch gap-2 transition-all duration-300 ease-out',
-                    task.done &&
-                      'rounded-2xl border border-white/15 bg-gradient-to-r from-[#2A1C29] to-[#905E8C] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.08)] sm:px-4 sm:py-3'
-                  )}
-                >
-                  <div
-                    className={cn(
-                      'min-w-0 flex-1',
-                      !task.done &&
-                        'rounded-2xl border border-white/10 bg-[linear-gradient(to_right,rgba(11,79,102,0.84)_5%,rgba(22,159,204,0.84)_90%)] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:px-4 sm:py-3'
-                    )}
-                  >
-                    <div className="flex min-w-0 items-start gap-1.5">
-                      {editingTaskId === task.id ? (
-                        <input
-                          ref={editInputRef}
-                          type="text"
-                          value={editBuffer}
-                          onChange={(e) => setEditBuffer(e.target.value)}
-                          onBlur={commitEdit}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              e.preventDefault();
-                              commitEdit();
-                            }
-                            if (e.key === 'Escape') {
-                              e.preventDefault();
-                              cancelEdit();
-                            }
-                          }}
-                          maxLength={120}
-                          className={cn(
-                            'min-w-0 flex-1 rounded-lg border border-white/25 bg-black/20 px-2 py-1 font-sans text-sm font-medium leading-snug text-white outline-none sm:text-base',
-                            'focus:border-[#6B9BD9]/55 focus:shadow-[0_0_0_2px_rgba(100,140,200,0.2)]'
-                          )}
-                          aria-label="Edit task text"
-                        />
-                      ) : (
-                        <>
-                          <button
-                            type="button"
-                            onClick={() => startEdit(task)}
-                            className={cn(
-                              'min-w-0 flex-1 text-left font-sans text-sm font-medium leading-snug transition-opacity duration-300 sm:text-base',
-                              'rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7EB8FF]/40',
-                              task.done ? 'text-white/70 line-through decoration-white/30' : 'text-white/95'
-                            )}
-                          >
-                            {task.text}
-                          </button>
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              startEdit(task);
-                            }}
-                            aria-label={`Edit “${task.text}”`}
-                            className="mt-0.5 shrink-0 rounded-md p-1 text-white/40 transition-colors hover:bg-white/10 hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7EB8FF]/40"
-                          >
-                            <svg
-                              viewBox="0 0 24 24"
-                              className="h-4 w-4"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              aria-hidden
-                            >
-                              <path d="M12 20h9" />
-                              <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
-                            </svg>
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => toggleTask(task.id)}
-                    aria-pressed={task.done}
-                    className={cn(
-                      'flex w-12 shrink-0 items-center justify-center rounded-2xl',
-                      'transition-transform duration-200 active:scale-[0.97]',
-                      'hover:opacity-95',
-                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#B8A0D9]/45'
-                    )}
-                  >
-                    <span
-                      className={cn(
-                        'flex h-7 w-7 shrink-0 items-center justify-center rounded-full border-2 transition-all duration-300 ease-out',
-                        task.done
-                          ? 'border-transparent bg-gradient-to-br from-[#2A1C29] to-[#905E8C] shadow-[0_2px_10px_rgba(42,28,41,0.4)]'
-                          : 'border-white/30 bg-transparent'
-                      )}
-                    >
-                      {task.done ? (
-                        <svg
-                          viewBox="0 0 24 24"
-                          className="h-4 w-4 text-white"
-                          fill="none"
-                          stroke="currentColor"
-                          strokeWidth="2.5"
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          aria-hidden
-                        >
-                          <path d="M5 13l4 4L19 7" />
-                        </svg>
-                      ) : null}
-                    </span>
-                  </button>
-                </div>
-              </li>
-            ))
-          )}
-        </ul>
-
-        <div className="flex shrink-0 flex-col gap-1.5 pt-2">
-          {limitHint && (
-            <p
-              className="text-center font-sans text-xs leading-snug text-[#B8C5E8]/90"
-              role="status"
-            >
-              You can add up to 3 extra tasks (max 8 total).
-            </p>
-          )}
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={draft}
-              onChange={(e) => setDraft(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter') {
-                  e.preventDefault();
-                  submitNewTask();
-                }
-              }}
-              placeholder="Add a gentle task…"
-              maxLength={120}
-              enterKeyHint="done"
-              disabled={atTaskLimit}
-              className={cn(
-                'min-w-0 flex-1 rounded-xl border border-white/12 bg-white/[0.05] px-3 py-2.5 font-sans text-sm text-white placeholder:text-white/35',
-                'outline-none transition-[border,box-shadow] duration-200',
-                'focus:border-[#6B9BD9]/45 focus:shadow-[0_0_0_3px_rgba(100,140,200,0.15)]',
-                atTaskLimit && 'cursor-not-allowed opacity-50'
-              )}
-              aria-label="New task"
-            />
-            <button
-              type="button"
-              onClick={submitNewTask}
-              disabled={!canAdd}
-              className={cn(
-                'shrink-0 rounded-xl border border-[#6B9BD9]/35 bg-[#4A6FA8]/40 px-4 py-2.5 font-sans text-sm font-semibold text-white/95',
-                'transition-[transform,opacity,background] duration-200',
-                'hover:bg-[#5A7FB8]/55 active:scale-[0.98]',
-                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7EB8FF]/45',
-                !canAdd && 'cursor-not-allowed opacity-40'
-              )}
-            >
-              Add
-            </button>
-          </div>
-          {atTaskLimit && !limitHint && (
-            <p className="text-center font-sans text-[11px] text-white/40">
-              8 tasks max — remove or complete one to add more.
-            </p>
-          )}
+      {/* Week strip */}
+      <div className="shrink-0 px-2 pb-4">
+        <div className="flex justify-between gap-1">
+          {weekDays.map((date, idx) => {
+            const dayKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+            const isSelected = dayKey === selectedKey;
+            const isWeekend = idx === 5 || idx === 6; // sat, sun
+            return (
+              <button
+                key={idx}
+                onClick={() => setSelectedKey(dayKey)}
+                className={`flex flex-1 flex-col items-center rounded-2xl py-2 transition-all ${
+                  isSelected
+                    ? 'bg-gradient-to-r from-blue-500/40 to-purple-500/40 shadow-md'
+                    : isWeekend
+                    ? 'bg-gradient-to-br from-[#2A1C29]/80 to-[#905E8C]/80'
+                    : 'bg-[#1E1E2F]'
+                }`}
+              >
+                <span className="text-xs font-medium text-white/70">
+                  {date.toLocaleString('en-US', { weekday: 'short' }).toUpperCase()}
+                </span>
+                <span className="text-lg font-semibold">{date.getDate()}</span>
+                <div className="mt-1 h-1 w-1 rounded-full bg-white/50" />
+              </button>
+            );
+          })}
         </div>
+      </div>
+
+      {/* Task list – scrollable area */}
+      <div className="flex-1 overflow-y-auto px-4 pb-4">
+        <div className="space-y-2">
+          {currentTasks.map((task, idx) => (
+            <div
+              key={task.id}
+              className={`flex items-center gap-3 rounded-2xl p-3 transition ${
+                task.completed
+                  ? 'bg-gradient-to-r from-[#2A1C29] to-[#905E8C]'
+                  : 'bg-[#1a1a2e]'
+              }`}
+            >
+              <button
+                onClick={() => toggleCompleted(idx)}
+                className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-full border-2 transition ${
+                  task.completed
+                    ? 'border-green-400 bg-gradient-to-br from-[#2A1C29] to-[#905E8C]'
+                    : 'border-white/30 bg-transparent'
+                }`}
+              >
+                {task.completed && (
+                  <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+              </button>
+              {editing && editing.day === selectedKey && editing.index === idx ? (
+                <input
+                  type="text"
+                  value={editValue}
+                  onChange={(e) => setEditValue(e.target.value)}
+                  onBlur={saveEdit}
+                  onKeyDown={onKeyDownEdit}
+                  autoFocus
+                  className="flex-1 bg-transparent text-base text-white outline-none"
+                />
+              ) : (
+                <span
+                  onClick={() => startEdit(idx, task.text)}
+                  className={`flex-1 text-base ${task.completed ? 'text-white/60 line-through' : 'text-white'}`}
+                >
+                  {task.text}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Add task input – fixed at bottom */}
+      <div className="shrink-0 border-t border-white/10 p-4">
+        <div className="flex gap-2">
+          <input
+            type="text"
+            value={newTaskText}
+            onChange={(e) => setNewTaskText(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && addTask()}
+            placeholder="Add a new task..."
+            className="flex-1 rounded-xl bg-[#1a1a2e] px-4 py-2 text-white placeholder-white/40 outline-none"
+            maxLength={60}
+          />
+          <button
+            onClick={addTask}
+            disabled={currentTasks.length >= MAX_TOTAL}
+            className={`rounded-xl px-4 py-2 font-medium transition ${
+              currentTasks.length >= MAX_TOTAL
+                ? 'bg-white/10 text-white/30'
+                : 'bg-gradient-to-r from-blue-500 to-purple-500 text-white'
+            }`}
+          >
+            Add
+          </button>
+        </div>
+        {currentTasks.length >= MAX_TOTAL && (
+          <p className="mt-2 text-xs text-white/50">Max {MAX_TOTAL} tasks per day</p>
+        )}
       </div>
     </main>
   );
