@@ -35,8 +35,8 @@ const DEFAULT_TUNING: VisualTuning = {
   blunnoSizePx: 120,
   blunnoOffsetXPx: -5,
   blunnoOffsetYPx: -13,
-  /** Matches Choose page `gap-3` (12px) between sections */
-  sectionGapPx: 12,
+  /** Vertical rhythm between header / ring / text (tighter ring → copy) */
+  sectionGapPx: 16,
 };
 
 const tuning = DEFAULT_TUNING;
@@ -310,7 +310,7 @@ export default function SosPage(): ReactElement {
 
         <div
           className={cn(
-            'flex min-h-0 w-full flex-1 flex-col items-center justify-center py-1 [@media(max-height:620px)]:py-0',
+            'flex w-full shrink-0 flex-col items-center justify-center py-0',
             'touch-none select-none'
           )}
         >
