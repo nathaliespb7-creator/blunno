@@ -35,7 +35,8 @@ const DEFAULT_TUNING: VisualTuning = {
   blunnoSizePx: 120,
   blunnoOffsetXPx: -5,
   blunnoOffsetYPx: -13,
-  sectionGapPx: 32,
+  /** Matches Choose page `gap-3` (12px) between sections */
+  sectionGapPx: 12,
 };
 
 const tuning = DEFAULT_TUNING;
@@ -250,7 +251,7 @@ export default function SosPage(): ReactElement {
     width: tuning.ringDiameterPx,
     height: tuning.ringDiameterPx,
     maxWidth: 'min(90vw, 100%)',
-    maxHeight: 'min(90vw, 55vh)',
+    maxHeight: 'min(90vw, 55dvh)',
     boxShadow: ringFilters.wrapper,
   } as const;
 
@@ -259,49 +260,67 @@ export default function SosPage(): ReactElement {
   return (
     <main
       className={cn(
-        'flex h-screen min-h-0 flex-col overflow-hidden',
-        'bg-[#0B0B1A] text-white',
-        'px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]',
-        'pt-[max(0.5rem,env(safe-area-inset-top))]'
+        'flex min-h-dvh max-h-dvh flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain',
+        'bg-blunno-bg text-blunno-foreground',
+        'px-4 py-4 sm:px-5 sm:py-6',
+        '[@media(max-height:620px)]:py-3',
+        'pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]'
       )}
     >
       <div
-        className="mx-auto flex h-full w-full max-w-md flex-1 flex-col items-center justify-center min-h-0"
+        className={cn(
+          'mx-auto flex min-h-0 min-w-0 w-full max-w-4xl flex-1 flex-col items-center justify-center',
+          '[@media(max-height:620px)]:justify-start [@media(max-height:620px)]:gap-2'
+        )}
         style={sectionStyle}
       >
-        <div className="relative flex w-full shrink-0 items-center justify-center px-9 sm:px-10">
-          <h1 className="text-center font-sans text-sm font-extrabold uppercase leading-tight tracking-[0.1em] text-white sm:text-base">
-            <span className="[text-shadow:0_2px_12px_rgba(0,0,0,0.35)]">BREATHE WITH </span>
-            <span className="text-[#00FFD1] [text-shadow:0_0_24px_rgba(0,255,209,0.35)]">BLUNNO</span>
-          </h1>
+        <div className="flex w-full shrink-0 justify-end">
           <Link
             href="/choose"
             aria-label="Exit to mode selection"
-            className="absolute right-0 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl border border-white/15 bg-[#1a1a2e]/90 text-white/95 shadow-[0_0_16px_rgba(0,255,209,0.12)] backdrop-blur-sm transition-colors hover:border-white/25 hover:bg-[#252540]/95 sm:h-11 sm:w-11"
+            className="rounded-xl border border-white/20 bg-white/5 p-2 text-white/90 transition-colors hover:border-white/35 hover:bg-white/10"
           >
             <svg
               aria-hidden="true"
               viewBox="0 0 24 24"
-              className="h-5 w-5 sm:h-6 sm:w-6"
+              className="h-6 w-6"
               fill="none"
               stroke="currentColor"
               strokeWidth="1.7"
               strokeLinecap="round"
               strokeLinejoin="round"
             >
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
+              <rect x="4" y="3" width="11" height="18" rx="2" />
+              <path d="M15 12h5" />
+              <path d="M18 9l3 3-3 3" />
             </svg>
           </Link>
         </div>
 
+        <h1
+          className={cn(
+            'w-full shrink-0 py-2 text-center font-sans text-lg font-extrabold uppercase leading-tight tracking-figma [text-shadow:var(--shadow-text-title)]',
+            'sm:text-xl md:text-[22px]',
+            '[@media(max-height:620px)]:py-1 [@media(max-height:620px)]:text-base'
+          )}
+        >
+          <span className="text-white">BREATHE WITH </span>
+          <span className="text-[#00FFD1]">BLUNNO</span>
+        </h1>
+
         <div
           className={cn(
-            'relative mx-auto flex shrink-0 touch-none select-none items-center justify-center overflow-visible rounded-full aspect-square',
-            exerciseStatus === 'completed' && 'pointer-events-none opacity-[0.98]'
+            'flex min-h-0 w-full flex-1 flex-col items-center justify-center py-1 [@media(max-height:620px)]:py-0',
+            'touch-none select-none'
           )}
-          style={ringSizeStyle}
         >
+          <div
+            className={cn(
+              'relative mx-auto flex shrink-0 items-center justify-center overflow-visible rounded-full aspect-square',
+              exerciseStatus === 'completed' && 'pointer-events-none opacity-[0.98]'
+            )}
+            style={ringSizeStyle}
+          >
           <svg
             ref={svgRef}
             role="img"
@@ -381,6 +400,7 @@ export default function SosPage(): ReactElement {
                 />
               </motion.div>
             </div>
+          </div>
           </div>
         </div>
 
