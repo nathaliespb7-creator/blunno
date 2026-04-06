@@ -26,12 +26,14 @@ function getTodayKey(): string {
   return `${now.getFullYear()}-${now.getMonth() + 1}-${now.getDate()}`;
 }
 
-function getWeekDays(dateKey: string): Date[] {
+function getWeekDays(dateKey: string, weekOffset: number = 0): Date[] {
   const [year, month, day] = dateKey.split('-').map(Number);
   const base = new Date(year, month - 1, day);
   const dayOfWeek = base.getDay(); // 0 sun
   const monday = new Date(base);
   monday.setDate(base.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+  // Apply week offset
+  monday.setDate(monday.getDate() + (weekOffset * 7));
   const week: Date[] = [];
   for (let i = 0; i < 7; i++) {
     const d = new Date(monday);
@@ -43,6 +45,7 @@ function getWeekDays(dateKey: string): Date[] {
 
 export default function PlannerPage(): ReactElement {
   const [selectedKey, setSelectedKey] = useState<string>(getTodayKey());
+  const [weekOffset, setWeekOffset] = useState<number>(0);
   const [tasksMap, setTasksMap] = useState<TasksMap>(() => {
     const today = getTodayKey();
     return { [today]: [...DEFAULT_TASKS.map(t => ({ ...t }))] };
@@ -54,7 +57,28 @@ export default function PlannerPage(): ReactElement {
 
   const currentTasks = tasksMap[selectedKey] || [];
 
-  const weekDays = getWeekDays(selectedKey);
+  const weekDays = getWeekDays(selectedKey, weekOffset);
+
+  const goPrevWeek = () => {
+    setWeekOffset(prev => prev - 1);
+    // Set selected day to Monday of the new week
+    const newWeekDays = getWeekDays(selectedKey, weekOffset - 1);
+    const mondayKey = `${newWeekDays[0].getFullYear()}-${newWeekDays[0].getMonth() + 1}-${newWeekDays[0].getDate()}`;
+    setSelectedKey(mondayKey);
+  };
+
+  const goNextWeek = () => {
+    setWeekOffset(prev => prev + 1);
+    // Set selected day to Monday of the new week
+    const newWeekDays = getWeekDays(selectedKey, weekOffset + 1);
+    const mondayKey = `${newWeekDays[0].getFullYear()}-${newWeekDays[0].getMonth() + 1}-${newWeekDays[0].getDate()}`;
+    setSelectedKey(mondayKey);
+  };
+
+  const goCurrentWeek = () => {
+    setWeekOffset(0);
+    setSelectedKey(getTodayKey());
+  };
 
   const addTask = () => {
     if (!newTaskText.trim()) return;
@@ -136,9 +160,31 @@ export default function PlannerPage(): ReactElement {
         </Link>
       </div>
 
-      {/* Month range */}
-      <div className="shrink-0 px-4 pb-2 text-sm text-white/70">
-        {formatMonthRange(weekDays)}
+      {/* Month range with navigation */}
+      <div className="shrink-0 px-4 pb-2 flex items-center justify-between">
+        <button
+          onClick={goPrevWeek}
+          className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/15 bg-[#1a1a2e]/90 text-white/95 shadow-md backdrop-blur-sm hover:border-white/25 hover:bg-[#1a1a2e] transition-colors"
+          aria-label="Previous week"
+        >
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+        
+        <div className="text-sm text-white/70 text-center">
+          {formatMonthRange(weekDays)}
+        </div>
+        
+        <button
+          onClick={goNextWeek}
+          className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/15 bg-[#1a1a2e]/90 text-white/95 shadow-md backdrop-blur-sm hover:border-white/25 hover:bg-[#1a1a2e] transition-colors"
+          aria-label="Next week"
+        >
+          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M9 18l6-6-6-6" />
+          </svg>
+        </button>
       </div>
 
       {/* Week strip */}
