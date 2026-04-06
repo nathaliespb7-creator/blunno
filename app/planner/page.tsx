@@ -177,10 +177,10 @@ export default function PlannerPage(): ReactElement {
           {currentTasks.map((task, idx) => (
             <div
               key={task.id}
-              className={`flex min-w-0 items-center justify-between gap-3 rounded-2xl p-3 transition ${
+              className={`flex min-w-0 items-center justify-between gap-3 rounded-2xl border p-3 transition ${
                 task.completed
-                  ? 'bg-gradient-to-r from-[#2A1C29] to-[#905E8C]'
-                  : 'bg-[#1E1E2F]'
+                  ? 'border-white/10 bg-gradient-to-r from-[#2A1C29] to-[#905E8C]'
+                  : 'border-white/12 bg-[linear-gradient(to_right,rgba(11,79,102,0.9)_5%,rgba(22,159,204,0.78)_90%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.07)]'
               }`}
             >
               {editing && editing.day === selectedKey && editing.index === idx ? (
