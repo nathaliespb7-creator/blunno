@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useId, useMemo, useState, type ReactElement } from 'react';
+import { useCallback, useEffect, useId, useMemo, useRef, useState, type ReactElement } from 'react';
 
 import { cn } from '@/lib/utils';
 
@@ -11,7 +11,8 @@ type Task = {
   done: boolean;
 };
 
-const MAX_TASKS_PER_DAY = 7;
+/** 5 seeded examples + up to 3 user-added */
+const MAX_TASKS_PER_DAY = 8;
 
 const WEEKDAY_LABELS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
 
@@ -86,9 +87,27 @@ export default function PlannerPage(): ReactElement {
     [todayKey]: EXAMPLE_TASKS.map((t) => ({ ...t })),
   }));
   const [draft, setDraft] = useState('');
+  const [editingTaskId, setEditingTaskId] = useState<string | null>(null);
+  const [editBuffer, setEditBuffer] = useState('');
+  const [limitHint, setLimitHint] = useState(false);
+  const editInputRef = useRef<HTMLInputElement | null>(null);
 
   const tasks = tasksByDay[selectedKey] ?? [];
-  const canAdd = tasks.length < MAX_TASKS_PER_DAY && draft.trim().length > 0;
+  const atTaskLimit = tasks.length >= MAX_TASKS_PER_DAY;
+  const canAdd = !atTaskLimit && draft.trim().length > 0;
+
+  useEffect(() => {
+    if (editingTaskId && editInputRef.current) {
+      editInputRef.current.focus();
+      editInputRef.current.select();
+    }
+  }, [editingTaskId]);
+
+  useEffect(() => {
+    if (!limitHint) return;
+    const t = window.setTimeout(() => setLimitHint(false), 4000);
+    return () => window.clearTimeout(t);
+  }, [limitHint]);
 
   const toggleTask = useCallback((taskId: string) => {
     setTasksByDay((prev) => {
@@ -99,6 +118,41 @@ export default function PlannerPage(): ReactElement {
       };
     });
   }, [selectedKey]);
+
+  const saveTaskText = useCallback(
+    (taskId: string, text: string) => {
+      const trimmed = text.trim();
+      if (!trimmed) return;
+      setTasksByDay((prev) => {
+        const list = prev[selectedKey] ?? [];
+        return {
+          ...prev,
+          [selectedKey]: list.map((t) => (t.id === taskId ? { ...t, text: trimmed } : t)),
+        };
+      });
+    },
+    [selectedKey]
+  );
+
+  const commitEdit = useCallback(() => {
+    if (!editingTaskId) return;
+    const trimmed = editBuffer.trim();
+    if (trimmed) {
+      saveTaskText(editingTaskId, trimmed);
+    }
+    setEditingTaskId(null);
+    setEditBuffer('');
+  }, [editBuffer, editingTaskId, saveTaskText]);
+
+  const cancelEdit = useCallback(() => {
+    setEditingTaskId(null);
+    setEditBuffer('');
+  }, []);
+
+  const startEdit = useCallback((task: Task) => {
+    setEditingTaskId(task.id);
+    setEditBuffer(task.text);
+  }, []);
 
   const addTask = useCallback(() => {
     const text = draft.trim();
@@ -113,6 +167,14 @@ export default function PlannerPage(): ReactElement {
     });
     setDraft('');
   }, [draft, selectedKey]);
+
+  const tryAddTask = useCallback(() => {
+    if (tasks.length >= MAX_TASKS_PER_DAY) {
+      setLimitHint(true);
+      return;
+    }
+    addTask();
+  }, [addTask, tasks.length]);
 
   return (
     <main
@@ -207,17 +269,14 @@ export default function PlannerPage(): ReactElement {
         })}
       </div>
 
-      <div className="mt-3 flex min-h-0 flex-1 flex-col gap-2">
+      <div className="mt-3 flex min-h-0 flex-1 flex-col gap-2 overflow-hidden">
         <p className="shrink-0 text-center font-sans text-xs text-white/50">
           Gentle list for {selectedKey === todayKey ? 'today' : 'this day'} — no rush.
         </p>
 
         <ul
           id={listId}
-          className={cn(
-            'min-h-0 flex-1 space-y-2 overflow-y-auto pr-0.5',
-            'max-h-[min(42vh,22rem)] sm:max-h-[min(45vh,26rem)]'
-          )}
+          className="max-h-[280px] min-h-0 shrink overflow-y-auto space-y-2 pr-0.5"
         >
           {tasks.length === 0 ? (
             <li className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-6 text-center text-sm text-white/50">
@@ -240,14 +299,70 @@ export default function PlannerPage(): ReactElement {
                         'rounded-2xl border border-white/10 bg-[linear-gradient(to_right,rgba(11,79,102,0.84)_5%,rgba(22,159,204,0.84)_90%)] px-3 py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:px-4 sm:py-3'
                     )}
                   >
-                    <p
-                      className={cn(
-                        'font-sans text-sm font-medium leading-snug text-white/95 sm:text-base transition-opacity duration-300',
-                        task.done && 'text-white/70 line-through decoration-white/30'
+                    <div className="flex min-w-0 items-start gap-1.5">
+                      {editingTaskId === task.id ? (
+                        <input
+                          ref={editInputRef}
+                          type="text"
+                          value={editBuffer}
+                          onChange={(e) => setEditBuffer(e.target.value)}
+                          onBlur={commitEdit}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              e.preventDefault();
+                              commitEdit();
+                            }
+                            if (e.key === 'Escape') {
+                              e.preventDefault();
+                              cancelEdit();
+                            }
+                          }}
+                          maxLength={120}
+                          className={cn(
+                            'min-w-0 flex-1 rounded-lg border border-white/25 bg-black/20 px-2 py-1 font-sans text-sm font-medium leading-snug text-white outline-none sm:text-base',
+                            'focus:border-[#6B9BD9]/55 focus:shadow-[0_0_0_2px_rgba(100,140,200,0.2)]'
+                          )}
+                          aria-label="Edit task text"
+                        />
+                      ) : (
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => startEdit(task)}
+                            className={cn(
+                              'min-w-0 flex-1 text-left font-sans text-sm font-medium leading-snug transition-opacity duration-300 sm:text-base',
+                              'rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7EB8FF]/40',
+                              task.done ? 'text-white/70 line-through decoration-white/30' : 'text-white/95'
+                            )}
+                          >
+                            {task.text}
+                          </button>
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startEdit(task);
+                            }}
+                            aria-label={`Edit “${task.text}”`}
+                            className="mt-0.5 shrink-0 rounded-md p-1 text-white/40 transition-colors hover:bg-white/10 hover:text-white/75 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7EB8FF]/40"
+                          >
+                            <svg
+                              viewBox="0 0 24 24"
+                              className="h-4 w-4"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              aria-hidden
+                            >
+                              <path d="M12 20h9" />
+                              <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                            </svg>
+                          </button>
+                        </>
                       )}
-                    >
-                      {task.text}
-                    </p>
+                    </div>
                   </div>
                   <button
                     type="button"
@@ -290,39 +405,54 @@ export default function PlannerPage(): ReactElement {
           )}
         </ul>
 
-        <div className="flex shrink-0 gap-2 pt-1">
-          <input
-            type="text"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') addTask();
-            }}
-            placeholder="Add a gentle task…"
-            maxLength={120}
-            disabled={tasks.length >= MAX_TASKS_PER_DAY}
-            className={cn(
-              'min-w-0 flex-1 rounded-xl border border-white/12 bg-white/[0.05] px-3 py-2.5 font-sans text-sm text-white placeholder:text-white/35',
-              'outline-none transition-[border,box-shadow] duration-200',
-              'focus:border-[#6B9BD9]/45 focus:shadow-[0_0_0_3px_rgba(100,140,200,0.15)]',
-              tasks.length >= MAX_TASKS_PER_DAY && 'cursor-not-allowed opacity-50'
-            )}
-            aria-label="New task"
-          />
-          <button
-            type="button"
-            onClick={addTask}
-            disabled={!canAdd}
-            className={cn(
-              'shrink-0 rounded-xl border border-[#6B9BD9]/35 bg-[#4A6FA8]/40 px-4 py-2.5 font-sans text-sm font-semibold text-white/95',
-              'transition-[transform,opacity,background] duration-200',
-              'hover:bg-[#5A7FB8]/55 active:scale-[0.98]',
-              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7EB8FF]/45',
-              !canAdd && 'cursor-not-allowed opacity-40'
-            )}
-          >
-            Add
-          </button>
+        <div className="flex shrink-0 flex-col gap-1.5 pt-1">
+          {limitHint && (
+            <p
+              className="text-center font-sans text-xs leading-snug text-[#B8C5E8]/90"
+              role="status"
+            >
+              You can only add up to 3 extra tasks (8 total per day).
+            </p>
+          )}
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') tryAddTask();
+              }}
+              placeholder="Add a gentle task…"
+              maxLength={120}
+              disabled={atTaskLimit}
+              className={cn(
+                'min-w-0 flex-1 rounded-xl border border-white/12 bg-white/[0.05] px-3 py-2.5 font-sans text-sm text-white placeholder:text-white/35',
+                'outline-none transition-[border,box-shadow] duration-200',
+                'focus:border-[#6B9BD9]/45 focus:shadow-[0_0_0_3px_rgba(100,140,200,0.15)]',
+                atTaskLimit && 'cursor-not-allowed opacity-50'
+              )}
+              aria-label="New task"
+            />
+            <button
+              type="button"
+              onClick={tryAddTask}
+              disabled={!canAdd}
+              className={cn(
+                'shrink-0 rounded-xl border border-[#6B9BD9]/35 bg-[#4A6FA8]/40 px-4 py-2.5 font-sans text-sm font-semibold text-white/95',
+                'transition-[transform,opacity,background] duration-200',
+                'hover:bg-[#5A7FB8]/55 active:scale-[0.98]',
+                'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#7EB8FF]/45',
+                (!canAdd || atTaskLimit) && 'cursor-not-allowed opacity-40'
+              )}
+            >
+              Add
+            </button>
+          </div>
+          {atTaskLimit && !limitHint && (
+            <p className="text-center font-sans text-[11px] text-white/40">
+              8 tasks max — remove or complete one to add more.
+            </p>
+          )}
         </div>
       </div>
     </main>
