@@ -126,7 +126,6 @@ export default function SosPage(): ReactElement {
   const [completedCycles, setCompletedCycles] = useState(0);
   const [exerciseStatus, setExerciseStatus] = useState<ExerciseStatus>('active');
   const [feedback, setFeedback] = useState<string>('');
-  const [blunnoScale, setBlunnoScale] = useState(1);
   const isTrackingRef = useRef(false);
 
   const { ringRadius, strokeView, circ } = useMemo(() => {
@@ -177,14 +176,6 @@ export default function SosPage(): ReactElement {
     } catch {
       console.log('[SOS] could not play exhale');
     }
-    setBlunnoScale(1.3);
-    window.setTimeout(() => {
-      if (newCompleted >= TOTAL_CYCLES) {
-        setBlunnoScale(1);
-      } else {
-        setBlunnoScale(isTrackingRef.current ? 1.2 : 1);
-      }
-    }, 300);
     if (newCompleted >= TOTAL_CYCLES) {
       setExerciseStatus('completed');
       cycleProgressRef.current = 1;
@@ -197,7 +188,6 @@ export default function SosPage(): ReactElement {
       if (completedCyclesRef.current >= TOTAL_CYCLES) return;
 
       let p = cycleProgressRef.current + deltaRad / TWO_PI;
-      let completedAny = false;
 
       while (p >= 1 && completedCyclesRef.current < TOTAL_CYCLES) {
         p -= 1;
@@ -205,7 +195,6 @@ export default function SosPage(): ReactElement {
         const n = completedCyclesRef.current;
         setCompletedCycles(n);
         applyCycleCompletion(n);
-        completedAny = true;
       }
 
       while (p < 0) {
@@ -220,15 +209,6 @@ export default function SosPage(): ReactElement {
 
       cycleProgressRef.current = p;
       setCycleProgress(p);
-
-      const deltaP = deltaRad / TWO_PI;
-      if (!completedAny && completedCyclesRef.current < TOTAL_CYCLES) {
-        if (deltaP > 0) {
-          setBlunnoScale((s) => Math.min(1.2, s + 0.02));
-        } else if (deltaP < 0) {
-          setBlunnoScale((s) => Math.max(1, s - 0.02));
-        }
-      }
     },
     [applyCycleCompletion]
   );
@@ -270,7 +250,6 @@ export default function SosPage(): ReactElement {
     }
     isTrackingRef.current = false;
     lastAngleRef.current = null;
-    setBlunnoScale(1);
   };
 
   const resetExercise = () => {
@@ -280,7 +259,6 @@ export default function SosPage(): ReactElement {
     setCompletedCycles(0);
     setExerciseStatus('active');
     setFeedback('');
-    setBlunnoScale(1);
     isTrackingRef.current = false;
     lastAngleRef.current = null;
   };
@@ -443,8 +421,13 @@ export default function SosPage(): ReactElement {
                 draggable={false}
                 className="max-h-full max-w-full object-contain object-center"
                 style={{ width: tuning.blunnoSizePx, height: tuning.blunnoSizePx }}
-                animate={{ scale: blunnoScale }}
-                transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                animate={{ scale: [1, 1.08, 1] }}
+                transition={{
+                  duration: 4,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                  times: [0, 0.5, 1],
+                }}
               />
             </div>
           </div>
