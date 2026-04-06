@@ -13,7 +13,7 @@ const VIEW_SIZE = 320;
 const CX = VIEW_SIZE / 2;
 const CY = VIEW_SIZE / 2;
 const R = 128;
-const STROKE_PX = 12;
+const STROKE_PX = 12;        // ← увеличьте это число, если хотите толще кольцо (16 или 20)
 const CIRC = 2 * Math.PI * R;
 const TWO_PI = Math.PI * 2;
 
@@ -198,14 +198,14 @@ export default function SosPage(): ReactElement {
   return (
     <main
       className={cn(
-        'flex min-h-0 flex-col overflow-hidden',
-        'min-h-dvh min-h-screen h-dvh max-h-dvh',
+        'flex h-screen flex-col overflow-hidden',
         'bg-[#0B0B1A] text-white',
         'px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]',
         'pt-[max(0.5rem,env(safe-area-inset-top))]'
       )}
     >
-      <div className="mx-auto flex min-h-0 w-full max-w-md flex-1 flex-col items-center justify-center gap-2 sm:gap-3">
+      <div className="mx-auto flex h-full w-full max-w-md flex-1 flex-col items-center justify-center gap-2 sm:gap-3">
+        {/* Header with title and exit button */}
         <div className="relative flex w-full shrink-0 items-center justify-center px-9 sm:px-10">
           <h1 className="text-center font-sans text-sm font-extrabold uppercase leading-tight tracking-[0.1em] text-white sm:text-base">
             <span className="[text-shadow:0_2px_12px_rgba(0,0,0,0.35)]">BREATHE WITH </span>
@@ -232,6 +232,7 @@ export default function SosPage(): ReactElement {
           </Link>
         </div>
 
+        {/* Glowing ring container */}
         <div
           className={cn(
             'relative mx-auto flex aspect-square w-[min(90vw,360px)] max-h-[min(90vw,50vh)] max-w-[90vw] shrink-0 touch-none select-none items-center justify-center overflow-visible rounded-full sm:max-h-[min(90vw,420px)] sm:w-[min(90vw,380px)]',
@@ -239,6 +240,7 @@ export default function SosPage(): ReactElement {
           )}
           style={{ boxShadow: RING_WRAPPER_BOX_SHADOW }}
         >
+          {/* SVG Ring */}
           <svg
             ref={svgRef}
             role="img"
@@ -274,6 +276,7 @@ export default function SosPage(): ReactElement {
             </defs>
 
             <g transform={`rotate(-90 ${CX} ${CY})`}>
+              {/* Background ring */}
               <circle
                 cx={CX}
                 cy={CY}
@@ -283,6 +286,7 @@ export default function SosPage(): ReactElement {
                 strokeWidth={STROKE_PX}
                 strokeLinecap="round"
               />
+              {/* Progress ring */}
               <circle
                 cx={CX}
                 cy={CY}
@@ -297,14 +301,12 @@ export default function SosPage(): ReactElement {
             </g>
           </svg>
 
+          {/* Blunno mascot - perfectly centered */}
           <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
             <motion.img
               src={BLUNNO_MASCOT_PNG}
-              alt=""
-              width={200}
-              height={200}
-              className="h-auto max-h-[min(68%,calc(100%-56px))] w-auto max-w-[min(68%,calc(100%-56px))] object-contain object-center opacity-95"
-              style={{ transformOrigin: 'center center' }}
+              alt="Blunno character"
+              className="h-auto w-auto max-h-[60%] max-w-[60%] object-contain object-center"
               animate={{ scale: [1, 1.08, 1] }}
               transition={{
                 duration: 4,
@@ -315,6 +317,7 @@ export default function SosPage(): ReactElement {
           </div>
         </div>
 
+        {/* Cycle counter and hint */}
         <div className="flex w-full max-w-sm shrink-0 flex-col items-center gap-1 px-1 text-center">
           <p className="font-sans text-sm font-semibold tracking-wide text-white/95 sm:text-base">
             Cycle {exerciseStatus === 'completed' ? TOTAL_CYCLES : currentCycleLabel} of {TOTAL_CYCLES}
@@ -331,7 +334,8 @@ export default function SosPage(): ReactElement {
           )}
         </div>
 
-        {exerciseStatus === 'completed' ? (
+        {/* Completion actions */}
+        {exerciseStatus === 'completed' && (
           <div className="flex w-full max-w-sm shrink-0 flex-col gap-2 sm:flex-row sm:gap-3">
             <Link
               href="/choose"
@@ -347,7 +351,7 @@ export default function SosPage(): ReactElement {
               STAY
             </button>
           </div>
-        ) : null}
+        )}
       </div>
     </main>
   );
