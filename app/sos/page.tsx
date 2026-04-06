@@ -13,22 +13,21 @@ const VIEW_SIZE = 320;
 const CX = VIEW_SIZE / 2;
 const CY = VIEW_SIZE / 2;
 const R = 128;
-/** Figma: 12px stroke — explicit in SVG (also used for circumference math) */
 const STROKE_PX = 12;
 const CIRC = 2 * Math.PI * R;
 const TWO_PI = Math.PI * 2;
 
-/** Glow: filter + outer halo (box-shadow on wrapper — у stroke нет box-shadow в SVG) */
-const RING_PROGRESS_FILTER = 'drop-shadow(0 0 8px #00FFD1)';
+const RING_PROGRESS_FILTER =
+  'drop-shadow(0 0 8px #00FFD1) drop-shadow(0 0 20px rgba(0,255,209,0.5)) drop-shadow(0 0 10px rgba(255,0,245,0.3))';
 const RING_WRAPPER_BOX_SHADOW =
   '0 0 20px rgba(0,255,209,0.5), 0 0 10px rgba(255,0,245,0.3)';
 
 type ExerciseStatus = 'active' | 'completed';
 
 function cycleFeedbackMessage(completedCycle: number): string {
-  if (completedCycle === 1) return 'Хорошо! Круг 1 из 3';
-  if (completedCycle === 2) return 'Отлично! Круг 2 из 3';
-  return 'Последний круг! Ты справишься';
+  if (completedCycle === 1) return 'Nice! Cycle 1 of 3';
+  if (completedCycle === 2) return 'Great! Cycle 2 of 3';
+  return 'Last round! You’ve got this.';
 }
 
 function getAngleFromClient(
@@ -82,7 +81,7 @@ export default function SosPage(): ReactElement {
       meta.setAttribute('name', 'description');
       document.head.appendChild(meta);
     }
-    meta.setAttribute('content', 'Три цикла дыхания вместе с Blunno');
+    meta.setAttribute('content', 'Three breathing cycles with Blunno');
   }, []);
 
   useEffect(() => {
@@ -199,28 +198,28 @@ export default function SosPage(): ReactElement {
   return (
     <main
       className={cn(
-        'flex min-h-dvh min-h-screen flex-col overflow-hidden',
+        'flex min-h-0 flex-col overflow-hidden',
+        'min-h-dvh min-h-screen h-dvh max-h-dvh',
         'bg-[#0B0B1A] text-white',
-        'px-4 pb-[max(1rem,env(safe-area-inset-bottom))]',
-        'pt-[max(env(safe-area-inset-top),1rem)]'
+        'px-3 pb-[max(0.5rem,env(safe-area-inset-bottom))]',
+        'pt-[max(0.5rem,env(safe-area-inset-top))]'
       )}
     >
-      <div className="mx-auto flex min-h-0 w-full max-w-md flex-1 flex-col items-center justify-center gap-3">
-        {/* Header: title + home */}
-        <div className="relative flex w-full shrink-0 items-center justify-center px-10">
-          <h1 className="text-center font-sans text-base font-extrabold uppercase leading-tight tracking-[0.12em] text-white sm:text-lg">
+      <div className="mx-auto flex min-h-0 w-full max-w-md flex-1 flex-col items-center justify-center gap-2 sm:gap-3">
+        <div className="relative flex w-full shrink-0 items-center justify-center px-9 sm:px-10">
+          <h1 className="text-center font-sans text-sm font-extrabold uppercase leading-tight tracking-[0.1em] text-white sm:text-base">
             <span className="[text-shadow:0_2px_12px_rgba(0,0,0,0.35)]">BREATHE WITH </span>
             <span className="text-[#00FFD1] [text-shadow:0_0_24px_rgba(0,255,209,0.35)]">BLUNNO</span>
           </h1>
           <Link
             href="/choose"
             aria-label="Exit to mode selection"
-            className="absolute right-0 top-1/2 flex h-11 w-11 -translate-y-1/2 items-center justify-center rounded-xl border border-white/15 bg-[#1a1a2e]/90 text-white/95 shadow-[0_0_16px_rgba(0,255,209,0.12)] backdrop-blur-sm transition-colors hover:border-white/25 hover:bg-[#252540]/95"
+            className="absolute right-0 top-1/2 flex h-10 w-10 -translate-y-1/2 items-center justify-center rounded-xl border border-white/15 bg-[#1a1a2e]/90 text-white/95 shadow-[0_0_16px_rgba(0,255,209,0.12)] backdrop-blur-sm transition-colors hover:border-white/25 hover:bg-[#252540]/95 sm:h-11 sm:w-11"
           >
             <svg
               aria-hidden="true"
               viewBox="0 0 24 24"
-              className="h-6 w-6"
+              className="h-5 w-5 sm:h-6 sm:w-6"
               fill="none"
               stroke="currentColor"
               strokeWidth="1.7"
@@ -233,10 +232,9 @@ export default function SosPage(): ReactElement {
           </Link>
         </div>
 
-        {/* Ring + Blunno: 90vw max, box-shadow halo; stroke 12px в user space */}
         <div
           className={cn(
-            'relative mx-auto flex aspect-square w-[min(90vw,380px)] max-h-[90vw] max-w-[90vw] shrink-0 touch-none select-none items-center justify-center overflow-visible rounded-full',
+            'relative mx-auto flex aspect-square w-[min(90vw,360px)] max-h-[min(90vw,50vh)] max-w-[90vw] shrink-0 touch-none select-none items-center justify-center overflow-visible rounded-full sm:max-h-[min(90vw,420px)] sm:w-[min(90vw,380px)]',
             exerciseStatus === 'completed' && 'pointer-events-none opacity-[0.98]'
           )}
           style={{ boxShadow: RING_WRAPPER_BOX_SHADOW }}
@@ -281,10 +279,9 @@ export default function SosPage(): ReactElement {
                 cy={CY}
                 r={R}
                 fill="none"
-                stroke="rgba(255,255,255,0.1)"
+                stroke="rgba(255,255,255,0.14)"
                 strokeWidth={STROKE_PX}
                 strokeLinecap="round"
-                vectorEffect="nonScalingStroke"
               />
               <circle
                 cx={CX}
@@ -295,24 +292,20 @@ export default function SosPage(): ReactElement {
                 strokeWidth={STROKE_PX}
                 strokeLinecap="round"
                 strokeDasharray={dashArray}
-                vectorEffect="nonScalingStroke"
                 style={{ filter: RING_PROGRESS_FILTER }}
               />
             </g>
           </svg>
 
-          <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center p-0">
+          <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
             <motion.img
               src={BLUNNO_MASCOT_PNG}
               alt=""
               width={200}
               height={200}
-              className="h-auto max-h-[min(72%,calc(100%-52px))] w-[min(72%,calc(100%-52px))] max-w-full object-contain object-center opacity-95"
-              style={{ transformOrigin: '50% 50%' }}
-              animate={{
-                scale: [1, 1.09, 1],
-                y: [0, -2, 0],
-              }}
+              className="h-auto max-h-[min(68%,calc(100%-56px))] w-auto max-w-[min(68%,calc(100%-56px))] object-contain object-center opacity-95"
+              style={{ transformOrigin: 'center center' }}
+              animate={{ scale: [1, 1.08, 1] }}
               transition={{
                 duration: 4,
                 repeat: Infinity,
@@ -322,37 +315,36 @@ export default function SosPage(): ReactElement {
           </div>
         </div>
 
-        {/* Cycle + hint / feedback */}
-        <div className="flex w-full max-w-sm shrink-0 flex-col items-center gap-2 px-1 text-center">
-          <p className="font-sans text-base font-semibold tracking-wide text-white/95">
+        <div className="flex w-full max-w-sm shrink-0 flex-col items-center gap-1 px-1 text-center">
+          <p className="font-sans text-sm font-semibold tracking-wide text-white/95 sm:text-base">
             Cycle {exerciseStatus === 'completed' ? TOTAL_CYCLES : currentCycleLabel} of {TOTAL_CYCLES}
           </p>
 
           {feedback ? (
-            <p className="max-w-sm text-base font-semibold leading-snug text-white/90" role="status">
+            <p className="max-w-sm text-sm font-semibold leading-snug text-white/90 sm:text-base" role="status">
               {feedback}
             </p>
           ) : (
-            <p className="max-w-sm text-sm font-medium leading-relaxed text-white/65 sm:text-[15px]">
+            <p className="max-w-sm text-xs font-medium leading-snug text-white/65 sm:text-sm">
               Trace the ring with your finger or mouse until it fills.
             </p>
           )}
         </div>
 
         {exerciseStatus === 'completed' ? (
-          <div className="mt-1 flex w-full max-w-sm shrink-0 flex-col gap-3 sm:flex-row">
+          <div className="flex w-full max-w-sm shrink-0 flex-col gap-2 sm:flex-row sm:gap-3">
             <Link
               href="/choose"
-              className="inline-flex flex-1 items-center justify-center rounded-2xl border border-white/25 bg-white/10 px-5 py-3.5 text-center font-sans text-base font-extrabold uppercase tracking-wide text-white transition-colors hover:bg-white/18"
+              className="inline-flex flex-1 items-center justify-center rounded-2xl border border-white/25 bg-white/10 px-4 py-3 text-center font-sans text-sm font-extrabold uppercase tracking-wide text-white transition-colors hover:bg-white/18 sm:px-5 sm:py-3.5 sm:text-base"
             >
-              Завершить
+              COMPLETE
             </Link>
             <button
               type="button"
-              className="inline-flex flex-1 items-center justify-center rounded-2xl border border-[#00FFD1]/45 bg-[#00FFD1]/12 px-5 py-3.5 font-sans text-base font-extrabold uppercase tracking-wide text-[#00FFD1] transition-colors hover:bg-[#00FFD1]/22"
+              className="inline-flex flex-1 items-center justify-center rounded-2xl border border-[#00FFD1]/45 bg-[#00FFD1]/12 px-4 py-3 font-sans text-sm font-extrabold uppercase tracking-wide text-[#00FFD1] transition-colors hover:bg-[#00FFD1]/22 sm:px-5 sm:py-3.5 sm:text-base"
               onClick={resetExercise}
             >
-              Остаться
+              STAY
             </button>
           </div>
         ) : null}
