@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { useState, useEffect, type ReactElement } from 'react';
 
+import { playTaskCompleteInhale } from '@/lib/navigationSound';
+
 interface Task {
   id: string;
   text: string;
@@ -102,7 +104,13 @@ export default function PlannerPage(): ReactElement {
   const toggleCompleted = (index: number) => {
     setTasksMap(prev => {
       const tasks = [...(prev[selectedKey] || [])];
-      tasks[index] = { ...tasks[index], completed: !tasks[index].completed };
+      const task = tasks[index];
+      if (!task) return prev;
+      const willBecomeComplete = !task.completed;
+      tasks[index] = { ...task, completed: !task.completed };
+      if (willBecomeComplete) {
+        queueMicrotask(() => playTaskCompleteInhale());
+      }
       return { ...prev, [selectedKey]: tasks };
     });
   };
