@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, type ReactElement } from 'react';
+import { useEffect, useState, type ReactElement } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { cn } from '@/lib/utils';
@@ -82,8 +82,14 @@ function NotificationItem({
  */
 export function Notification(): ReactElement | null {
   const notifications = useBlunnoStore((s) => s.ui.notifications);
+  const [mounted, setMounted] = useState(false);
 
-  if (typeof window === 'undefined') return null;
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  /** Portal only after mount so SSR + first client paint match (avoids hydration mismatch). */
+  if (!mounted) return null;
 
   return createPortal(
     <div

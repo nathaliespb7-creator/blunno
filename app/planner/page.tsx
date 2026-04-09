@@ -247,7 +247,13 @@ export default function PlannerPage(): ReactElement {
                     onBlur={saveEdit}
                     onKeyDown={onKeyDownEdit}
                     autoFocus
-                    className="min-w-0 flex-1 bg-transparent text-base text-white outline-none"
+                    className="min-w-0 flex-1 bg-transparent text-base text-white outline-none touch-manipulation"
+                    style={{
+                      minHeight: '44px',
+                      fontSize: '16px', // Prevents zoom on iOS
+                      WebkitAppearance: 'none',
+                      borderRadius: 0
+                    }}
                   />
                   <label className="relative flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center">
                     <input
@@ -277,15 +283,40 @@ export default function PlannerPage(): ReactElement {
                   <span
                     role="button"
                     tabIndex={0}
-                    onClick={() => startEdit(idx, task.text)}
-                    onTouchStart={() => startEdit(idx, task.text)}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('[planner] Task text clicked (desktop)');
+                      startEdit(idx, task.text);
+                    }}
+                    onTouchStart={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('[planner] Task text touched (mobile)');
+                      startEdit(idx, task.text);
+                    }}
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('[planner] Task text pointer down');
+                      startEdit(idx, task.text);
+                    }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
+                        e.stopPropagation();
                         startEdit(idx, task.text);
                       }
                     }}
-                    className={`min-w-0 flex-1 cursor-text break-words text-base touch-manipulation ${task.completed ? 'text-white opacity-60 line-through' : 'text-white'}`}
+                    className={`min-w-0 flex-1 cursor-text break-words text-base touch-manipulation select-none ${task.completed ? 'text-white opacity-60 line-through' : 'text-white'}`}
+                    style={{ 
+                      minHeight: '44px', 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      WebkitTouchCallout: 'none',
+                      WebkitUserSelect: 'none',
+                      userSelect: 'none'
+                    }}
                   >
                     {task.text}
                   </span>
@@ -293,14 +324,29 @@ export default function PlannerPage(): ReactElement {
                     type="button"
                     aria-label={`Edit task: ${task.text}`}
                     onClick={(e) => {
+                      e.preventDefault();
                       e.stopPropagation();
+                      console.log('[planner] Edit button clicked');
                       startEdit(idx, task.text);
                     }}
                     onTouchStart={(e) => {
+                      e.preventDefault();
                       e.stopPropagation();
+                      console.log('[planner] Edit button touched');
                       startEdit(idx, task.text);
                     }}
-                    className="flex h-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl text-white/85 hover:text-white active:opacity-80"
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      console.log('[planner] Edit button pointer down');
+                      startEdit(idx, task.text);
+                    }}
+                    className="flex h-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl text-white/85 hover:text-white active:opacity-80 touch-manipulation"
+                    style={{
+                      WebkitTouchCallout: 'none',
+                      WebkitUserSelect: 'none',
+                      userSelect: 'none'
+                    }}
                   >
                     <svg
                       className="h-5 w-5"
