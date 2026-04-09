@@ -21,7 +21,7 @@ export default function WelcomePage(): ReactElement {
   return (
     <div
       className={cn(
-        'fixed inset-0 z-0 flex flex-col items-center justify-center overflow-x-hidden overflow-y-hidden bg-blunno-welcome',
+        'fixed inset-0 z-0 flex flex-col items-center justify-center overflow-x-hidden overflow-y-hidden bg-blunno-bg',
         'px-4 pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]'
       )}
     >
