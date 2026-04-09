@@ -127,13 +127,15 @@ export function PlayHub(): ReactElement {
                 aria-label="Open Spinner game"
               >
                 <div className="flex h-[140px] w-[220px] items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm sm:w-[250px]">
-                  <Image
-                    src="/images/play/snake-preview.png"
-                    alt="Spinner"
-                    width={230}
-                    height={180}
-                    className="mx-auto h-auto w-[145px] drop-shadow-[0_8px_16px_rgba(0,0,0,0.45)] sm:w-[165px]"
-                  />
+                  <div className="flex h-full w-full min-w-0 items-center justify-center">
+                    <Image
+                      src="/images/play/snake-preview.png"
+                      alt="Spinner"
+                      width={230}
+                      height={180}
+                      className="h-auto max-h-[100px] w-[118px] shrink-0 object-contain object-center drop-shadow-[0_8px_16px_rgba(0,0,0,0.45)] sm:max-h-[112px] sm:w-[132px]"
+                    />
+                  </div>
                 </div>
               </button>
 
