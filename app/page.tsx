@@ -12,12 +12,6 @@ export default function WelcomePage(): ReactElement {
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
 
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-    void unlockAudioSession();
-    playNavigationHoverSoft();
-  };
-
   const handleBlobClick = async () => {
     await unlockAudioSession();
     playNavigationHoverSoft();
@@ -43,7 +37,7 @@ export default function WelcomePage(): ReactElement {
 
       <div className="relative z-10 flex min-h-0 min-w-0 w-full max-w-[min(100%,394px)] flex-col items-center justify-center text-center">
         <motion.div
-          onMouseEnter={handleMouseEnter}
+          onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onClick={handleBlobClick}
           onKeyDown={(e) => e.key === 'Enter' && handleBlobClick()}

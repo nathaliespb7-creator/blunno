@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import type { ReactElement } from 'react';
 
+import { playNavigationHoverSoft, unlockAudioSession } from '@/lib/navigationSound';
 import { cn } from '@/lib/utils';
 
 type MoodId = 'sos' | 'planner' | 'play' | 'relax';
@@ -54,6 +56,14 @@ const tileClass = cn(
 );
 
 export default function ChoosePage(): ReactElement {
+  const router = useRouter();
+
+  const handleModeTap = async (href: string) => {
+    await unlockAudioSession();
+    playNavigationHoverSoft();
+    router.push(href);
+  };
+
   return (
     <main
       className={cn(
@@ -114,14 +124,17 @@ export default function ChoosePage(): ReactElement {
             )}
           >
             {MOOD_TILES.map((tile) => (
-              <Link
+              <button
                 key={tile.id}
-                href={tile.href}
+                type="button"
+                onClick={() => {
+                  void handleModeTap(tile.href);
+                }}
                 className={tileClass}
                 style={{ backgroundImage: tile.gradient }}
               >
                 <span className="relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">{tile.label}</span>
-              </Link>
+              </button>
             ))}
           </div>
         </nav>
