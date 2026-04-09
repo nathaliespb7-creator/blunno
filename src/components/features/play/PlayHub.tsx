@@ -7,6 +7,7 @@ import { useState, type ReactElement } from 'react';
 import { BalloonPop } from '@/components/features/play/BalloonPop';
 import { SnakeGame } from '@/components/features/play/SnakeGame';
 import { SnipperGame } from '@/components/features/play/SnipperGame';
+import { cn } from '@/lib/utils';
 import { audioService } from '@/services/audioService';
 
 type GameKey = 'snake' | 'snipper' | 'balloon';
@@ -40,10 +41,23 @@ export function PlayHub(): ReactElement {
   ] as const;
 
   return (
-    <main className="relative flex h-dvh max-h-dvh min-h-0 w-full flex-col items-center justify-center overflow-hidden overscroll-none bg-blunno-bg px-4 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] text-white">
-      <div className="mx-auto flex h-full min-h-0 w-full max-w-5xl flex-col rounded-[25px] border border-black/40 bg-blunno-bg shadow-[0_4px_24px_rgba(0,0,0,0.45)]">
+    <main
+      className={cn(
+        'flex min-h-screen min-h-dvh max-h-dvh flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain',
+        'bg-blunno-bg text-blunno-foreground',
+        'px-4 py-4 sm:px-5 sm:py-6',
+        '[@media(max-height:620px)]:py-3',
+        'pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]'
+      )}
+    >
+      <div
+        className={cn(
+          'mx-auto flex min-h-0 min-w-0 w-full max-w-4xl flex-1 flex-col items-center justify-center gap-3',
+          '[@media(max-height:620px)]:justify-start [@media(max-height:620px)]:gap-2'
+        )}
+      >
         {selectedGame === null ? (
-          <section className="w-full px-5 pb-6 pt-4 sm:px-8">
+          <>
             <div className="flex w-full shrink-0 justify-end">
               <Link
                 href="/choose"
@@ -57,7 +71,23 @@ export function PlayHub(): ReactElement {
               </Link>
             </div>
 
-            <div className="mt-8 grid w-full grid-cols-1 justify-items-center gap-6 sm:mt-12 sm:grid-cols-3 sm:gap-8">
+            <h1
+              className={cn(
+                'w-full shrink-0 py-2 text-center font-sans text-lg font-extrabold uppercase leading-tight tracking-figma [text-shadow:var(--shadow-text-title)]',
+                'sm:text-xl md:text-[22px]',
+                '[@media(max-height:620px)]:py-1 [@media(max-height:620px)]:text-base'
+              )}
+            >
+              <span className="text-white">PLAY WITH </span>
+              <span className="text-[#00FFD1]">BLUNNO</span>
+            </h1>
+
+            <div
+              className={cn(
+                'flex min-h-0 w-full flex-1 flex-col items-center justify-center py-1 [@media(max-height:620px)]:py-0'
+              )}
+            >
+              <div className="grid w-full max-w-5xl grid-cols-1 justify-items-center gap-6 sm:grid-cols-3 sm:gap-8">
               <button
                 type="button"
                 onClick={() => {
@@ -125,10 +155,11 @@ export function PlayHub(): ReactElement {
                   />
                 </div>
               </button>
+              </div>
             </div>
-          </section>
+          </>
         ) : (
-          <section className="min-h-0 flex-1 p-4 pb-20">
+          <section className="flex min-h-0 w-full flex-1 flex-col p-4 pb-20">
             <button
               type="button"
               onClick={backToGames}

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRef, useState, type ReactElement } from 'react';
 
 import { playTaskCompleteInhale, unlockAudioSession } from '@/lib/navigationSound';
+import { cn } from '@/lib/utils';
 
 interface Task {
   id: string;
@@ -161,13 +162,17 @@ export default function PlannerPage(): ReactElement {
         hasUnlockedAudioRef.current = true;
         void unlockAudioSession();
       }}
-      className="relative flex h-dvh max-h-dvh min-h-0 w-full flex-col overflow-hidden overscroll-none bg-[#0B0B1A] text-white pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+      className={cn(
+        'relative flex h-dvh max-h-dvh min-h-0 w-full flex-col overflow-hidden overscroll-none text-white',
+        'bg-blunno-bg',
+        'px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]'
+      )}
     >
-      {/* Header */}
-      <div className="relative flex w-full shrink-0 items-center justify-between px-4 pb-2">
-        <h1 className="text-xl font-bold tracking-wide">PLANNER</h1>
+      {/* Header — same structure as SOS / Play: home row, then centered title */}
+      <div className="flex w-full shrink-0 justify-end">
         <Link
           href="/choose"
+          aria-label="Exit to mode selection"
           className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-[#1a1a2e]/90 text-white/95 shadow-md backdrop-blur-sm"
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
@@ -176,9 +181,19 @@ export default function PlannerPage(): ReactElement {
           </svg>
         </Link>
       </div>
+      <h1
+        className={cn(
+          'w-full shrink-0 py-2 text-center font-sans text-lg font-extrabold uppercase leading-tight tracking-figma [text-shadow:var(--shadow-text-title)]',
+          'sm:text-xl md:text-[22px]',
+          '[@media(max-height:620px)]:py-1 [@media(max-height:620px)]:text-base'
+        )}
+      >
+        <span className="text-white">PLAN WITH </span>
+        <span className="text-[#00FFD1]">BLUNNO</span>
+      </h1>
 
       {/* Month range with navigation */}
-      <div className="shrink-0 px-4 pb-2 flex items-center justify-between">
+      <div className="flex shrink-0 items-center justify-between pb-2">
         <button
           onClick={goPrevWeek}
           className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/15 bg-[#1a1a2e]/90 text-white/95 shadow-md backdrop-blur-sm hover:border-white/25 hover:bg-[#1a1a2e] transition-colors"
@@ -205,7 +220,7 @@ export default function PlannerPage(): ReactElement {
       </div>
 
       {/* Week strip */}
-      <div className="shrink-0 px-2 pb-4">
+      <div className="shrink-0 pb-4">
         <div className="flex justify-between gap-1">
           {weekDays.map((date, idx) => {
             const dayKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
@@ -235,7 +250,7 @@ export default function PlannerPage(): ReactElement {
       </div>
 
       {/* Task list – scrollable area */}
-      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain px-4">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
         <div className="space-y-2 pb-2">
           {currentTasks.map((task, idx) => (
             <div
@@ -401,7 +416,7 @@ export default function PlannerPage(): ReactElement {
       </div>
 
       {/* Add task input – fixed at bottom */}
-      <div className="shrink-0 border-t border-white/10 p-4">
+      <div className="shrink-0 border-t border-white/10 py-4">
         {showLimitHint && (
           <div className="mb-3 rounded-xl bg-orange-500/20 border border-orange-500/30 px-3 py-2">
             <p className="text-xs text-orange-200 text-center">
