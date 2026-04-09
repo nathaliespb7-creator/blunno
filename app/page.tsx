@@ -14,11 +14,13 @@ export default function WelcomePage(): ReactElement {
 
   const handleMouseEnter = () => {
     setIsHovered(true);
-    unlockAudioSession();
+    void unlockAudioSession();
     playNavigationHoverSoft();
   };
 
-  const handleBlobClick = () => {
+  const handleBlobClick = async () => {
+    await unlockAudioSession();
+    playNavigationHoverSoft();
     router.push('/choose');
   };
 

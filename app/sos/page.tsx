@@ -5,7 +5,8 @@ import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 
 import { BLUNNO_MASCOT_PNG } from '@/lib/assets';
-import { getExhaleSound } from '@/lib/navigationSound';
+import { playSosExhale, unlockAudioSession } from '@/lib/navigationSound';
+import { audioService } from '@/services/audioService';
 import { cn } from '@/lib/utils';
 
 const TOTAL_CYCLES = 3;
@@ -130,11 +131,7 @@ export default function SosPage(): ReactElement {
 
   const applyCycleCompletion = useCallback((newCompleted: number) => {
     setFeedback(cycleFeedbackMessage(newCompleted));
-    try {
-      getExhaleSound()?.play();
-    } catch {
-      console.log('[SOS] could not play exhale');
-    }
+    playSosExhale();
     if (newCompleted >= TOTAL_CYCLES) {
       setExerciseStatus('completed');
       cycleProgressRef.current = 1;
@@ -194,6 +191,8 @@ export default function SosPage(): ReactElement {
 
   const onPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
     if (completedCyclesRef.current >= TOTAL_CYCLES) return;
+    void unlockAudioSession();
+    void audioService.play('inhale');
     e.currentTarget.setPointerCapture(e.pointerId);
     isTrackingRef.current = true;
     const rect = e.currentTarget.getBoundingClientRect();

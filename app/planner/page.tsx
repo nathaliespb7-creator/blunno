@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, type ReactElement } from 'react';
+import { useRef, useState, type ReactElement } from 'react';
 
 import { playTaskCompleteInhale, unlockAudioSession } from '@/lib/navigationSound';
 
@@ -46,6 +46,7 @@ function getWeekDays(dateKey: string, weekOffset: number = 0): Date[] {
 }
 
 export default function PlannerPage(): ReactElement {
+  const hasUnlockedAudioRef = useRef(false);
   const [selectedKey, setSelectedKey] = useState<string>(getTodayKey());
   const [weekOffset, setWeekOffset] = useState<number>(0);
   const [tasksMap, setTasksMap] = useState<TasksMap>(() => {
@@ -109,7 +110,7 @@ export default function PlannerPage(): ReactElement {
       const willBecomeComplete = !task.completed;
       tasks[index] = { ...task, completed: !task.completed };
       if (willBecomeComplete && typeof window !== 'undefined') {
-        unlockAudioSession();
+        void unlockAudioSession();
         playTaskCompleteInhale();
       }
       return { ...prev, [selectedKey]: tasks };
@@ -154,7 +155,14 @@ export default function PlannerPage(): ReactElement {
   };
 
   return (
-    <main className="relative flex h-dvh max-h-dvh min-h-0 w-full flex-col overflow-hidden overscroll-none bg-[#0B0B1A] text-white pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+    <main
+      onPointerDownCapture={() => {
+        if (hasUnlockedAudioRef.current) return;
+        hasUnlockedAudioRef.current = true;
+        void unlockAudioSession();
+      }}
+      className="relative flex h-dvh max-h-dvh min-h-0 w-full flex-col overflow-hidden overscroll-none bg-[#0B0B1A] text-white pt-[max(0.75rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]"
+    >
       {/* Header */}
       <div className="relative flex w-full shrink-0 items-center justify-between px-4 pb-2">
         <h1 className="text-xl font-bold tracking-wide">PLANNER</h1>

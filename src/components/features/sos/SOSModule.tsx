@@ -1,10 +1,10 @@
 'use client';
 
-import { Howl } from 'howler';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import { useBlunnoStore, type BreathPhase } from '@/store/blunnoStore';
 import { BlunnoBlob } from '@/components/shared/BlunnoBlob';
 import { Button, Card } from '@/components/ui';
+import { useBlunnoSound } from '@/hooks/useBlunnoSound';
 
 type PhaseDef = {
   phase: Exclude<BreathPhase, 'none'>;
@@ -19,25 +19,15 @@ const PHASES: PhaseDef[] = [
   { phase: 'exhale', label: 'Exhale', mobileLabel: 'Out', seconds: 8 },
 ];
 
-let inhaleSound: Howl | null = null;
-if (typeof window !== 'undefined') {
-  inhaleSound = new Howl({
-    src: ['/sounds/inhale.mp3'],
-    volume: 0.12,
-    onloaderror: () => {
-      // Optional sound file may be absent.
-    },
-  });
-}
-
 const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 export const SOSModule = () => {
   const { setBlunnoState, setBreathPhase } = useBlunnoStore();
+  const { ensureUnlocked, play } = useBlunnoSound();
 
   const abortRef = useRef(false);
 
-  const [isRunning, setIsRunning] = useState(true);
+  const [isRunning, setIsRunning] = useState(false);
   const [activePhase, setActivePhase] = useState<BreathPhase>('none');
   const [secondsLeft, setSecondsLeft] = useState<number>(PHASES[0].seconds);
   const [round, setRound] = useState<number>(1);
@@ -48,7 +38,8 @@ export const SOSModule = () => {
     if (abortRef.current) return;
     setActivePhase(phase.phase);
     setBreathPhase(phase.phase);
-    if (phase.phase === 'inhale') inhaleSound?.play();
+    if (phase.phase === 'inhale') void play('inhale');
+    if (phase.phase === 'exhale') void play('exhale');
 
     for (let t = phase.seconds; t > 0; t -= 1) {
       if (abortRef.current) return;
@@ -58,6 +49,7 @@ export const SOSModule = () => {
   };
 
   const run = async () => {
+    await ensureUnlocked();
     abortRef.current = false;
     setIsRunning(true);
     setRound(1);
@@ -108,14 +100,6 @@ export const SOSModule = () => {
       void run();
     }, 2500);
   };
-
-  useEffect(() => {
-    void run();
-    return () => {
-      stop();
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <div className="mx-auto w-full max-w-md px-4 pb-8 pt-6">

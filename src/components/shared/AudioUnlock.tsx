@@ -10,11 +10,22 @@ import { unlockAudioSession } from '@/lib/navigationSound';
  */
 export function AudioUnlock(): ReactElement | null {
   useEffect(() => {
-    const onPointer = () => {
-      unlockAudioSession();
+    const onFirstInteraction = () => {
+      void unlockAudioSession();
+      document.removeEventListener('click', onFirstInteraction);
+      document.removeEventListener('touchstart', onFirstInteraction);
+      document.removeEventListener('pointerdown', onFirstInteraction);
     };
-    document.addEventListener('pointerdown', onPointer, { capture: true, passive: true });
-    return () => document.removeEventListener('pointerdown', onPointer, { capture: true });
+
+    document.addEventListener('click', onFirstInteraction, { capture: true });
+    document.addEventListener('touchstart', onFirstInteraction, { capture: true, passive: true });
+    document.addEventListener('pointerdown', onFirstInteraction, { capture: true, passive: true });
+
+    return () => {
+      document.removeEventListener('click', onFirstInteraction, { capture: true });
+      document.removeEventListener('touchstart', onFirstInteraction, { capture: true });
+      document.removeEventListener('pointerdown', onFirstInteraction, { capture: true });
+    };
   }, []);
 
   return null;
