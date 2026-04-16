@@ -5,12 +5,12 @@ import Link from 'next/link';
 import { useState, type ReactElement } from 'react';
 
 import { BalloonPop } from '@/components/features/play/BalloonPop';
-import { SnakeGame } from '@/components/features/play/SnakeGame';
-import { SnipperGame } from '@/components/features/play/SnipperGame';
+import { BlunnoTetris } from '@/components/features/play/BlunnoTetris';
+import { SpinnerGame } from '@/components/features/play/SpinnerGame';
 import { cn } from '@/lib/utils';
 import { audioService } from '@/services/audioService';
 
-type GameKey = 'snake' | 'snipper' | 'balloon';
+type GameKey = 'tetris' | 'spinner' | 'balloon';
 
 export function PlayHub(): ReactElement {
   const [selectedGame, setSelectedGame] = useState<GameKey | null>(null);
@@ -25,27 +25,32 @@ export function PlayHub(): ReactElement {
     setSelectedGame(null);
   };
 
-  const snakePixels = [
-    [0, 0],
-    [1, 0],
-    [3, 0],
-    [4, 0],
-    [5, 0],
-    [6, 0],
-    [0, 1],
-    [3, 1],
-    [6, 1],
-    [1, 2],
-    [2, 2],
-    [3, 2],
+  const tetrisPixels = [
+    [1, 0, '#38BDF8'],
+    [2, 0, '#38BDF8'],
+    [3, 0, '#38BDF8'],
+    [4, 0, '#38BDF8'],
+    [2, 1, '#E879F9'],
+    [1, 2, '#E879F9'],
+    [2, 2, '#E879F9'],
+    [3, 2, '#E879F9'],
+    [4, 2, '#FDE047'],
+    [5, 2, '#FDE047'],
+    [4, 3, '#FDE047'],
+    [5, 3, '#FDE047'],
+    [0, 4, '#A3E635'],
+    [1, 4, '#A3E635'],
+    [1, 5, '#A3E635'],
+    [2, 5, '#A3E635'],
   ] as const;
 
   return (
     <main
       className={cn(
-        'flex min-h-screen min-h-dvh max-h-dvh flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain',
+        'flex h-dvh min-h-dvh max-h-dvh flex-col overflow-x-hidden',
+        selectedGame === null ? 'overflow-y-auto overscroll-y-contain' : 'overflow-y-hidden',
         'bg-blunno-bg text-blunno-foreground',
-        'px-4 py-4 sm:px-5 sm:py-6',
+        selectedGame === null ? 'px-4 py-4 sm:px-5 sm:py-6' : 'px-3 py-2 sm:px-5 sm:py-4',
         '[@media(max-height:620px)]:py-3',
         'pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]'
       )}
@@ -91,26 +96,25 @@ export function PlayHub(): ReactElement {
               <button
                 type="button"
                 onClick={() => {
-                  void openGame('snake');
+                  void openGame('tetris');
                 }}
                 className="flex flex-col items-center"
-                aria-label="Open Snake game"
+                aria-label="Open Tetris game"
               >
                 <div className="flex h-[140px] w-[220px] items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm sm:w-[250px]">
-                  <div className="mx-auto grid grid-cols-8 gap-0.5 rounded-sm p-1">
-                    {Array.from({ length: 24 }).map((_, i) => {
-                      const x = i % 8;
-                      const y = Math.floor(i / 8);
-                      const on = snakePixels.some(([sx, sy]) => sx === x && sy === y);
-                      const isFood = x === 7 && y === 1;
+                  <div className="mx-auto grid grid-cols-6 gap-0.5 rounded-sm p-1">
+                    {Array.from({ length: 36 }).map((_, i) => {
+                      const x = i % 6;
+                      const y = Math.floor(i / 6);
+                      const active = tetrisPixels.find(([px, py]) => px === x && py === y);
                       return (
                         <div
                           key={`${x}-${y}`}
                           className={[
                             'h-3.5 w-3.5 sm:h-4 sm:w-4',
-                            on ? 'bg-[#E8F346]' : 'bg-transparent',
-                            isFood ? '!bg-red-600' : '',
+                            active ? '' : 'bg-transparent',
                           ].join(' ')}
+                          style={active ? { backgroundColor: active[2] } : undefined}
                         />
                       );
                     })}
@@ -121,20 +125,22 @@ export function PlayHub(): ReactElement {
               <button
                 type="button"
                 onClick={() => {
-                  void openGame('snipper');
+                  void openGame('spinner');
                 }}
                 className="flex flex-col items-center"
-                aria-label="Open Spinner game"
+                aria-label="Open fidget spinner game"
               >
-                <div className="flex h-[140px] w-[220px] items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm sm:w-[250px]">
-                  <div className="flex h-full w-full min-w-0 items-center justify-center">
-                    <Image
-                      src="/images/play/snake-preview.png"
-                      alt="Spinner"
-                      width={230}
-                      height={180}
-                      className="h-auto max-h-[100px] w-[118px] shrink-0 object-contain object-center drop-shadow-[0_8px_16px_rgba(0,0,0,0.45)] sm:max-h-[112px] sm:w-[132px]"
-                    />
+                <div className="flex h-[140px] w-[220px] items-center justify-center rounded-2xl border border-white/10 bg-[#0D0524]/80 p-4 backdrop-blur-sm sm:w-[250px]">
+                  <div
+                    className="relative flex h-[100px] w-[100px] items-center justify-center rounded-full border-2 border-white/20 shadow-[inset_0_2px_8px_rgba(0,0,0,0.35)] sm:h-[112px] sm:w-[112px]"
+                    style={{
+                      background:
+                        'radial-gradient(circle at 35% 30%, rgba(110,218,228,0.4) 0%, rgba(167,139,250,0.45) 45%, rgba(44,25,72,0.95) 100%)',
+                    }}
+                    aria-hidden
+                  >
+                    <div className="h-[38%] w-[38%] rounded-full bg-gradient-to-br from-[#6EDAE4] to-[#A78BFA] opacity-95 shadow-md ring-1 ring-white/25" />
+                    <span className="pointer-events-none absolute -right-1 -top-1 h-3 w-8 rounded-full bg-gradient-to-r from-[#6EDAE4] to-[#A78BFA] opacity-90 shadow-sm" />
                   </div>
                 </div>
               </button>
@@ -161,17 +167,31 @@ export function PlayHub(): ReactElement {
             </div>
           </>
         ) : (
-          <section className="flex min-h-0 w-full flex-1 flex-col p-4 pb-20">
-            <button
-              type="button"
-              onClick={backToGames}
-              className="mb-4 rounded-xl border border-white/20 bg-white/10 px-3 py-2 text-sm font-semibold transition hover:bg-white/15"
-            >
-              ← Back to games
-            </button>
-            {selectedGame === 'snake' && <SnakeGame />}
-            {selectedGame === 'snipper' && <SnipperGame />}
-            {selectedGame === 'balloon' && <BalloonPop />}
+          <section className="flex min-h-0 w-full flex-1 flex-col gap-2 overflow-hidden p-1.5 sm:p-3">
+            <div className="flex w-full shrink-0 items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={backToGames}
+                className="w-fit rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold transition hover:bg-white/15 sm:text-sm"
+              >
+                ← Back to games
+              </button>
+              <Link
+                href="/choose"
+                aria-label="Exit to mode selection"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-[#1a1a2e]/90 text-white/95 shadow-md backdrop-blur-sm"
+              >
+                <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+              </Link>
+            </div>
+            <div className="flex min-h-0 flex-1 items-center justify-center overflow-hidden">
+              {selectedGame === 'tetris' && <BlunnoTetris />}
+              {selectedGame === 'spinner' && <SpinnerGame />}
+              {selectedGame === 'balloon' && <BalloonPop />}
+            </div>
           </section>
         )}
       </div>
