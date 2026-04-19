@@ -1,369 +1,342 @@
 'use client';
 
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ForwardRefExoticComponent,
-  type ReactElement,
-  type RefAttributes,
-} from 'react';
-import dynamic from 'next/dynamic';
-import type { Tetris2Handle, Tetris2Props } from 'react-tetris2';
+import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react';
 
 import { audioService } from '@/services/audioService';
 
-const Tetris2 = dynamic(() => import('react-tetris2'), { ssr: false }) as ForwardRefExoticComponent<
-  Tetris2Props & RefAttributes<Tetris2Handle>
->;
-
-const BOARD_COLS = 10;
-const BOARD_ROWS = 20;
-const PREVIEW_COLS = 4;
-const PREVIEW_ROWS = 4;
-
-const PIECE_COLORS: Record<string, string> = {
-  i: '#5EEAD4',
-  j: '#60A5FA',
-  l: '#F59E0B',
-  o: '#FDE047',
-  s: '#86EFAC',
-  t: '#C084FC',
-  z: '#F87171',
+type Piece = {
+  shape: number[][];
+  x: number;
+  y: number;
+  color: number;
 };
 
-function getPieceColor(classes: DOMTokenList): string | null {
-  for (const className of Array.from(classes)) {
-    if (!className.startsWith('piece-')) {
-      continue;
+const BOARD_W = 10;
+const BOARD_H = 20;
+
+const PIECE_COLOR_CLASS: Record<number, string> = {
+  0: 'bg-[#0B132B]',
+  1: 'bg-[#2DD4BF]',
+  2: 'bg-[#FB7185]',
+  3: 'bg-[#F59E0B]',
+  4: 'bg-[#FDE047]',
+  5: 'bg-[#4ADE80]',
+  6: 'bg-[#A78BFA]',
+  7: 'bg-[#F97316]',
+};
+
+const SHAPES: Array<{ shape: number[][]; color: number }> = [
+  { shape: [[1, 1, 1, 1]], color: 1 },
+  {
+    shape: [
+      [1, 0, 0],
+      [1, 1, 1],
+    ],
+    color: 2,
+  },
+  {
+    shape: [
+      [0, 0, 1],
+      [1, 1, 1],
+    ],
+    color: 3,
+  },
+  {
+    shape: [
+      [1, 1],
+      [1, 1],
+    ],
+    color: 4,
+  },
+  {
+    shape: [
+      [0, 1, 1],
+      [1, 1, 0],
+    ],
+    color: 5,
+  },
+  {
+    shape: [
+      [0, 1, 0],
+      [1, 1, 1],
+    ],
+    color: 6,
+  },
+  {
+    shape: [
+      [1, 1, 0],
+      [0, 1, 1],
+    ],
+    color: 7,
+  },
+];
+
+function emptyBoard(): number[][] {
+  return Array.from({ length: BOARD_H }, () => Array.from({ length: BOARD_W }, () => 0));
+}
+
+function cloneShape(shape: number[][]): number[][] {
+  return shape.map((row) => [...row]);
+}
+
+function createPiece(): Piece {
+  const selected = SHAPES[Math.floor(Math.random() * SHAPES.length)];
+  const shape = cloneShape(selected.shape);
+  const x = Math.floor((BOARD_W - shape[0].length) / 2);
+  return { shape, x, y: 0, color: selected.color };
+}
+
+function rotateRight(shape: number[][]): number[][] {
+  const h = shape.length;
+  const w = shape[0].length;
+  const next = Array.from({ length: w }, () => Array.from({ length: h }, () => 0));
+  for (let y = 0; y < h; y += 1) {
+    for (let x = 0; x < w; x += 1) {
+      next[x][h - 1 - y] = shape[y][x];
     }
-
-    const key = className.replace('piece-', '').toLowerCase();
-    return PIECE_COLORS[key] ?? null;
   }
-
-  return null;
+  return next;
 }
 
-function extractMetric(root: HTMLElement, label: string): number | null {
-  const normalizedLabel = label.toLowerCase();
-  const labelElement = Array.from(root.querySelectorAll('p')).find(
-    (node) => node.textContent?.trim().toLowerCase() === normalizedLabel
-  );
-  const valueBlock = labelElement?.closest('div')?.nextElementSibling;
-  const value = Number(valueBlock?.textContent?.trim() ?? NaN);
-  return Number.isFinite(value) ? value : null;
+function collides(board: number[][], piece: Piece, dx = 0, dy = 0, shape?: number[][]): boolean {
+  const matrix = shape ?? piece.shape;
+  for (let y = 0; y < matrix.length; y += 1) {
+    for (let x = 0; x < matrix[y].length; x += 1) {
+      if (!matrix[y][x]) continue;
+      const nx = piece.x + x + dx;
+      const ny = piece.y + y + dy;
+      if (nx < 0 || nx >= BOARD_W || ny >= BOARD_H) return true;
+      if (ny >= 0 && board[ny][nx] !== 0) return true;
+    }
+  }
+  return false;
 }
 
-function drawGrid(
-  canvas: HTMLCanvasElement | null,
-  colors: Array<string | null>,
-  cols: number,
-  rows: number
-): void {
-  if (!canvas) {
-    return;
+function lockPiece(board: number[][], piece: Piece): number[][] {
+  const next = board.map((row) => [...row]);
+  for (let y = 0; y < piece.shape.length; y += 1) {
+    for (let x = 0; x < piece.shape[y].length; x += 1) {
+      if (!piece.shape[y][x]) continue;
+      const by = piece.y + y;
+      const bx = piece.x + x;
+      if (by >= 0 && by < BOARD_H && bx >= 0 && bx < BOARD_W) {
+        next[by][bx] = piece.color;
+      }
+    }
   }
+  return next;
+}
 
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    return;
-  }
-
-  const cellW = canvas.width / cols;
-  const cellH = canvas.height / rows;
-
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-  ctx.fillStyle = '#120A2F';
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-  colors.forEach((color, i) => {
-    const x = (i % cols) * cellW;
-    const y = Math.floor(i / cols) * cellH;
-
-    ctx.fillStyle = color ?? 'rgba(255,255,255,0.08)';
-    ctx.fillRect(x + 1, y + 1, cellW - 2, cellH - 2);
-  });
+function clearLines(board: number[][]): { board: number[][]; lines: number } {
+  const kept = board.filter((row) => row.some((cell) => cell === 0));
+  const lines = BOARD_H - kept.length;
+  const padded = Array.from({ length: lines }, () => Array.from({ length: BOARD_W }, () => 0));
+  return { board: [...padded, ...kept], lines };
 }
 
 export function BlunnoTetris(): ReactElement {
-  const tetrisRef = useRef<Tetris2Handle | null>(null);
-  const hiddenRootRef = useRef<HTMLDivElement | null>(null);
-  const gameCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const holdCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const nextCanvasRef = useRef<HTMLCanvasElement | null>(null);
-
   const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
+  const [board, setBoard] = useState<number[][]>(() => emptyBoard());
+  const [piece, setPiece] = useState<Piece>(() => createPiece());
+  /** Start active so opening from PlayHub immediately runs gravity (matches TetrisGame / user expectation). */
+  const [running, setRunning] = useState(true);
   const [score, setScore] = useState(0);
-  const [topScore, setTopScore] = useState(() => {
-    if (typeof window === 'undefined') {
-      return 0;
-    }
-
-    try {
-      const raw = window.localStorage.getItem('blunno.tetris.topScore');
-      const parsed = Number(raw ?? 0);
-      return Number.isFinite(parsed) && parsed > 0 ? parsed : 0;
-    } catch {
-      return 0;
-    }
-  });
   const [lines, setLines] = useState(0);
-  const [level, setLevel] = useState(1);
-  const [combo, setCombo] = useState(0);
-  const [tetrisCount, setTetrisCount] = useState(0);
-  const [hasStarted, setHasStarted] = useState(false);
-  const [gameOver, setGameOver] = useState(false);
+  const [topScore, setTopScore] = useState(() => {
+    if (typeof window === 'undefined') return 0;
+    const parsed = Number(window.localStorage.getItem('blunno.tetris.topScore') ?? 0);
+    return Number.isFinite(parsed) ? parsed : 0;
+  });
 
-  const previousLinesRef = useRef(0);
+  const level = Math.max(1, Math.floor(lines / 10) + 1);
+  const speed = useMemo(() => Math.floor(500 / (level + 1)), [level]);
 
   const unlockAudioOnce = useCallback((): void => {
-    if (isAudioUnlocked) {
-      return;
-    }
-
+    if (isAudioUnlocked) return;
     setIsAudioUnlocked(true);
     void audioService.ensureUnlocked();
   }, [isAudioUnlocked]);
 
-  const handlePointerDown = (): void => {
-    unlockAudioOnce();
-  };
+  const reset = useCallback(() => {
+    setBoard(emptyBoard());
+    setPiece(createPiece());
+    setScore(0);
+    setLines(0);
+    setRunning(true);
+  }, []);
 
-  const handleKeyDownCapture = (): void => {
-    unlockAudioOnce();
-  };
+  const move = useCallback((dx: number) => {
+    setPiece((prev) => {
+      if (!running || collides(board, prev, dx, 0)) return prev;
+      return { ...prev, x: prev.x + dx };
+    });
+  }, [board, running]);
 
-  const emitKey = (key: 'ArrowLeft' | 'ArrowRight' | 'ArrowDown' | 'ArrowUp' | ' '): void => {
-    unlockAudioOnce();
-    window.dispatchEvent(new KeyboardEvent('keydown', { key }));
-  };
+  const rotate = useCallback(() => {
+    setPiece((prev) => {
+      if (!running) return prev;
+      const rotated = rotateRight(prev.shape);
+      if (collides(board, prev, 0, 0, rotated)) return prev;
+      return { ...prev, shape: rotated };
+    });
+  }, [board, running]);
 
-  const handleStart = (): void => {
-    unlockAudioOnce();
+  const stepDown = useCallback(() => {
+    if (!running) return;
 
-    if (!hasStarted) {
-      tetrisRef.current?.start();
-      setHasStarted(true);
-      setGameOver(false);
-    } else {
-      tetrisRef.current?.restart();
-      setGameOver(false);
+    if (!collides(board, piece, 0, 1)) {
+      setPiece((prev) => ({ ...prev, y: prev.y + 1 }));
+      return;
     }
 
-    void audioService.play('inhale');
-  };
+    const merged = lockPiece(board, piece);
+    const { board: cleared, lines: removed } = clearLines(merged);
+    if (removed > 0) {
+      setScore((s) => s + removed * 100);
+      setLines((l) => l + removed);
+      void audioService.play('pop');
+    }
 
-  const speed = useMemo(() => Math.floor(500 / (level + 1)), [level]);
+    const next = createPiece();
+    if (collides(cleared, next)) {
+      setBoard(cleared);
+      setRunning(false);
+      void audioService.play('exhale');
+      return;
+    }
 
-  const handleScoreChange = useCallback((nextScore: number): void => {
-    setScore(nextScore);
-    setTopScore((prevTop) => {
-      if (nextScore <= prevTop) {
-        return prevTop;
-      }
-
-      try {
-        window.localStorage.setItem('blunno.tetris.topScore', String(nextScore));
-      } catch {
-        // localStorage unavailable; ignore persistence.
-      }
-      return nextScore;
-    });
-  }, []);
+    setBoard(cleared);
+    setPiece(next);
+  }, [board, piece, running]);
 
   useEffect(() => {
-    const syncFromInternalUi = () => {
-      const root = hiddenRootRef.current?.querySelector<HTMLElement>('[data-testid="tetris2-root"]');
-      if (!root) {
-        return;
-      }
+    if (!running) return;
+    const tick = Math.max(80, 520 - (level - 1) * 35);
+    const id = window.setInterval(stepDown, tick);
+    return () => window.clearInterval(id);
+  }, [running, level, stepDown]);
 
-      const boardBlocks = root.querySelectorAll('[data-testid="gameboard"] .game-block');
-      if (boardBlocks.length === BOARD_COLS * BOARD_ROWS) {
-        const boardColors = Array.from(boardBlocks).map((cell) => getPieceColor(cell.classList));
-        drawGrid(gameCanvasRef.current, boardColors, BOARD_COLS, BOARD_ROWS);
-      }
-
-      const holdTitle = Array.from(root.querySelectorAll('h1')).find((node) => node.textContent?.trim() === 'HOLD');
-      const holdBlocks = holdTitle?.parentElement?.querySelectorAll('.piece-view .game-block') ?? [];
-      if (holdBlocks.length >= PREVIEW_COLS * PREVIEW_ROWS) {
-        const colors = Array.from(holdBlocks)
-          .slice(0, PREVIEW_COLS * PREVIEW_ROWS)
-          .map((cell) => getPieceColor(cell.classList));
-        drawGrid(holdCanvasRef.current, colors, PREVIEW_COLS, PREVIEW_ROWS);
-      }
-
-      const nextTitle = Array.from(root.querySelectorAll('h1')).find((node) => node.textContent?.trim() === 'NEXT');
-      const nextPieceView = nextTitle?.parentElement?.querySelector('.piece-view');
-      const nextBlocks = nextPieceView?.querySelectorAll('.game-block') ?? [];
-      if (nextBlocks.length >= PREVIEW_COLS * PREVIEW_ROWS) {
-        const colors = Array.from(nextBlocks)
-          .slice(0, PREVIEW_COLS * PREVIEW_ROWS)
-          .map((cell) => getPieceColor(cell.classList));
-        drawGrid(nextCanvasRef.current, colors, PREVIEW_COLS, PREVIEW_ROWS);
-      }
-
-      const parsedLines = extractMetric(root, 'Lines');
-      if (parsedLines !== null) {
-        const delta = parsedLines - previousLinesRef.current;
-        if (delta > 0) {
-          void audioService.play('pop');
-          if (delta === 4) {
-            setTetrisCount((prev) => prev + 1);
-          }
-        }
-        previousLinesRef.current = parsedLines;
-        setLines(parsedLines);
-      }
-
-      const parsedLevel = extractMetric(root, 'Level');
-      if (parsedLevel !== null) {
-        setLevel(parsedLevel);
-      }
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowLeft') move(-1);
+      if (e.key === 'ArrowRight') move(1);
+      if (e.key === 'ArrowDown') stepDown();
+      if (e.key === 'ArrowUp') rotate();
     };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [move, rotate, stepDown]);
 
-    const intervalId = window.setInterval(syncFromInternalUi, 80);
-    syncFromInternalUi();
-    return () => window.clearInterval(intervalId);
-  }, []);
+  useEffect(() => {
+    if (score <= topScore) return;
+    const id = window.setTimeout(() => {
+      setTopScore(score);
+      window.localStorage.setItem('blunno.tetris.topScore', String(score));
+    }, 0);
+    return () => window.clearTimeout(id);
+  }, [score, topScore]);
+
+  const renderBoard = useMemo(() => {
+    const view = board.map((row) => [...row]);
+    for (let y = 0; y < piece.shape.length; y += 1) {
+      for (let x = 0; x < piece.shape[y].length; x += 1) {
+        if (!piece.shape[y][x]) continue;
+        const by = piece.y + y;
+        const bx = piece.x + x;
+        if (by >= 0 && by < BOARD_H && bx >= 0 && bx < BOARD_W) {
+          view[by][bx] = piece.color;
+        }
+      }
+    }
+    return view;
+  }, [board, piece]);
 
   return (
     <div
-      className="mx-auto flex min-h-screen w-full flex-col items-center justify-center gap-3 bg-[#0D0524] p-2 text-white sm:p-3"
-      onPointerDown={handlePointerDown}
-      onKeyDownCapture={handleKeyDownCapture}
+      className="mx-auto flex h-full min-h-0 w-full max-w-[920px] flex-col items-center justify-between gap-2 overflow-hidden bg-[#0D0524] p-2 text-white sm:p-3"
+      onPointerDown={unlockAudioOnce}
     >
-      <div className="grid w-full max-w-[420px] grid-cols-2 gap-2">
-        <div className="rounded-xl border border-white/10 bg-white/5 p-2 text-center backdrop-blur-sm">
-          <p className="text-xs tracking-wide text-white/70">SCORE</p>
-          <p className="text-3xl font-extrabold text-[#5EEAD4] sm:text-4xl">{score}</p>
+      <div className="grid w-full max-w-[460px] grid-cols-2 gap-2">
+        <div className="rounded-xl border border-white/25 bg-gradient-to-br from-[#2C1948] to-[#6A3CAE] p-2 text-center shadow-lg [box-shadow:inset_0_1px_0_rgba(255,255,255,0.12)]">
+          <p className="text-xs tracking-wide text-white/85">SCORE</p>
+          <p className="text-xl font-extrabold text-[#00FFD1] sm:text-3xl">{score}</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/5 p-2 text-center backdrop-blur-sm">
-          <p className="text-xs tracking-wide text-white/70">TOP</p>
-          <p className="text-3xl font-extrabold text-[#BDB2FF] sm:text-4xl">{topScore}</p>
-        </div>
-      </div>
-
-      <div className="rounded-xl border border-white/10 bg-white/5 px-4 py-1.5 text-center backdrop-blur-sm">
-        <p className="text-xs font-semibold tracking-[0.22em] text-white/80">
-          TETPIVC <span className="ml-1 text-[#FFADAD]">{tetrisCount}</span>
-        </p>
-      </div>
-
-      <div className="flex w-full items-start justify-center gap-1.5 sm:gap-3">
-        <div className="w-[78px] rounded-xl border border-white/10 bg-white/5 p-1.5 text-center backdrop-blur-sm sm:w-[100px] sm:p-2">
-          <p className="mb-1 text-xs font-semibold tracking-wide text-white/70">HOLD</p>
-          <canvas
-            ref={holdCanvasRef}
-            width={100}
-            height={100}
-            className="mx-auto h-14 w-14 rounded-md bg-[#120A2F] sm:h-20 sm:w-20"
-          />
-        </div>
-
-        <div className="rounded-2xl border border-white/10 bg-white/5 p-1 shadow-lg backdrop-blur-sm">
-          <canvas
-            ref={gameCanvasRef}
-            width={300}
-            height={600}
-            className="h-auto w-[min(58vw,300px)] max-w-[300px] rounded-xl border border-white/10 bg-[#120A2F]"
-          />
-        </div>
-
-        <div className="w-[78px] rounded-xl border border-white/10 bg-white/5 p-1.5 text-center backdrop-blur-sm sm:w-[100px] sm:p-2">
-          <p className="mb-1 text-xs font-semibold tracking-wide text-white/70">NEXT</p>
-          <canvas
-            ref={nextCanvasRef}
-            width={100}
-            height={100}
-            className="mx-auto h-14 w-14 rounded-md bg-[#120A2F] sm:h-20 sm:w-20"
-          />
+        <div className="rounded-xl border border-[#E7B453]/50 bg-gradient-to-br from-[#3d3224] to-[#5c4a32] p-2 text-center shadow-lg ring-1 ring-[#F5D78A]/25 [box-shadow:inset_0_1px_0_rgba(255,255,255,0.1)]">
+          <p className="text-xs tracking-wide text-[#FEF3C7]/95">TOP</p>
+          <p className="text-xl font-extrabold text-[#FFFBEB] [text-shadow:0_1px_3px_rgba(0,0,0,0.45)] sm:text-3xl">
+            {topScore}
+          </p>
         </div>
       </div>
 
-      <div className="grid w-full max-w-[420px] grid-cols-2 gap-2 sm:grid-cols-4">
-        <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center backdrop-blur-sm">
-          <p className="text-xs tracking-wide text-white/70">COMBO</p>
-          <p className="text-2xl font-bold text-[#FFADAD]">{combo}</p>
+      <div className="h-[min(46dvh,500px)] w-full max-w-[360px] rounded-2xl border border-[#2DD4BF]/20 bg-white/8 p-2 shadow-lg backdrop-blur-sm">
+        <div className="grid h-full grid-cols-[repeat(10,minmax(0,1fr))] gap-1">
+          {renderBoard.flatMap((row, y) =>
+            row.map((cell, x) => <div key={`${x}-${y}`} className={['rounded-[3px]', PIECE_COLOR_CLASS[cell]].join(' ')} />)
+          )}
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center backdrop-blur-sm">
-          <p className="text-xs tracking-wide text-white/70">LINES</p>
-          <p className="text-2xl font-bold text-[#2DD4BF]">{lines}</p>
+      </div>
+
+      <div className="grid w-full max-w-[460px] grid-cols-4 gap-2">
+        <div className="rounded-xl border border-[#C084FC]/40 bg-gradient-to-br from-[#2a1f2e]/95 to-[#3d2a42]/90 px-3 py-2 text-center shadow-sm [box-shadow:inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm">
+          <p className="text-xs tracking-wide text-[#E9D5FF]/90">COMBO</p>
+          <p className="text-base font-bold text-[#F0ABFC] [text-shadow:0_1px_2px_rgba(0,0,0,0.35)] sm:text-xl">0</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center backdrop-blur-sm">
-          <p className="text-xs tracking-wide text-white/70">LEVEL</p>
-          <p className="text-2xl font-bold text-[#2DD4BF]">{level}</p>
+        <div className="rounded-xl border border-[#83A9AD]/45 bg-gradient-to-br from-[#283334]/95 to-[#3d4f52]/88 px-3 py-2 text-center shadow-sm [box-shadow:inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm">
+          <p className="text-xs tracking-wide text-[#C5E3E5]/90">LINES</p>
+          <p className="text-base font-bold text-[#B8D9DB] [text-shadow:0_1px_2px_rgba(0,0,0,0.35)] sm:text-xl">{lines}</p>
         </div>
-        <div className="rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-center backdrop-blur-sm">
-          <p className="text-xs tracking-wide text-white/70">SPEED</p>
-          <p className="text-2xl font-bold text-[#5EEAD4]">{speed}</p>
+        <div className="rounded-xl border border-[#A78BFA]/45 bg-gradient-to-br from-[#24183a]/95 to-[#3b2d5c]/90 px-3 py-2 text-center shadow-sm [box-shadow:inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm">
+          <p className="text-xs tracking-wide text-[#DDD6FE]/90">LEVEL</p>
+          <p className="text-base font-bold text-[#C4B5FD] [text-shadow:0_1px_2px_rgba(0,0,0,0.35)] sm:text-xl">{level}</p>
+        </div>
+        <div className="rounded-xl border border-[#E7B453]/45 bg-gradient-to-br from-[#2f2618]/95 to-[#4a3d28]/88 px-3 py-2 text-center shadow-sm [box-shadow:inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm">
+          <p className="text-xs tracking-wide text-[#FEF3C7]/90">SPEED</p>
+          <p className="text-base font-bold text-[#FFFBEB] [text-shadow:0_1px_3px_rgba(0,0,0,0.45)] sm:text-xl">{speed}</p>
         </div>
       </div>
 
       <button
         type="button"
-        onClick={handleStart}
-        className="rounded-full bg-[#BDB2FF] px-7 py-2 text-sm font-bold text-white transition hover:scale-105 hover:bg-[#a89cfa]"
+        onClick={reset}
+        className="rounded-full bg-[#BDB2FF] px-7 py-1.5 text-sm font-bold text-white transition hover:scale-105 hover:bg-[#a89cfa] sm:py-2"
       >
-        {hasStarted && !gameOver ? 'RESTART' : 'START'}
+        {running ? 'RESTART' : 'START'}
       </button>
 
       <div className="grid w-full max-w-xs grid-cols-4 gap-2 text-center">
         <button
           type="button"
-          className="rounded-xl border border-white/20 bg-white/10 py-2 text-lg font-semibold"
-          onTouchStart={() => emitKey('ArrowLeft')}
-          onClick={() => emitKey('ArrowLeft')}
+          className="rounded-xl border border-[#2DD4BF]/50 bg-[#0F2A33] py-1 text-base font-semibold text-[#CCFFF5] transition hover:bg-[#153845] sm:py-2 sm:text-lg"
+          onClick={() => move(-1)}
           aria-label="Move left"
         >
           ←
         </button>
         <button
           type="button"
-          className="rounded-xl border border-white/20 bg-white/10 py-2 text-lg font-semibold"
-          onTouchStart={() => emitKey('ArrowDown')}
-          onClick={() => emitKey('ArrowDown')}
+          className="rounded-xl border border-[#67E8F9]/50 bg-[#0F2536] py-1 text-base font-semibold text-[#DDF8FF] transition hover:bg-[#17344A] sm:py-2 sm:text-lg"
+          onClick={stepDown}
           aria-label="Move down"
         >
           ↓
         </button>
         <button
           type="button"
-          className="rounded-xl border border-white/20 bg-white/10 py-2 text-lg font-semibold"
-          onTouchStart={() => emitKey('ArrowRight')}
-          onClick={() => emitKey('ArrowRight')}
+          className="rounded-xl border border-[#2DD4BF]/50 bg-[#0F2A33] py-1 text-base font-semibold text-[#CCFFF5] transition hover:bg-[#153845] sm:py-2 sm:text-lg"
+          onClick={() => move(1)}
           aria-label="Move right"
         >
           →
         </button>
         <button
           type="button"
-          className="rounded-xl border border-white/20 bg-white/10 py-2 text-lg font-semibold"
-          onTouchStart={() => emitKey('ArrowUp')}
-          onClick={() => emitKey('ArrowUp')}
+          className="rounded-xl border border-[#C4B5FD]/60 bg-[#281C45] py-1 text-base font-semibold text-[#F0E9FF] transition hover:bg-[#34255B] sm:py-2 sm:text-lg"
+          onClick={rotate}
           aria-label="Rotate piece"
         >
           ↻
         </button>
-      </div>
-
-      <div ref={hiddenRootRef} className="pointer-events-none absolute -left-[9999px] top-0 h-0 w-0 overflow-hidden" aria-hidden>
-        <Tetris2
-          ref={tetrisRef}
-          soundEnabled={false}
-          showControlsLegend={false}
-          showModals={false}
-          onScoreChange={handleScoreChange}
-          onLevelChange={setLevel}
-          onGameOver={() => {
-            setGameOver(true);
-            setCombo(0);
-            void audioService.play('exhale');
-          }}
-        />
       </div>
     </div>
   );
