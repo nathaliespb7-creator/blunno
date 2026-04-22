@@ -331,9 +331,11 @@ export default function PlannerPage(): ReactElement {
             <div
               key={task.id}
               className={cn(
-                'flex min-w-0 items-center justify-between gap-2 rounded-2xl border px-3 py-2.5 transition',
-                'border-white/10 bg-[var(--color-surface-1)] backdrop-blur-sm',
-                task.completed && 'border-white/8 bg-white/[0.05] opacity-90'
+                'flex min-w-0 items-center justify-between gap-2 rounded-2xl border py-2.5 pl-2.5 pr-3 shadow-[var(--planner-task-shadow)] transition',
+                'border-[var(--planner-task-border)] border-l-4 border-l-[var(--planner-task-accent)]',
+                'bg-[var(--planner-task-surface)] backdrop-blur-sm',
+                task.completed &&
+                  'border-[var(--planner-task-border-completed)] border-l-[var(--planner-task-accent-completed)] bg-[var(--planner-task-surface-completed)]'
               )}
             >
               {editing && editing.day === selectedKey && editing.index === idx ? (
@@ -345,12 +347,11 @@ export default function PlannerPage(): ReactElement {
                     onBlur={saveEdit}
                     onKeyDown={onKeyDownEdit}
                     autoFocus
-                    className="min-w-0 flex-1 bg-transparent text-base text-white outline-none touch-manipulation"
+                    className="min-w-0 flex-1 rounded-lg border border-white/12 bg-[var(--planner-task-input-fill)] px-2 py-1.5 text-base text-white outline-none touch-manipulation focus:border-[var(--color-accent-primary)]/50 focus:ring-1 focus:ring-[var(--color-focus-ring)]"
                     style={{
                       minHeight: '44px',
                       fontSize: '16px', // Prevents zoom on iOS
-                      WebkitAppearance: 'none',
-                      borderRadius: 0
+                      WebkitAppearance: 'none'
                     }}
                   />
                   <label className="relative flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center">
@@ -382,25 +383,12 @@ export default function PlannerPage(): ReactElement {
                   <span
                     role="button"
                     tabIndex={0}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      startEdit(idx, task.text);
-                    }}
-                    onTouchStart={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      startEdit(idx, task.text);
-                    }}
-                    onPointerDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
+                    onClick={() => {
                       startEdit(idx, task.text);
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        e.stopPropagation();
                         startEdit(idx, task.text);
                       }
                     }}
@@ -419,19 +407,7 @@ export default function PlannerPage(): ReactElement {
                   <button
                     type="button"
                     aria-label={`Edit task: ${task.text}`}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      startEdit(idx, task.text);
-                    }}
-                    onTouchStart={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
-                      startEdit(idx, task.text);
-                    }}
-                    onPointerDown={(e) => {
-                      e.preventDefault();
-                      e.stopPropagation();
+                    onClick={() => {
                       startEdit(idx, task.text);
                     }}
                     className="flex h-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl text-white/85 hover:text-white active:opacity-80 touch-manipulation"
@@ -487,7 +463,7 @@ export default function PlannerPage(): ReactElement {
       </div>
 
       {/* Add task input – fixed at bottom */}
-      <div className="shrink-0 border-t border-white/10 py-2.5">
+      <div className="shrink-0 border-t border-[var(--planner-task-border)] py-2.5">
         {showLimitHint && (
           <div className="mb-3 rounded-xl bg-orange-500/20 border border-orange-500/30 px-3 py-2">
             <p className="text-xs text-orange-200 text-center">
@@ -507,7 +483,7 @@ export default function PlannerPage(): ReactElement {
               }
             }}
             placeholder="Add a new task..."
-            className="blunno-focus-visible flex-1 rounded-xl border border-white/10 bg-[var(--color-surface-1)] px-4 py-2 text-white placeholder-white/40 outline-none transition-all focus:ring-2 focus:ring-[var(--color-focus-ring)]"
+            className="blunno-focus-visible flex-1 rounded-xl border border-[var(--planner-task-border)] bg-[var(--planner-input-surface)] px-4 py-2 text-white placeholder-white/50 outline-none transition-all focus:ring-2 focus:ring-[var(--color-focus-ring)]"
             maxLength={60}
             disabled={currentTasks.length >= MAX_TOTAL}
           />

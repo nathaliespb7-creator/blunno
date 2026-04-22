@@ -58,6 +58,18 @@
   --planner-day-selected-bg: rgba(15, 23, 42, 0.75);
   --planner-day-today-ring: rgba(251, 191, 36, 0.45);
 
+  /* Planner task list — warm / lilac chips vs cool #0b0b1a (avoid “blue on blue”) */
+  --planner-task-accent: #5eead4;
+  --planner-task-surface: rgba(52, 46, 64, 0.94);
+  --planner-task-surface-completed: rgba(36, 38, 48, 0.88);
+  --planner-task-border: rgba(245, 217, 166, 0.16);
+  --planner-task-border-completed: rgba(255, 255, 255, 0.09);
+  --planner-task-accent-completed: rgba(180, 165, 130, 0.55);
+  --planner-task-shadow: 0 4px 16px rgba(0, 0, 0, 0.38), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  --planner-task-input-fill: rgba(68, 60, 78, 0.75);
+  /* Bottom “Add a task” — same family, a step lighter */
+  --planner-input-surface: rgba(62, 56, 72, 0.96);
+
   /* Glass / overlays — softer Modern Glass (less noise than heavy neon glass) */
   --glass-bg: var(--color-surface-1);
   --glass-border: rgba(255, 255, 255, 0.14);
