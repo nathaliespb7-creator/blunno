@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRef, useState, type ReactElement } from 'react';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 
 import { playTaskCompleteInhale, unlockAudioSession } from '@/lib/navigationSound';
 import { cn } from '@/lib/utils';
@@ -105,6 +105,16 @@ export default function PlannerPage(): ReactElement {
   const currentTasks = tasksMap[selectedKey] || [];
   const weekDays = getWeekDays(selectedKey, weekOffset);
   const todayKey = getTodayKey();
+
+  useEffect(() => {
+    setTasksMap((prev) => {
+      if (prev[selectedKey] !== undefined) return prev;
+      return {
+        ...prev,
+        [selectedKey]: DEFAULT_TASKS.map((t) => ({ ...t })),
+      };
+    });
+  }, [selectedKey]);
 
   const goPrevWeek = () => {
     setWeekOffset(prev => prev - 1);
