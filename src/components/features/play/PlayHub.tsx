@@ -67,7 +67,7 @@ export function PlayHub(): ReactElement {
               <Link
                 href="/choose"
                 aria-label="Exit to mode selection"
-                className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-[#1a1a2e]/90 text-white/95 shadow-md backdrop-blur-sm"
+                className="blunno-focus-visible blunno-nav-btn text-white/95"
               >
                 <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -84,7 +84,7 @@ export function PlayHub(): ReactElement {
               )}
             >
               <span className="text-white">PLAY WITH </span>
-              <span className="text-[#00FFD1]">BLUNNO</span>
+              <span className="text-[var(--color-accent-primary)]">BLUNNO</span>
             </h1>
 
             <div
@@ -101,7 +101,7 @@ export function PlayHub(): ReactElement {
                 className="flex flex-col items-center"
                 aria-label="Open Tetris game"
               >
-                <div className="flex h-[140px] w-[220px] items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm sm:w-[250px]">
+                <div className="glass-card flex h-[140px] w-[220px] items-center justify-center rounded-2xl p-3 sm:w-[250px]">
                   <div className="mx-auto grid grid-cols-6 gap-0.5 rounded-sm p-1">
                     {Array.from({ length: 36 }).map((_, i) => {
                       const x = i % 6;
@@ -130,7 +130,7 @@ export function PlayHub(): ReactElement {
                 className="flex flex-col items-center"
                 aria-label="Open fidget spinner game"
               >
-                <div className="flex h-[140px] w-[220px] items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-4 backdrop-blur-sm sm:w-[250px]">
+                <div className="glass-card flex h-[140px] w-[220px] items-center justify-center rounded-2xl p-4 sm:w-[250px]">
                   <svg
                     viewBox="0 0 120 120"
                     className="h-[100px] w-[100px] drop-shadow-[0_8px_20px_rgba(0,0,0,0.3)] sm:h-[108px] sm:w-[108px]"
@@ -160,7 +160,7 @@ export function PlayHub(): ReactElement {
                 className="flex flex-col items-center"
                 aria-label="Open Balloon Pop game"
               >
-                <div className="flex h-[140px] w-[220px] items-center justify-center rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm sm:w-[250px]">
+                <div className="glass-card flex h-[140px] w-[220px] items-center justify-center rounded-2xl p-3 sm:w-[250px]">
                   <Image
                     src="/images/play/balloon-popit.png"
                     alt="Balloon Pop visual"
@@ -179,14 +179,14 @@ export function PlayHub(): ReactElement {
               <button
                 type="button"
                 onClick={backToGames}
-                className="w-fit rounded-xl border border-white/20 bg-white/10 px-3 py-1.5 text-xs font-semibold transition hover:bg-white/15 sm:text-sm"
+                className="blunno-focus-visible glass-button w-fit min-h-[44px] rounded-xl px-3 py-2 text-xs font-semibold text-white/95 sm:text-sm"
               >
                 ← Back to games
               </button>
               <Link
                 href="/choose"
                 aria-label="Exit to mode selection"
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-white/15 bg-[#1a1a2e]/90 text-white/95 shadow-md backdrop-blur-sm"
+                className="blunno-focus-visible blunno-nav-btn shrink-0 text-white/95"
               >
                 <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
                   <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />

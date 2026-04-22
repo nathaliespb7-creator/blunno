@@ -27,7 +27,7 @@ export default function WelcomePage(): ReactElement {
     >
       {/* Grain */}
       <div
-        className="pointer-events-none fixed inset-0 z-0 opacity-[0.06]"
+        className="pointer-events-none fixed inset-0 z-0 opacity-[0.035]"
         style={{
           backgroundImage:
             'url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2780%27 height=%2780%27%3E%3Cfilter id=%27n%27%3E%3CfeTurbulence type=%27fractalNoise%27 baseFrequency=%270.9%27 numOctaves=%273%27 stitchTiles=%27stitch%27/%3E%3C/filter%3E%3Crect width=%2780%27 height=%2780%27 filter=%27url(%23n)%27 opacity=%270.45%27/%3E%3C/svg%3E")',
@@ -40,21 +40,26 @@ export default function WelcomePage(): ReactElement {
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           onClick={handleBlobClick}
-          onKeyDown={(e) => e.key === 'Enter' && handleBlobClick()}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              void handleBlobClick();
+            }
+          }}
           role="button"
           tabIndex={0}
           aria-label="Go to mood selection"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
-          className="relative min-w-0 cursor-pointer outline-none"
+          className="blunno-focus-visible relative min-w-0 cursor-pointer rounded-full outline-none"
         >
           <motion.div
             animate={{
-              opacity: isHovered ? 0.75 : 0.38,
-              scale: isHovered ? 1.15 : 1,
+              opacity: isHovered ? 0.55 : 0.28,
+              scale: isHovered ? 1.06 : 1,
             }}
             transition={{ duration: 0.5 }}
-            className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_50%_40%,rgba(110,218,228,0.28),rgba(139,92,246,0.18),transparent_70%)] blur-[72px]"
+            className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_50%_40%,rgba(94,234,212,0.18),rgba(167,139,250,0.12),transparent_72%)] blur-[64px]"
           />
 
           <div className="relative z-20 flex min-w-0 justify-center">
@@ -91,19 +96,22 @@ export default function WelcomePage(): ReactElement {
             )}
             aria-label="JUST BLUNNO BEST"
           >
-            <span className="font-sarabun text-[22px] text-[#FFFFFF] sm:text-2xl [text-shadow:0_1px_2px_rgba(0,0,0,0.35)]">
+            <span className="font-welcome text-[22px] text-white/95 sm:text-2xl [text-shadow:0_1px_2px_rgba(0,0,0,0.35)]">
               JUST
             </span>
             <span
-              className="font-tiro text-[26px] sm:text-3xl [text-shadow:0_1px_2px_rgba(0,0,0,0.35)]"
-              style={{ color: '#6EDAE4' }}
+              className="font-welcome text-[26px] text-[var(--color-accent-primary)] sm:text-3xl [text-shadow:0_1px_2px_rgba(0,0,0,0.35)]"
             >
               BLUNNO
             </span>
-            <span className="font-sarabun text-[22px] text-[#FFFFFF] sm:text-2xl [text-shadow:0_1px_2px_rgba(0,0,0,0.35)]">
+            <span className="font-welcome text-[22px] text-white/95 sm:text-2xl [text-shadow:0_1px_2px_rgba(0,0,0,0.35)]">
               BEST
             </span>
           </motion.p>
+
+          <p className="mt-6 max-w-xs text-center font-ui text-sm leading-snug text-[color:var(--color-text-secondary)]">
+            Tap Blunno to continue — one gentle next step.
+          </p>
         </motion.div>
       </div>
     </div>

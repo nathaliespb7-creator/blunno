@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useRef, useState, type ReactElement } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 
 import { playTaskCompleteInhale, unlockAudioSession } from '@/lib/navigationSound';
 import { cn } from '@/lib/utils';
@@ -46,8 +46,52 @@ function getWeekDays(dateKey: string, weekOffset: number = 0): Date[] {
   return week;
 }
 
+interface TodaySummaryCardProps {
+  tasksMap: TasksMap;
+  selectedKey: string;
+  onJumpToToday: () => void;
+  maxTotal: number;
+}
+
+function TodaySummaryCard({
+  tasksMap,
+  selectedKey,
+  onJumpToToday,
+}: TodaySummaryCardProps): ReactElement {
+  const todayKey = getTodayKey();
+  const todayTasks = tasksMap[todayKey] || [];
+  const done = todayTasks.filter((t) => t.completed).length;
+  const stars = done;
+  const isViewingToday = selectedKey === todayKey;
+
+  return (
+    <section className="glass-card mb-1 w-full max-w-lg shrink-0 rounded-2xl px-3 py-2.5 text-left sm:mx-auto">
+      <p className="text-xs font-semibold uppercase tracking-wider text-white/55">Today&apos;s focus</p>
+      <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+        <p className="text-base font-bold tracking-tight text-white sm:text-lg">
+          {done} of {todayTasks.length} done
+        </p>
+        <p className="inline-flex items-center gap-1 text-sm font-semibold text-[#F5D9A6]">
+          <span aria-hidden>★</span>
+          <span>{stars}</span>
+        </p>
+        {!isViewingToday && (
+          <button
+            type="button"
+            onClick={onJumpToToday}
+            className="blunno-btn-primary blunno-focus-visible shrink-0 py-1.5 text-xs sm:text-sm"
+          >
+            Jump to today
+          </button>
+        )}
+      </div>
+    </section>
+  );
+}
+
 export default function PlannerPage(): ReactElement {
   const hasUnlockedAudioRef = useRef(false);
+  const [viewportHeight, setViewportHeight] = useState(900);
   const [selectedKey, setSelectedKey] = useState<string>(getTodayKey());
   const [weekOffset, setWeekOffset] = useState<number>(0);
   const [tasksMap, setTasksMap] = useState<TasksMap>(() => {
@@ -60,8 +104,24 @@ export default function PlannerPage(): ReactElement {
   const [showLimitHint, setShowLimitHint] = useState(false);
 
   const currentTasks = tasksMap[selectedKey] || [];
+  const completedCount = currentTasks.filter((task) => task.completed).length;
 
   const weekDays = getWeekDays(selectedKey, weekOffset);
+  const visibleTaskLimit = useMemo(() => {
+    if (viewportHeight < 670) return 4;
+    if (viewportHeight < 760) return 5;
+    if (viewportHeight < 860) return 6;
+    return 7;
+  }, [viewportHeight]);
+  const visibleTasks = currentTasks.slice(0, visibleTaskLimit);
+  const hiddenTaskCount = Math.max(0, currentTasks.length - visibleTaskLimit);
+
+  useEffect(() => {
+    const setCurrentHeight = () => setViewportHeight(window.innerHeight);
+    setCurrentHeight();
+    window.addEventListener('resize', setCurrentHeight);
+    return () => window.removeEventListener('resize', setCurrentHeight);
+  }, []);
 
   const goPrevWeek = () => {
     setWeekOffset(prev => prev - 1);
@@ -139,11 +199,6 @@ export default function PlannerPage(): ReactElement {
     if (e.key === 'Escape') setEditing(null);
   };
 
-  const isToday = (date: Date): boolean => {
-    const today = new Date();
-    return date.toDateString() === today.toDateString();
-  };
-
   const formatMonthRange = (week: Date[]): string => {
     const start = week[0];
     const end = week[6];
@@ -173,7 +228,7 @@ export default function PlannerPage(): ReactElement {
         <Link
           href="/choose"
           aria-label="Exit to mode selection"
-          className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-[#1a1a2e]/90 text-white/95 shadow-md backdrop-blur-sm"
+          className="blunno-focus-visible blunno-nav-btn text-white/95"
         >
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
             <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -183,20 +238,27 @@ export default function PlannerPage(): ReactElement {
       </div>
       <h1
         className={cn(
-          'w-full shrink-0 py-2 text-center font-sans text-lg font-extrabold uppercase leading-tight tracking-figma [text-shadow:var(--shadow-text-title)]',
+          'w-full shrink-0 py-1.5 text-center font-sans text-lg font-extrabold uppercase leading-tight tracking-figma [text-shadow:var(--shadow-text-title)]',
           'sm:text-xl md:text-[22px]',
           '[@media(max-height:620px)]:py-1 [@media(max-height:620px)]:text-base'
         )}
       >
         <span className="text-white">PLAN WITH </span>
-        <span className="text-[#00FFD1]">BLUNNO</span>
+        <span className="text-[var(--color-accent-primary)]">BLUNNO</span>
       </h1>
 
-      {/* Month range with navigation */}
-      <div className="flex shrink-0 items-center justify-between pb-2">
+      {/* Today-first — primary block */}
+      <TodaySummaryCard
+        tasksMap={tasksMap}
+        selectedKey={selectedKey}
+        onJumpToToday={goCurrentWeek}
+      />
+
+      {/* Month range — secondary navigation */}
+      <div className="flex shrink-0 items-center justify-between pb-2 pt-1">
         <button
           onClick={goPrevWeek}
-          className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/15 bg-[#1a1a2e]/90 text-white/95 shadow-md backdrop-blur-sm hover:border-white/25 hover:bg-[#1a1a2e] transition-colors"
+          className="blunno-focus-visible flex h-11 w-11 items-center justify-center rounded-xl border border-white/12 bg-[var(--color-surface-1)] text-white/90 shadow-sm backdrop-blur-sm transition-colors hover:border-white/18 hover:bg-[var(--color-surface-2)]"
           aria-label="Previous week"
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
@@ -204,13 +266,13 @@ export default function PlannerPage(): ReactElement {
           </svg>
         </button>
         
-        <div className="text-sm text-white/70 text-center">
+        <div className="text-center text-xs text-white/55 sm:text-sm">
           {formatMonthRange(weekDays)}
         </div>
         
         <button
           onClick={goNextWeek}
-          className="flex h-8 w-8 items-center justify-center rounded-xl border border-white/15 bg-[#1a1a2e]/90 text-white/95 shadow-md backdrop-blur-sm hover:border-white/25 hover:bg-[#1a1a2e] transition-colors"
+          className="blunno-focus-visible flex h-11 w-11 items-center justify-center rounded-xl border border-white/12 bg-[var(--color-surface-1)] text-white/90 shadow-sm backdrop-blur-sm transition-colors hover:border-white/18 hover:bg-[var(--color-surface-2)]"
           aria-label="Next week"
         >
           <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
@@ -219,8 +281,9 @@ export default function PlannerPage(): ReactElement {
         </button>
       </div>
 
-      {/* Week strip */}
-      <div className="shrink-0 pb-4">
+      {/* Week strip — calendar context (secondary) */}
+      <div className="shrink-0 pb-3">
+        <p className="mb-2 text-center text-[11px] font-medium uppercase tracking-wider text-white/40">Week</p>
         <div className="flex justify-between gap-1">
           {weekDays.map((date, idx) => {
             const dayKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
@@ -229,37 +292,41 @@ export default function PlannerPage(): ReactElement {
             return (
               <button
                 key={idx}
+                type="button"
                 onClick={() => setSelectedKey(dayKey)}
-                className={`flex flex-1 flex-col items-center rounded-2xl py-2 transition-all ${
-                  isSelected
-                    ? 'bg-gradient-to-r from-blue-500/40 to-purple-500/40 shadow-md'
-                    : isWeekend
-                    ? 'border border-white/12 bg-gradient-to-br from-[#2a3318]/90 to-[#4a5c32]/85 hover:border-lime-200/20 hover:brightness-105'
-                    : 'bg-[#1E1E2F]'
-                }`}
+                className={cn(
+                  'blunno-focus-visible flex min-h-[44px] min-w-0 flex-1 flex-col items-center justify-center rounded-xl border py-1.5 transition-all',
+                  isSelected &&
+                    'border-[var(--color-accent-primary)]/35 bg-[var(--color-surface-2)] shadow-[0_0_0_1px_rgba(94,234,212,0.12)]',
+                  !isSelected &&
+                    isWeekend &&
+                    'border-[#B58A42]/35 bg-[rgba(74,58,35,0.86)] hover:border-[#D0A35A]/55',
+                  !isSelected && !isWeekend && 'border-white/8 bg-[var(--color-surface-1)] hover:border-white/14'
+                )}
               >
-                <span className="text-xs font-medium text-white/70">
+                <span className={cn('text-[10px] font-medium', isWeekend ? 'text-[#F5D9A6]/85' : 'text-white/55')}>
                   {date.toLocaleString('en-US', { weekday: 'short' }).toUpperCase()}
                 </span>
-                <span className="text-lg font-semibold">{date.getDate()}</span>
-                <div className="mt-1 h-1 w-1 rounded-full bg-white/50" />
+                <span className={cn('text-sm font-semibold', isWeekend ? 'text-[#F9E5C2]' : 'text-white/95')}>
+                  {date.getDate()}
+                </span>
               </button>
             );
           })}
         </div>
       </div>
 
-      {/* Task list – scrollable area */}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain">
-        <div className="space-y-2 pb-2">
-          {currentTasks.map((task, idx) => (
+      {/* Task list – fixed viewport, no vertical scroll */}
+      <div className="min-h-0 flex-1 overflow-hidden">
+        <div className="space-y-1.5 pb-1">
+          {visibleTasks.map((task, idx) => (
             <div
               key={task.id}
-              className={`flex min-w-0 items-center justify-between gap-2 rounded-2xl border p-3 transition ${
-                task.completed
-                  ? 'border-white/10 bg-gradient-to-r from-[#2A1C29] to-[#905E8C]'
-                  : 'border-white/12 bg-[linear-gradient(to_right,rgba(11,79,102,0.9)_5%,rgba(22,159,204,0.78)_90%)] shadow-[inset_0_1px_0_rgba(255,255,255,0.07)]'
-              }`}
+              className={cn(
+                'flex min-w-0 items-center justify-between gap-2 rounded-2xl border px-3 py-2.5 transition',
+                'border-white/10 bg-[var(--color-surface-1)] backdrop-blur-sm',
+                task.completed && 'border-white/8 bg-white/[0.05] opacity-90'
+              )}
             >
               {editing && editing.day === selectedKey && editing.index === idx ? (
                 <>
@@ -287,11 +354,12 @@ export default function PlannerPage(): ReactElement {
                       aria-label={task.completed ? `Mark "${task.text}" as not done` : `Mark "${task.text}" as done`}
                     />
                     <span
-                      className={`flex h-7 w-7 items-center justify-center rounded-full border-2 transition peer-focus-visible:ring-2 peer-focus-visible:ring-blue-400/60 ${
+                      className={cn(
+                        'flex h-7 w-7 items-center justify-center rounded-full border-2 transition peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--color-focus-ring)]',
                         task.completed
-                          ? 'border-transparent bg-gradient-to-br from-[#2A1C29] to-[#905E8C] shadow-[0_2px_10px_rgba(42,28,41,0.4)]'
-                          : 'border-white/30 bg-transparent'
-                      }`}
+                          ? 'border-[var(--color-accent-primary)]/50 bg-[var(--color-accent-primary)]/15 shadow-none'
+                          : 'border-white/28 bg-transparent'
+                      )}
                     >
                       {task.completed && (
                         <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -309,19 +377,16 @@ export default function PlannerPage(): ReactElement {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('[planner] Task text clicked (desktop)');
                       startEdit(idx, task.text);
                     }}
                     onTouchStart={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('[planner] Task text touched (mobile)');
                       startEdit(idx, task.text);
                     }}
                     onPointerDown={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('[planner] Task text pointer down');
                       startEdit(idx, task.text);
                     }}
                     onKeyDown={(e) => {
@@ -331,7 +396,7 @@ export default function PlannerPage(): ReactElement {
                         startEdit(idx, task.text);
                       }
                     }}
-                    className={`min-w-0 flex-1 cursor-text break-words text-base touch-manipulation select-none ${task.completed ? 'text-white opacity-60 line-through' : 'text-white'}`}
+                    className={`min-w-0 flex-1 cursor-text break-words text-sm touch-manipulation select-none sm:text-base ${task.completed ? 'text-white opacity-60 line-through' : 'text-white'}`}
                     style={{ 
                       minHeight: '44px', 
                       display: 'flex', 
@@ -349,19 +414,16 @@ export default function PlannerPage(): ReactElement {
                     onClick={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('[planner] Edit button clicked');
                       startEdit(idx, task.text);
                     }}
                     onTouchStart={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('[planner] Edit button touched');
                       startEdit(idx, task.text);
                     }}
                     onPointerDown={(e) => {
                       e.preventDefault();
                       e.stopPropagation();
-                      console.log('[planner] Edit button pointer down');
                       startEdit(idx, task.text);
                     }}
                     className="flex h-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl text-white/85 hover:text-white active:opacity-80 touch-manipulation"
@@ -395,11 +457,12 @@ export default function PlannerPage(): ReactElement {
                       aria-label={task.completed ? `Mark "${task.text}" as not done` : `Mark "${task.text}" as done`}
                     />
                     <span
-                      className={`flex h-7 w-7 items-center justify-center rounded-full border-2 transition peer-focus-visible:ring-2 peer-focus-visible:ring-blue-400/60 ${
+                      className={cn(
+                        'flex h-7 w-7 items-center justify-center rounded-full border-2 transition peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--color-focus-ring)]',
                         task.completed
-                          ? 'border-transparent bg-gradient-to-br from-[#2A1C29] to-[#905E8C] shadow-[0_2px_10px_rgba(42,28,41,0.4)]'
-                          : 'border-white/30 bg-transparent'
-                      }`}
+                          ? 'border-[var(--color-accent-primary)]/50 bg-[var(--color-accent-primary)]/15 shadow-none'
+                          : 'border-white/28 bg-transparent'
+                      )}
                     >
                       {task.completed && (
                         <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -408,15 +471,29 @@ export default function PlannerPage(): ReactElement {
                       )}
                     </span>
                   </label>
+                  <span
+                    className={cn(
+                      'ml-0.5 inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-sm transition',
+                      task.completed ? 'bg-[#F5D9A6]/20 text-[#F5D9A6]' : 'bg-white/5 text-white/35'
+                    )}
+                    aria-label={task.completed ? 'Reward star earned' : 'No reward yet'}
+                  >
+                    ★
+                  </span>
                 </>
               )}
             </div>
           ))}
+          {hiddenTaskCount > 0 && (
+            <p className="pt-0.5 text-center text-xs text-white/45">
+              +{hiddenTaskCount} more tasks hidden on this screen size
+            </p>
+          )}
         </div>
       </div>
 
       {/* Add task input – fixed at bottom */}
-      <div className="shrink-0 border-t border-white/10 py-4">
+      <div className="shrink-0 border-t border-white/10 py-2.5">
         {showLimitHint && (
           <div className="mb-3 rounded-xl bg-orange-500/20 border border-orange-500/30 px-3 py-2">
             <p className="text-xs text-orange-200 text-center">
@@ -436,18 +513,20 @@ export default function PlannerPage(): ReactElement {
               }
             }}
             placeholder="Add a new task..."
-            className="flex-1 rounded-xl bg-[#1a1a2e] px-4 py-2 text-white placeholder-white/40 outline-none focus:ring-2 focus:ring-blue-500/50 transition-all"
+            className="blunno-focus-visible flex-1 rounded-xl border border-white/10 bg-[var(--color-surface-1)] px-4 py-2 text-white placeholder-white/40 outline-none transition-all focus:ring-2 focus:ring-[var(--color-focus-ring)]"
             maxLength={60}
             disabled={currentTasks.length >= MAX_TOTAL}
           />
           <button
+            type="button"
             onClick={addTask}
             disabled={currentTasks.length >= MAX_TOTAL || !newTaskText.trim()}
-            className={`rounded-xl px-4 py-2 font-medium transition-all ${
+            className={cn(
+              'blunno-focus-visible rounded-xl px-4 py-2 font-semibold transition-all min-h-[44px]',
               currentTasks.length >= MAX_TOTAL || !newTaskText.trim()
-                ? 'bg-white/10 text-white/30 cursor-not-allowed'
-                : 'bg-gradient-to-r from-blue-500 to-purple-500 text-white hover:from-blue-600 hover:to-purple-600'
-            }`}
+                ? 'cursor-not-allowed bg-white/8 text-white/35'
+                : 'blunno-btn-primary border-0 py-2'
+            )}
           >
             Add
           </button>
@@ -455,6 +534,7 @@ export default function PlannerPage(): ReactElement {
         {currentTasks.length >= MAX_TOTAL && !showLimitHint && (
           <p className="mt-2 text-xs text-white/50 text-center">Max {MAX_TOTAL} tasks per day</p>
         )}
+        <p className="mt-1 text-center text-[11px] text-[#F5D9A6]/70">Today reward: ★ {completedCount}</p>
       </div>
     </main>
   );

@@ -30,8 +30,8 @@ type VisualTuning = {
 const DEFAULT_TUNING: VisualTuning = {
   ringDiameterPx: 252,
   strokeWidthPx: 28,
-  blurPx: 21,
-  glowColor: '#00FFD1',
+  blurPx: 14,
+  glowColor: '#5EEAD4',
   blunnoSizePx: 120,
   blunnoOffsetXPx: -5,
   blunnoOffsetYPx: -13,
@@ -70,14 +70,13 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
 
 function buildRingFilters(blurPx: number, glowHex: string): { progress: string; wrapper: string } {
   const rgb = hexToRgb(glowHex);
-  const fallback = '0, 255, 209';
+  const fallback = '94, 234, 212';
   const rgba = rgb ? `${rgb.r}, ${rgb.g}, ${rgb.b}` : fallback;
   const progress = [
     `drop-shadow(0 0 ${blurPx}px ${glowHex})`,
-    `drop-shadow(0 0 ${blurPx * 2.5}px rgba(${rgba}, 0.45))`,
-    'drop-shadow(0 0 10px rgba(255,0,245,0.35))',
+    `drop-shadow(0 0 ${blurPx * 1.8}px rgba(${rgba}, 0.28))`,
   ].join(' ');
-  const wrapper = `0 0 ${blurPx * 2.5}px rgba(${rgba}, 0.5), 0 0 12px rgba(255,0,245,0.3)`;
+  const wrapper = `0 0 ${blurPx * 1.6}px rgba(${rgba}, 0.28)`;
   return { progress, wrapper };
 }
 
@@ -90,6 +89,7 @@ export default function SosPage(): ReactElement {
   const [completedCycles, setCompletedCycles] = useState(0);
   const [exerciseStatus, setExerciseStatus] = useState<ExerciseStatus>('active');
   const [feedback, setFeedback] = useState<string>('');
+  const [isTracing, setIsTracing] = useState(false);
   const isTrackingRef = useRef(false);
 
   const { ringRadius, strokeView, circ } = useMemo(() => {
@@ -193,6 +193,7 @@ export default function SosPage(): ReactElement {
     void unlockAudioSession();
     e.currentTarget.setPointerCapture(e.pointerId);
     isTrackingRef.current = true;
+    setIsTracing(true);
     const rect = e.currentTarget.getBoundingClientRect();
     const a = getAngleFromClient(e.clientX, e.clientY, rect, VIEW_SIZE, VIEW_SIZE, CX, CY);
     lastAngleRef.current = a;
@@ -206,6 +207,7 @@ export default function SosPage(): ReactElement {
     }
     isTrackingRef.current = false;
     lastAngleRef.current = null;
+    setIsTracing(false);
   };
 
   const resetExercise = () => {
@@ -217,6 +219,7 @@ export default function SosPage(): ReactElement {
     setFeedback('');
     isTrackingRef.current = false;
     lastAngleRef.current = null;
+    setIsTracing(false);
   };
 
   const dashArray = useMemo(() => {
@@ -225,6 +228,14 @@ export default function SosPage(): ReactElement {
   }, [circ, cycleProgress]);
 
   const currentCycleLabel = Math.min(completedCycles + 1, TOTAL_CYCLES);
+
+  const breathPhaseLabel = useMemo(() => {
+    if (exerciseStatus === 'completed') return 'Complete';
+    const p = cycleProgress;
+    if (p < 1 / 3) return 'Inhale';
+    if (p < 2 / 3) return 'Hold';
+    return 'Exhale';
+  }, [cycleProgress, exerciseStatus]);
 
   const ringSizeStyle = {
     width: tuning.ringDiameterPx,
@@ -256,7 +267,7 @@ export default function SosPage(): ReactElement {
           <Link
             href="/choose"
             aria-label="Exit to mode selection"
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-[#1a1a2e]/90 text-white/95 shadow-md backdrop-blur-sm"
+            className="blunno-focus-visible blunno-nav-btn text-white/95"
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -273,7 +284,7 @@ export default function SosPage(): ReactElement {
           )}
         >
           <span className="text-white">BREATHE WITH </span>
-          <span className="text-[#00FFD1]">BLUNNO</span>
+          <span className="text-[var(--color-accent-primary)]">BLUNNO</span>
         </h1>
 
         <div
@@ -324,8 +335,8 @@ export default function SosPage(): ReactElement {
                 x2={VIEW_SIZE}
                 y2={VIEW_SIZE}
               >
-                <stop offset="0%" stopColor="#00FFD1" />
-                <stop offset="100%" stopColor="#FF00F5" />
+                <stop offset="0%" stopColor="#5EEAD4" />
+                <stop offset="100%" stopColor="#A78BFA" />
               </linearGradient>
             </defs>
 
@@ -367,10 +378,10 @@ export default function SosPage(): ReactElement {
                 draggable={false}
                 className="max-h-full max-w-full object-contain object-center"
                 style={{ width: tuning.blunnoSizePx, height: tuning.blunnoSizePx }}
-                animate={{ scale: [1, 1.08, 1] }}
+                animate={isTracing ? { scale: 1 } : { scale: [1, 1.04, 1] }}
                 transition={{
-                  duration: 4,
-                  repeat: Infinity,
+                  duration: isTracing ? 0.2 : 8,
+                  repeat: isTracing ? 0 : Infinity,
                   ease: 'easeInOut',
                   times: [0, 0.5, 1],
                 }}
@@ -380,6 +391,12 @@ export default function SosPage(): ReactElement {
           </div>
 
           <div className="flex w-full shrink-0 flex-col items-center gap-1 px-1 text-center">
+            <p
+              className="font-sans text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-accent-primary)] sm:text-sm"
+              aria-live="polite"
+            >
+              {breathPhaseLabel}
+            </p>
             <p className="font-sans text-sm font-semibold tracking-wide text-white/95 sm:text-base">
               Cycle {exerciseStatus === 'completed' ? TOTAL_CYCLES : currentCycleLabel} of {TOTAL_CYCLES}
             </p>
@@ -399,18 +416,15 @@ export default function SosPage(): ReactElement {
 
           {exerciseStatus === 'completed' && (
             <div className="flex w-full shrink-0 flex-col gap-2 sm:flex-row sm:gap-3">
-              <Link
-                href="/choose"
-                className="inline-flex flex-1 items-center justify-center rounded-2xl border border-white/25 bg-white/10 px-4 py-3 text-center font-sans text-sm font-extrabold uppercase tracking-wide text-white transition-colors hover:bg-white/18 sm:px-5 sm:py-3.5 sm:text-base"
-              >
-                COMPLETE
+              <Link href="/choose" className="blunno-btn-primary blunno-focus-visible flex-1 justify-center text-center sm:py-3.5 sm:text-base">
+                Complete
               </Link>
               <button
                 type="button"
-                className="inline-flex flex-1 items-center justify-center rounded-2xl border border-[#00FFD1]/45 bg-[#00FFD1]/12 px-4 py-3 font-sans text-sm font-extrabold uppercase tracking-wide text-[#00FFD1] transition-colors hover:bg-[#00FFD1]/22 sm:px-5 sm:py-3.5 sm:text-base"
+                className="blunno-btn-secondary blunno-focus-visible flex-1 justify-center sm:py-3.5 sm:text-base"
                 onClick={resetExercise}
               >
-                STAY
+                Repeat
               </button>
             </div>
           )}

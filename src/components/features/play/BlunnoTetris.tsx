@@ -274,23 +274,21 @@ export function BlunnoTetris(): ReactElement {
 
   return (
     <div
-      className="mx-auto flex h-full min-h-0 w-full max-w-[920px] flex-col items-center gap-1 overflow-hidden bg-[#0D0524] p-1.5 text-white [@media(min-height:700px)]:gap-2 [@media(min-height:700px)]:p-2 sm:p-3"
+      className="mx-auto flex h-full min-h-0 w-full max-w-[920px] flex-col items-center gap-1 overflow-hidden bg-blunno-bg p-1.5 text-[color:var(--color-text-primary)] [@media(min-height:700px)]:gap-2 [@media(min-height:700px)]:p-2 sm:p-3"
       onPointerDown={unlockAudioOnce}
     >
       <div className="grid w-full max-w-[460px] shrink-0 grid-cols-2 gap-1.5 sm:gap-2">
-        <div className="rounded-xl border border-white/25 bg-gradient-to-br from-[#2C1948] to-[#6A3CAE] p-2 text-center shadow-lg [box-shadow:inset_0_1px_0_rgba(255,255,255,0.12)]">
-          <p className="text-xs tracking-wide text-white/85">SCORE</p>
-          <p className="text-xl font-extrabold text-[#00FFD1] sm:text-3xl">{score}</p>
+        <div className="glass-card rounded-xl p-2 text-center">
+          <p className="text-xs tracking-wide text-[color:var(--color-text-secondary)]">SCORE</p>
+          <p className="text-xl font-extrabold text-[var(--color-accent-primary)] sm:text-3xl">{score}</p>
         </div>
-        <div className="rounded-xl border border-[#E7B453]/50 bg-gradient-to-br from-[#3d3224] to-[#5c4a32] p-2 text-center shadow-lg ring-1 ring-[#F5D78A]/25 [box-shadow:inset_0_1px_0_rgba(255,255,255,0.1)]">
-          <p className="text-xs tracking-wide text-[#FEF3C7]/95">TOP</p>
-          <p className="text-xl font-extrabold text-[#FFFBEB] [text-shadow:0_1px_3px_rgba(0,0,0,0.45)] sm:text-3xl">
-            {topScore}
-          </p>
+        <div className="glass-card rounded-xl p-2 text-center">
+          <p className="text-xs tracking-wide text-[color:var(--color-text-secondary)]">TOP</p>
+          <p className="text-xl font-extrabold text-white sm:text-3xl">{topScore}</p>
         </div>
       </div>
 
-      <div className="flex min-h-0 w-full max-w-[360px] flex-1 flex-col rounded-2xl border border-[#2DD4BF]/20 bg-white/8 p-1.5 shadow-lg backdrop-blur-sm sm:p-2">
+      <div className="glass-card flex min-h-0 w-full max-w-[360px] flex-1 flex-col rounded-2xl p-1.5 sm:p-2">
         <div className="grid min-h-0 flex-1 grid-cols-10 auto-rows-[minmax(0,1fr)] gap-0.5 sm:gap-1">
           {renderBoard.flatMap((row, y) =>
             row.map((cell, x) => <div key={`${x}-${y}`} className={['rounded-[3px]', PIECE_COLOR_CLASS[cell]].join(' ')} />)
@@ -299,36 +297,36 @@ export function BlunnoTetris(): ReactElement {
       </div>
 
       <div className="grid w-full max-w-[460px] shrink-0 grid-cols-4 gap-1.5 sm:gap-2">
-        <div className="rounded-xl border border-[#C084FC]/40 bg-gradient-to-br from-[#2a1f2e]/95 to-[#3d2a42]/90 px-3 py-2 text-center shadow-sm [box-shadow:inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm">
-          <p className="text-xs tracking-wide text-[#E9D5FF]/90">COMBO</p>
-          <p className="text-base font-bold text-[#F0ABFC] [text-shadow:0_1px_2px_rgba(0,0,0,0.35)] sm:text-xl">0</p>
+        <div className="glass-card rounded-xl px-2 py-2 text-center sm:px-3">
+          <p className="text-[10px] tracking-wide text-[color:var(--color-text-secondary)] sm:text-xs">COMBO</p>
+          <p className="text-sm font-bold text-white/90 sm:text-lg">0</p>
         </div>
-        <div className="rounded-xl border border-[#83A9AD]/45 bg-gradient-to-br from-[#283334]/95 to-[#3d4f52]/88 px-3 py-2 text-center shadow-sm [box-shadow:inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm">
-          <p className="text-xs tracking-wide text-[#C5E3E5]/90">LINES</p>
-          <p className="text-base font-bold text-[#B8D9DB] [text-shadow:0_1px_2px_rgba(0,0,0,0.35)] sm:text-xl">{lines}</p>
+        <div className="glass-card rounded-xl px-2 py-2 text-center sm:px-3">
+          <p className="text-[10px] tracking-wide text-[color:var(--color-text-secondary)] sm:text-xs">LINES</p>
+          <p className="text-sm font-bold text-[var(--color-accent-primary)] sm:text-lg">{lines}</p>
         </div>
-        <div className="rounded-xl border border-[#A78BFA]/45 bg-gradient-to-br from-[#24183a]/95 to-[#3b2d5c]/90 px-3 py-2 text-center shadow-sm [box-shadow:inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm">
-          <p className="text-xs tracking-wide text-[#DDD6FE]/90">LEVEL</p>
-          <p className="text-base font-bold text-[#C4B5FD] [text-shadow:0_1px_2px_rgba(0,0,0,0.35)] sm:text-xl">{level}</p>
+        <div className="glass-card rounded-xl px-2 py-2 text-center sm:px-3">
+          <p className="text-[10px] tracking-wide text-[color:var(--color-text-secondary)] sm:text-xs">LEVEL</p>
+          <p className="text-sm font-bold text-white/90 sm:text-lg">{level}</p>
         </div>
-        <div className="rounded-xl border border-[#E7B453]/45 bg-gradient-to-br from-[#2f2618]/95 to-[#4a3d28]/88 px-3 py-2 text-center shadow-sm [box-shadow:inset_0_1px_0_rgba(255,255,255,0.06)] backdrop-blur-sm">
-          <p className="text-xs tracking-wide text-[#FEF3C7]/90">SPEED</p>
-          <p className="text-base font-bold text-[#FFFBEB] [text-shadow:0_1px_3px_rgba(0,0,0,0.45)] sm:text-xl">{speed}</p>
+        <div className="glass-card rounded-xl px-2 py-2 text-center sm:px-3">
+          <p className="text-[10px] tracking-wide text-[color:var(--color-text-secondary)] sm:text-xs">SPEED</p>
+          <p className="text-sm font-bold text-white/90 sm:text-lg">{speed}</p>
         </div>
       </div>
 
       <button
         type="button"
         onClick={reset}
-        className="shrink-0 rounded-full bg-[#BDB2FF] px-6 py-1 text-sm font-bold text-white transition hover:scale-105 hover:bg-[#a89cfa] sm:px-7 sm:py-1.5 sm:py-2"
+        className="blunno-focus-visible glass-button shrink-0 rounded-2xl px-6 py-2 text-sm font-bold uppercase tracking-wide text-white sm:px-7 sm:py-2.5"
       >
-        {running ? 'RESTART' : 'START'}
+        {running ? 'Restart' : 'Start'}
       </button>
 
       <div className="grid w-full max-w-xs shrink-0 grid-cols-4 gap-1.5 text-center sm:gap-2">
         <button
           type="button"
-          className="rounded-xl border border-[#2DD4BF]/50 bg-[#0F2A33] py-1 text-base font-semibold text-[#CCFFF5] transition hover:bg-[#153845] sm:py-2 sm:text-lg"
+          className="blunno-focus-visible glass-button min-h-[44px] py-2 text-base font-semibold text-white/95 active:scale-[0.98] sm:text-lg"
           onClick={() => move(-1)}
           aria-label="Move left"
         >
@@ -336,7 +334,7 @@ export function BlunnoTetris(): ReactElement {
         </button>
         <button
           type="button"
-          className="rounded-xl border border-[#67E8F9]/50 bg-[#0F2536] py-1 text-base font-semibold text-[#DDF8FF] transition hover:bg-[#17344A] sm:py-2 sm:text-lg"
+          className="blunno-focus-visible glass-button min-h-[44px] py-2 text-base font-semibold text-white/95 active:scale-[0.98] sm:text-lg"
           onClick={stepDown}
           aria-label="Move down"
         >
@@ -344,7 +342,7 @@ export function BlunnoTetris(): ReactElement {
         </button>
         <button
           type="button"
-          className="rounded-xl border border-[#2DD4BF]/50 bg-[#0F2A33] py-1 text-base font-semibold text-[#CCFFF5] transition hover:bg-[#153845] sm:py-2 sm:text-lg"
+          className="blunno-focus-visible glass-button min-h-[44px] py-2 text-base font-semibold text-white/95 active:scale-[0.98] sm:text-lg"
           onClick={() => move(1)}
           aria-label="Move right"
         >
@@ -352,7 +350,7 @@ export function BlunnoTetris(): ReactElement {
         </button>
         <button
           type="button"
-          className="rounded-xl border border-[#C4B5FD]/60 bg-[#281C45] py-1 text-base font-semibold text-[#F0E9FF] transition hover:bg-[#34255B] sm:py-2 sm:text-lg"
+          className="blunno-focus-visible glass-button min-h-[44px] py-2 text-base font-semibold text-[var(--color-accent-secondary)] active:scale-[0.98] sm:text-lg"
           onClick={rotate}
           aria-label="Rotate piece"
         >
@@ -363,10 +361,10 @@ export function BlunnoTetris(): ReactElement {
       <button
         type="button"
         onClick={hardDrop}
-        className="w-full max-w-xs shrink-0 rounded-xl border border-[#F97316]/55 bg-gradient-to-br from-[#3f1f12]/95 to-[#5c2e18]/90 py-1.5 text-sm font-bold text-[#FFEDD5] shadow-sm transition hover:bg-[#5c2e18]/80 sm:py-2"
+        className="blunno-focus-visible glass-button w-full max-w-xs shrink-0 rounded-xl py-2.5 text-sm font-bold text-[var(--color-accent-primary)] sm:py-3"
         aria-label="Hard drop — instant fall"
       >
-        DROP ⤓
+        Drop
       </button>
     </div>
   );

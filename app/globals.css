@@ -6,8 +6,22 @@
 */
 
 :root {
+  /* Modern Glass Dark — semantic tokens (ADHD-first: calm contrast, one accent system) */
+  --color-bg: #0b0b1a;
+  --color-surface-1: rgba(255, 255, 255, 0.07);
+  --color-surface-2: rgba(255, 255, 255, 0.11);
+  --color-text-primary: rgba(255, 255, 255, 0.96);
+  --color-text-secondary: rgba(255, 255, 255, 0.62);
+  --color-accent-primary: #5eead4;
+  --color-accent-secondary: #a78bfa;
+  /* Semantic UI (Modern Glass) — distinct from legacy --color-success below */
+  --color-semantic-success: #34d399;
+  --color-semantic-warning: #fbbf24;
+  --color-semantic-danger: #fb7185;
+  --color-focus-ring: rgba(94, 234, 212, 0.55);
+
   /* Canvas / shell */
-  --app-bg: #0B0B1A;
+  --app-bg: var(--color-bg);
   --foreground: #ffffff;
   --foreground-soft: #fffbfb;
   --stroke-default: #000000;
@@ -38,11 +52,11 @@
   /* Planner time-slot cards */
   --gradient-slot: linear-gradient(131deg, #0b4f66 8%, #169fcc 87%);
 
-  /* Glass / overlays */
-  --glass-bg: rgba(255, 255, 255, 0.1);
-  --glass-border: rgba(255, 255, 255, 0.25);
-  --glass-hover-bg: rgba(255, 255, 255, 0.18);
-  --glass-hover-border: rgba(255, 255, 255, 0.4);
+  /* Glass / overlays — softer Modern Glass (less noise than heavy neon glass) */
+  --glass-bg: var(--color-surface-1);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-hover-bg: rgba(255, 255, 255, 0.13);
+  --glass-hover-border: rgba(255, 255, 255, 0.22);
   --overlay-scrim: rgba(0, 0, 0, 0.6);
 
   /* Elevation */
@@ -108,6 +122,13 @@
   --color-blunno-bg: var(--app-bg);
   --color-blunno-foreground: var(--foreground);
   --color-blunno-muted: var(--stroke-muted);
+  --color-blunno-surface-1: var(--color-surface-1);
+  --color-blunno-surface-2: var(--color-surface-2);
+  --color-blunno-text-primary: var(--color-text-primary);
+  --color-blunno-text-secondary: var(--color-text-secondary);
+  --color-blunno-accent: var(--color-accent-primary);
+  --color-blunno-accent-2: var(--color-accent-secondary);
+  --color-blunno-focus: var(--color-focus-ring);
   --color-blunno-blue: var(--color-blue-500);
   --color-blunno-gold: var(--color-gold);
   --color-blunno-lime: var(--color-lime);
@@ -141,7 +162,7 @@ body {
   overscroll-behavior-x: none;
   touch-action: pan-y;
   background-color: var(--app-bg);
-  color: var(--foreground);
+  color: var(--color-text-primary);
 }
 
 /* Utility: Figma title style (Sarabun extrabold + wide tracking) */
@@ -158,9 +179,9 @@ body {
 .glass-button {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.28);
   transition:
     background 0.2s ease,
     border-color 0.2s ease,
@@ -179,16 +200,97 @@ body {
 .glass-card {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
 }
 
 .glass-panel {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: var(--color-surface-1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Shared: keyboard focus (WCAG-friendly) */
+.blunno-focus-visible:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 3px;
+}
+
+/* Nav / icon row — one glass pattern app-wide */
+.blunno-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  min-width: 44px;
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: var(--color-surface-2);
+  color: var(--color-text-primary);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.12s ease;
+}
+
+.blunno-nav-btn:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.blunno-nav-btn:active {
+  transform: scale(0.98);
+}
+
+/* Primary CTA — single loud action per surface */
+.blunno-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-2xl);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: var(--text-sm);
+  border: 1px solid rgba(94, 234, 212, 0.35);
+  background: rgba(94, 234, 212, 0.12);
+  color: var(--color-accent-primary);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.blunno-btn-primary:hover {
+  background: rgba(94, 234, 212, 0.2);
+  border-color: rgba(94, 234, 212, 0.5);
+}
+
+.blunno-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0.75rem 1.25rem;
+  border-radius: var(--radius-2xl);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: var(--text-sm);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: var(--color-surface-1);
+  color: var(--color-text-primary);
+  transition: background 0.2s ease;
+}
+
+.blunno-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .gradient-bg {

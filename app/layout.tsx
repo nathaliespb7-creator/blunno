@@ -87,7 +87,7 @@ export default function RootLayout({
       lang="en"
       className={`${welcomeDisplay.variable} ${tiroTelugu.variable} ${comfortaa.variable} ${sarabun.variable} ${roboto.variable} ${inter.variable} min-h-dvh overflow-x-hidden bg-blunno-bg`}
     >
-      <body className="min-h-dvh w-full max-w-[100vw] overflow-x-hidden font-sans text-blunno-foreground antialiased">
+      <body className="min-h-dvh w-full max-w-[100vw] overflow-x-hidden font-ui text-blunno-foreground antialiased">
         <AudioUnlock />
         <DevCacheReset />
         {children}
