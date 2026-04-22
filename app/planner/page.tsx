@@ -50,7 +50,6 @@ interface TodaySummaryCardProps {
   tasksMap: TasksMap;
   selectedKey: string;
   onJumpToToday: () => void;
-  maxTotal: number;
 }
 
 function TodaySummaryCard({
