@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 
 import { playTaskCompleteInhale, unlockAudioSession } from '@/lib/navigationSound';
 import { cn } from '@/lib/utils';
@@ -105,16 +105,6 @@ export default function PlannerPage(): ReactElement {
   const currentTasks = tasksMap[selectedKey] || [];
   const weekDays = getWeekDays(selectedKey, weekOffset);
   const todayKey = getTodayKey();
-  const [viewportHeight, setViewportHeight] = useState(0);
-  const visibleTaskLimit = useMemo(() => {
-    if (viewportHeight <= 680) return 4;
-    if (viewportHeight <= 760) return 5;
-    if (viewportHeight <= 860) return 6;
-    return 7;
-  }, [viewportHeight]);
-  const visibleTaskStart = Math.max(0, currentTasks.length - visibleTaskLimit);
-  const visibleTasks = currentTasks.slice(visibleTaskStart);
-  const hiddenTaskCount = Math.max(0, currentTasks.length - visibleTaskLimit);
 
   useEffect(() => {
     setTasksMap((prev) => {
@@ -125,13 +115,6 @@ export default function PlannerPage(): ReactElement {
       };
     });
   }, [selectedKey]);
-
-  useEffect(() => {
-    const syncHeight = () => setViewportHeight(window.innerHeight);
-    syncHeight();
-    window.addEventListener('resize', syncHeight);
-    return () => window.removeEventListener('resize', syncHeight);
-  }, []);
 
   const goPrevWeek = () => {
     setWeekOffset(prev => prev - 1);
@@ -349,12 +332,11 @@ export default function PlannerPage(): ReactElement {
         </div>
       </div>
 
-      {/* Task list — fixed viewport (no page scroll) */}
-      <div className="min-h-0 flex-1 overflow-hidden">
+      {/* Task list — scrolls inside column; add bar stays fixed at bottom */}
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
         <div className="space-y-1.5 pb-2">
-          {visibleTasks.map((task, idx) => {
-            const actualIndex = visibleTaskStart + idx;
-            return (
+          {currentTasks.map((task, idx) => {
+              return (
             <div
               key={task.id}
               className={cn(
@@ -363,7 +345,7 @@ export default function PlannerPage(): ReactElement {
                   'planner-task-row--completed border-[var(--planner-task-border-completed)]'
               )}
             >
-              {editing && editing.day === selectedKey && editing.index === actualIndex ? (
+              {editing && editing.day === selectedKey && editing.index === idx ? (
                 <>
                   <input
                     type="text"
@@ -383,7 +365,7 @@ export default function PlannerPage(): ReactElement {
                     <input
                       type="checkbox"
                       checked={task.completed}
-                      onChange={() => toggleCompleted(actualIndex)}
+                      onChange={() => toggleCompleted(idx)}
                       className="peer sr-only"
                       aria-label={task.completed ? `Mark "${task.text}" as not done` : `Mark "${task.text}" as done`}
                     />
@@ -409,12 +391,12 @@ export default function PlannerPage(): ReactElement {
                     role="button"
                     tabIndex={0}
                     onClick={() => {
-                      startEdit(actualIndex, task.text);
+                      startEdit(idx, task.text);
                     }}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' || e.key === ' ') {
                         e.preventDefault();
-                        startEdit(actualIndex, task.text);
+                        startEdit(idx, task.text);
                       }
                     }}
                     className={`min-w-0 flex-1 cursor-text break-words text-sm touch-manipulation select-none sm:text-base ${task.completed ? 'text-white opacity-60 line-through' : 'text-white'}`}
@@ -433,7 +415,7 @@ export default function PlannerPage(): ReactElement {
                     type="button"
                     aria-label={`Edit task: ${task.text}`}
                     onClick={() => {
-                      startEdit(actualIndex, task.text);
+                      startEdit(idx, task.text);
                     }}
                     className="flex h-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl text-white/85 hover:text-white active:opacity-80 touch-manipulation"
                     style={{
@@ -461,7 +443,7 @@ export default function PlannerPage(): ReactElement {
                     <input
                       type="checkbox"
                       checked={task.completed}
-                      onChange={() => toggleCompleted(actualIndex)}
+                      onChange={() => toggleCompleted(idx)}
                       className="peer sr-only"
                       aria-label={task.completed ? `Mark "${task.text}" as not done` : `Mark "${task.text}" as done`}
                     />
@@ -485,11 +467,6 @@ export default function PlannerPage(): ReactElement {
             </div>
             );
           })}
-          {hiddenTaskCount > 0 && (
-            <p className="pt-0.5 text-center text-[11px] text-white/45">
-              +{hiddenTaskCount} tasks hidden for this screen height
-            </p>
-          )}
         </div>
       </div>
 
