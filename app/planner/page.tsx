@@ -64,7 +64,7 @@ function TodaySummaryCard({
   const isViewingToday = selectedKey === todayKey;
 
   return (
-    <section className="planner-summary-card mb-1.5 w-full max-w-lg shrink-0 rounded-xl px-2.5 py-2 text-left sm:mx-auto sm:px-3">
+    <section className="planner-summary-card mb-1.5 w-full max-w-lg shrink-0 rounded-2xl px-2.5 py-2.5 text-left sm:mx-auto sm:px-3.5 sm:py-2.5">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
           <p className="text-[10px] font-semibold uppercase tracking-wider text-white/55">Today&apos;s focus</p>

@@ -45,37 +45,37 @@
   --color-error: var(--color-coral);
 
   /* Mode button gradients — Home frame */
-  --gradient-sos: linear-gradient(131deg, #2a1c29 5%, #905e8c 94%);
+  --gradient-sos: linear-gradient(131deg, #2a1c29 4%, #905e8c 92%);
   --gradient-planner: linear-gradient(127deg, #364547 4%, #83a9ad 93%);
   --gradient-play: linear-gradient(131deg, #2c1948 1%, #6a3cae 100%);
   --gradient-relax: linear-gradient(133deg, #81642f 21%, #e7b453 96%);
   /* Planner / Figma cells: linear 5% → 90% (top-left to bottom-right ≈ 131deg) */
   --gradient-slot: linear-gradient(131deg, #0b4f66 5%, #169fcc 90%);
 
-  /* Planner week strip — cool slate/teal tints on #0b0b1a; teal accent for selection / today */
-  --planner-day-bg: rgba(18, 48, 62, 0.48);
-  --planner-day-border: rgba(180, 220, 240, 0.2);
-  --planner-day-hover-bg: rgba(22, 58, 75, 0.58);
-  --planner-day-selected-bg: rgba(8, 48, 62, 0.82);
+  /* Week strip — muted purples to match task rows; teal accent for selection / today */
+  --planner-day-bg: rgba(40, 32, 48, 0.5);
+  --planner-day-border: rgba(200, 160, 195, 0.22);
+  --planner-day-hover-bg: rgba(52, 40, 58, 0.62);
+  --planner-day-selected-bg: rgba(22, 36, 44, 0.88);
   --planner-day-today-ring: rgba(94, 234, 212, 0.42);
-  --planner-week-nav-surface: rgba(20, 50, 64, 0.45);
-  --planner-week-nav-surface-hover: rgba(28, 62, 78, 0.58);
-  --planner-week-nav-border: rgba(180, 220, 240, 0.16);
+  --planner-week-nav-surface: rgba(38, 30, 46, 0.55);
+  --planner-week-nav-surface-hover: rgba(50, 40, 58, 0.65);
+  --planner-week-nav-border: rgba(200, 160, 195, 0.18);
 
-  /* Today’s focus — same hue family, softer than full task row */
-  --planner-summary-surface: linear-gradient(131deg, rgba(11, 79, 102, 0.72) 5%, rgba(22, 159, 204, 0.38) 90%);
-  --planner-summary-border: rgba(180, 220, 240, 0.26);
-  --planner-summary-shadow: 0 4px 20px rgba(2, 12, 22, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  --planner-star-foreground: #b8e8f5;
+  /* Today’s focus — dark teal card + bright cyan border (ref screenshot) */
+  --planner-summary-surface: #132f3c;
+  --planner-summary-border: #5eead4;
+  --planner-summary-shadow: 0 4px 20px rgba(0, 8, 14, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --planner-star-foreground: #5eead4;
 
-  /* Task rows — Figma cell gradient; completed = darker in same family */
-  --planner-task-surface: var(--gradient-slot);
-  --planner-task-surface-completed: linear-gradient(131deg, #072f3d 5%, #0c5a78 90%);
-  --planner-task-border: rgba(200, 235, 255, 0.32);
-  --planner-task-border-completed: rgba(200, 235, 255, 0.2);
-  --planner-task-shadow: 0 4px 16px rgba(2, 16, 28, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-  --planner-task-input-fill: rgba(8, 50, 66, 0.88);
-  --planner-input-surface: rgba(10, 55, 72, 0.92);
+  /* Task rows — linear gradient 4% / 92% (Figma) */
+  --planner-task-surface: var(--gradient-sos);
+  --planner-task-surface-completed: linear-gradient(131deg, #1a1218 4%, #5a3d57 92%);
+  --planner-task-border: rgba(220, 180, 215, 0.35);
+  --planner-task-border-completed: rgba(200, 160, 195, 0.22);
+  --planner-task-shadow: 0 4px 16px rgba(8, 4, 12, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --planner-task-input-fill: rgba(32, 22, 36, 0.92);
+  --planner-input-surface: rgba(36, 26, 40, 0.94);
 
   /* Glass / overlays — softer Modern Glass (less noise than heavy neon glass) */
   --glass-bg: var(--color-surface-1);
