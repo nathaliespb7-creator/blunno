@@ -248,7 +248,7 @@ export default function PlannerPage(): ReactElement {
       </div>
       <h1
         className={cn(
-          'w-full shrink-0 pb-1 text-center font-sans text-lg font-extrabold uppercase leading-tight tracking-figma [text-shadow:var(--shadow-text-title)]',
+          'w-full shrink-0 pb-2 text-center font-sans text-lg font-extrabold uppercase leading-tight tracking-figma [text-shadow:var(--shadow-text-title)]',
           'sm:text-xl md:text-[22px]',
           '[@media(max-height:620px)]:py-1 [@media(max-height:620px)]:text-base'
         )}
@@ -256,14 +256,16 @@ export default function PlannerPage(): ReactElement {
         <span className="text-white">PLAN WITH </span>
         <span className="text-[var(--color-accent-primary)]">BLUNNO</span>
       </h1>
-      <div className="mb-2 h-px w-full shrink-0 bg-white/10" aria-hidden />
+      <div className="mb-3 h-px w-full shrink-0 bg-white/10" aria-hidden />
 
       {/* Today-first — primary block */}
+      <div className="shrink-0 pt-1 sm:pt-2">
       <TodaySummaryCard
         tasksMap={tasksMap}
         selectedKey={selectedKey}
         onJumpToToday={goCurrentWeek}
       />
+      </div>
 
       {/* Month range — secondary navigation */}
       <div className="flex shrink-0 items-center justify-between pb-2 pt-1">
