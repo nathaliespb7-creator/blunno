@@ -356,10 +356,9 @@ export default function PlannerPage(): ReactElement {
             <div
               key={task.id}
               className={cn(
-                'flex min-w-0 items-center justify-between gap-2 rounded-2xl border border-[var(--planner-task-border)] py-2.5 pl-2.5 pr-3 shadow-[var(--planner-task-shadow)] transition',
-                'bg-[var(--planner-task-surface)]',
+                'planner-task-row flex min-w-0 items-center justify-between gap-2 rounded-2xl border border-[var(--planner-task-border)] py-2.5 pl-2.5 pr-3 shadow-[var(--planner-task-shadow)] transition',
                 task.completed &&
-                  'border-[var(--planner-task-border-completed)] bg-[var(--planner-task-surface-completed)]'
+                  'planner-task-row--completed border-[var(--planner-task-border-completed)]'
               )}
             >
               {editing && editing.day === selectedKey && editing.index === actualIndex ? (

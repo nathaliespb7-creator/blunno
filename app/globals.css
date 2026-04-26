@@ -49,37 +49,33 @@
   --gradient-planner: linear-gradient(127deg, #364547 4%, #83a9ad 93%);
   --gradient-play: linear-gradient(131deg, #2c1948 1%, #6a3cae 100%);
   --gradient-relax: linear-gradient(133deg, #81642f 21%, #e7b453 96%);
-  /* Planner time-slot cards */
-  --gradient-slot: linear-gradient(131deg, #0b4f66 8%, #169fcc 87%);
+  /* Planner / Figma cells: linear 5% → 90% (top-left to bottom-right ≈ 131deg) */
+  --gradient-slot: linear-gradient(131deg, #0b4f66 5%, #169fcc 90%);
 
-  /* Planner week strip — warm tints on cool canvas; one accent (teal) for selection / today */
-  --planner-day-bg: rgba(90, 76, 66, 0.42);
-  --planner-day-border: rgba(245, 217, 166, 0.2);
-  --planner-day-hover-bg: rgba(102, 88, 76, 0.55);
-  --planner-day-selected-bg: rgba(36, 58, 56, 0.78);
-  /* “Today” when not selected: same family as focus ring, not separate amber */
+  /* Planner week strip — cool slate/teal tints on #0b0b1a; teal accent for selection / today */
+  --planner-day-bg: rgba(18, 48, 62, 0.48);
+  --planner-day-border: rgba(180, 220, 240, 0.2);
+  --planner-day-hover-bg: rgba(22, 58, 75, 0.58);
+  --planner-day-selected-bg: rgba(8, 48, 62, 0.82);
   --planner-day-today-ring: rgba(94, 234, 212, 0.42);
-  /* Week nav chips (prev/next) — no blur, solid on canvas */
-  --planner-week-nav-surface: rgba(90, 76, 66, 0.38);
-  --planner-week-nav-surface-hover: rgba(102, 88, 76, 0.52);
-  --planner-week-nav-border: rgba(245, 217, 166, 0.14);
+  --planner-week-nav-surface: rgba(20, 50, 64, 0.45);
+  --planner-week-nav-surface-hover: rgba(28, 62, 78, 0.58);
+  --planner-week-nav-border: rgba(180, 220, 240, 0.16);
 
-  /* Today summary — warm panel on cold #0b0b1a */
-  --planner-summary-surface: rgba(100, 84, 72, 0.88);
-  --planner-summary-border: rgba(245, 217, 166, 0.22);
-  --planner-summary-shadow: 0 4px 20px rgba(0, 0, 0, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  --planner-star-foreground: #e8c88c;
+  /* Today’s focus — same hue family, softer than full task row */
+  --planner-summary-surface: linear-gradient(131deg, rgba(11, 79, 102, 0.72) 5%, rgba(22, 159, 204, 0.38) 90%);
+  --planner-summary-border: rgba(180, 220, 240, 0.26);
+  --planner-summary-shadow: 0 4px 20px rgba(2, 12, 22, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --planner-star-foreground: #b8e8f5;
 
-  /* Planner task list — one warm “material” family (higher L* vs old lilac-gray) */
-  --planner-task-surface: rgba(82, 70, 60, 0.96);
-  --planner-task-surface-completed: rgba(58, 50, 44, 0.95);
-  --planner-task-border: rgba(245, 217, 166, 0.22);
-  --planner-task-border-completed: rgba(245, 217, 166, 0.12);
-  /* Rim only — no side-stripe accent on cards */
-  --planner-task-shadow: 0 2px 14px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  --planner-task-input-fill: rgba(72, 62, 54, 0.92);
-  /* Bottom “Add a task” */
-  --planner-input-surface: rgba(76, 64, 56, 0.96);
+  /* Task rows — Figma cell gradient; completed = darker in same family */
+  --planner-task-surface: var(--gradient-slot);
+  --planner-task-surface-completed: linear-gradient(131deg, #072f3d 5%, #0c5a78 90%);
+  --planner-task-border: rgba(200, 235, 255, 0.32);
+  --planner-task-border-completed: rgba(200, 235, 255, 0.2);
+  --planner-task-shadow: 0 4px 16px rgba(2, 16, 28, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --planner-task-input-fill: rgba(8, 50, 66, 0.88);
+  --planner-input-surface: rgba(10, 55, 72, 0.92);
 
   /* Glass / overlays — softer Modern Glass (less noise than heavy neon glass) */
   --glass-bg: var(--color-surface-1);
@@ -234,11 +230,19 @@ body {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.24);
 }
 
-/* Planner “Today’s focus” — solid warm layer (no full-screen glass) */
+/* Planner “Today’s focus” + task rows (gradients need background:, not bg-color utilities) */
 .planner-summary-card {
   background: var(--planner-summary-surface);
   border: 1px solid var(--planner-summary-border);
   box-shadow: var(--planner-summary-shadow);
+}
+
+.planner-task-row {
+  background: var(--planner-task-surface);
+}
+
+.planner-task-row--completed {
+  background: var(--planner-task-surface-completed);
 }
 
 .glass-panel {
