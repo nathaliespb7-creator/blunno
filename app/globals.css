@@ -138,6 +138,17 @@
   --welcome-hero-size-max: 1.5rem;
   --welcome-tag-size-min: 1.75rem;
   --welcome-tag-size-max: 2rem;
+
+  /* Play grid (Tetris) — play-grid-clear theme; use .theme-play-grid on the Tetris root */
+  --tetris-cell-empty: rgba(30, 42, 46, 0.66);
+  --tetris-grid-line: rgba(255, 255, 255, 0.12);
+  --tetris-piece-1: #2dd4bf;
+  --tetris-piece-2: #fb7185;
+  --tetris-piece-3: #f59e0b;
+  --tetris-piece-4: #fde047;
+  --tetris-piece-5: #4ade80;
+  --tetris-piece-6: #a78bfa;
+  --tetris-piece-7: #f97316;
 }
 
 @theme inline {
