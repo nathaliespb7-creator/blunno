@@ -285,140 +285,67 @@ export function BlunnoTetris(): ReactElement {
     return view;
   }, [board, piece]);
 
+  const actionBtnClass =
+    'blunno-focus-visible tetris-action-btn min-h-[44px] rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-[0.08em] text-white sm:text-sm';
+  const dpadBtnClass =
+    'blunno-focus-visible tetris-dpad-btn min-h-[44px] rounded-xl py-2 text-base font-semibold text-white active:scale-[0.98] sm:text-lg';
+
   return (
     <div
-      className="theme-play-grid mx-auto flex h-full min-h-0 w-full max-w-[980px] flex-col overflow-hidden bg-blunno-bg p-1 text-[color:var(--color-text-primary)] sm:p-1.5 [@media(min-height:700px)]:p-2 md:p-2"
+      className="theme-play-grid mx-auto flex h-full min-h-0 w-full max-w-[980px] flex-col overflow-hidden rounded-[28px] p-3 text-[color:var(--color-text-primary)] sm:p-4"
       onPointerDown={unlockAudioOnce}
     >
-      <div className="flex min-h-0 w-full min-w-0 flex-1 flex-col gap-1.5 sm:gap-2 md:flex-row md:gap-3">
-        <div className="flex min-h-0 min-w-0 flex-1 flex-col items-stretch">
-          <div className="mb-1 flex w-full max-w-full shrink-0 items-center justify-between gap-1.5 px-0.5 min-[600px]:px-0 md:mb-0 md:hidden">
-            <div className="glass-card rounded-lg px-2 py-0.5 shadow-sm backdrop-blur-sm">
-              <p className="text-[9px] font-medium tracking-wide text-[color:var(--color-text-secondary)]">SCORE</p>
-              <p className="text-base font-extrabold leading-none text-[var(--color-accent-primary)] tabular-nums">{score}</p>
+      <div className="grid min-h-0 w-full flex-1 grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_minmax(180px,212px)]">
+        <div className="flex min-h-0 min-w-0 flex-col gap-3">
+          <div className="grid grid-cols-2 gap-2 md:hidden">
+            <div className="tetris-chip">
+              <p className="tetris-chip-label">Score</p>
+              <p className="tetris-chip-value text-[var(--color-accent-primary)]">{score}</p>
             </div>
-            <div className="glass-card rounded-lg px-2 py-0.5 text-right shadow-sm backdrop-blur-sm">
-              <p className="text-[9px] font-medium tracking-wide text-[color:var(--color-text-secondary)]">TOP</p>
-              <p className="text-base font-extrabold leading-none text-[color:var(--color-text-primary)] tabular-nums">
-                {topScore}
-              </p>
+            <div className="tetris-chip text-right">
+              <p className="tetris-chip-label">Top</p>
+              <p className="tetris-chip-value">{topScore}</p>
             </div>
           </div>
 
-          <div
-            className="relative z-0 mx-auto box-border aspect-[1/2] h-[min(72dvh,calc(100dvh-12rem))] w-auto min-w-0 max-w-full min-[600px]:h-[min(78dvh,calc(100dvh-10.5rem))] md:h-[min(85dvh,calc(100dvh-4rem))]"
-          >
-            <div className="glass-card absolute inset-0 flex min-h-0 flex-col overflow-hidden rounded-2xl p-1.5 sm:p-2">
-              <div className="grid h-full min-h-0 w-full min-w-0 grid-cols-10 auto-rows-[minmax(0,1fr)] gap-0.5 sm:gap-1">
-                {renderBoard.flatMap((row, y) =>
-                  row.map((cell, x) => (
-                    <div
-                      key={`${x}-${y}`}
-                      className={['min-h-0 min-w-0 rounded-[3px]', PIECE_COLOR_CLASS[cell]].join(' ')}
-                    />
-                  ))
-                )}
+          <div className="relative mx-auto w-full max-w-[560px] min-w-0 flex-1 md:max-w-none">
+            <div className="relative mx-auto aspect-[1/2] h-full max-h-[min(76dvh,680px)] w-auto max-w-full">
+              <div className="tetris-board-shell absolute inset-0 flex min-h-0 flex-col overflow-hidden rounded-[24px] p-2 sm:p-2.5">
+                <div className="grid h-full min-h-0 w-full min-w-0 grid-cols-10 auto-rows-[minmax(0,1fr)] gap-[1px] sm:gap-[2px]">
+                  {renderBoard.flatMap((row, y) =>
+                    row.map((cell, x) => (
+                      <div key={`${x}-${y}`} className={['min-h-0 min-w-0 rounded-[2px]', PIECE_COLOR_CLASS[cell]].join(' ')} />
+                    ))
+                  )}
+                </div>
               </div>
-            </div>
-            {running && paused && (
-              <button
-                type="button"
-                onClick={togglePause}
-                className="absolute inset-0 z-10 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-2xl border border-white/10 bg-[var(--overlay-scrim)] px-4 backdrop-blur-[2px] touch-manipulation"
-                aria-label="Resume game"
-              >
-                <span className="text-sm font-extrabold uppercase tracking-wider text-white">Paused</span>
-                <span className="text-xs text-white/80">Tap to continue</span>
-              </button>
-            )}
-          </div>
-        </div>
-
-        <aside className="flex w-full min-w-0 shrink-0 flex-col gap-1.5 sm:gap-2 md:w-[240px]">
-          <div className="hidden md:grid md:grid-cols-1 md:gap-1.5">
-            <div className="glass-card rounded-lg px-2 py-1.5 text-center sm:py-2">
-              <p className="text-[10px] font-medium tracking-wide text-[color:var(--color-text-secondary)] sm:text-xs">SCORE</p>
-              <p className="text-lg font-extrabold leading-tight text-[var(--color-accent-primary)] sm:text-2xl">{score}</p>
-            </div>
-            <div className="glass-card rounded-lg px-2 py-1.5 text-center sm:py-2">
-              <p className="text-[10px] font-medium tracking-wide text-[color:var(--color-text-secondary)] sm:text-xs">TOP</p>
-              <p className="text-lg font-extrabold leading-tight text-white sm:text-2xl">{topScore}</p>
+              {running && paused && (
+                <button
+                  type="button"
+                  onClick={togglePause}
+                  className="absolute inset-0 z-10 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-[24px] border border-white/15 bg-[var(--overlay-scrim)] px-4 backdrop-blur-[2px] touch-manipulation"
+                  aria-label="Resume game"
+                >
+                  <span className="text-sm font-extrabold uppercase tracking-wider text-white">Paused</span>
+                  <span className="text-xs text-white/80">Tap to continue</span>
+                </button>
+              )}
             </div>
           </div>
 
-          <div className="grid grid-cols-3 gap-1 min-[480px]:gap-1.5 md:grid-cols-1 md:gap-1.5">
-            <div className="glass-card rounded-md px-1.5 py-1 text-center md:rounded-lg md:px-2 md:py-1.5">
-              <p className="text-[9px] font-medium tracking-wide text-[color:var(--color-text-secondary)] min-[480px]:text-[10px] sm:text-xs">
-                LINES
-              </p>
-              <p className="text-xs font-bold text-[var(--color-accent-primary)] min-[480px]:text-sm sm:text-base tabular-nums">
-                {lines}
-              </p>
-            </div>
-            <div className="glass-card rounded-md px-1.5 py-1 text-center md:rounded-lg md:px-2 md:py-1.5">
-              <p className="text-[9px] font-medium tracking-wide text-[color:var(--color-text-secondary)] min-[480px]:text-[10px] sm:text-xs">
-                LEVEL
-              </p>
-              <p className="text-xs font-bold text-[color:var(--color-text-primary)] min-[480px]:text-sm sm:text-base tabular-nums">
-                {level}
-              </p>
-            </div>
-            <div className="glass-card rounded-md px-1.5 py-1 text-center md:rounded-lg md:px-2 md:py-1.5">
-              <p className="text-[9px] font-medium tracking-wide text-[color:var(--color-text-secondary)] min-[480px]:text-[10px] sm:text-xs">
-                SPEED
-              </p>
-              <p className="text-xs font-bold text-[color:var(--color-text-primary)] min-[480px]:text-sm sm:text-base tabular-nums">
-                {speed}
-              </p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
-            <button
-              type="button"
-              onClick={togglePause}
-              disabled={!running}
-              className="blunno-focus-visible glass-button min-h-[36px] rounded-lg py-1 text-[11px] font-bold uppercase tracking-wide text-white/95 disabled:cursor-not-allowed disabled:opacity-40 sm:min-h-[40px] sm:rounded-xl sm:py-1.5 sm:text-xs md:min-h-[44px] md:py-2 md:text-sm"
-            >
-              {paused ? 'Resume' : 'Pause'}
-            </button>
-            <button
-              type="button"
-              onClick={reset}
-              className="blunno-focus-visible glass-button min-h-[36px] rounded-lg py-1 text-[11px] font-bold uppercase tracking-wide text-white sm:min-h-[40px] sm:rounded-xl sm:py-1.5 sm:text-xs md:min-h-[44px] md:py-2 md:text-sm"
-            >
-              {running ? 'Restart' : 'Start'}
-            </button>
-          </div>
-
-          <div className="grid grid-cols-4 gap-1 text-center min-[480px]:gap-1.5 sm:gap-2">
-            <button
-              type="button"
-              className="blunno-focus-visible glass-button min-h-[38px] py-1.5 text-sm font-semibold text-white/95 active:scale-[0.98] min-[480px]:min-h-[40px] min-[480px]:text-base sm:min-h-[44px] sm:py-2 sm:text-lg"
-              onClick={() => move(-1)}
-              aria-label="Move left"
-            >
+          <div className="grid grid-cols-4 gap-2 text-center">
+            <button type="button" className={dpadBtnClass} onClick={() => move(-1)} aria-label="Move left">
               ←
             </button>
-            <button
-              type="button"
-              className="blunno-focus-visible glass-button min-h-[38px] py-1.5 text-sm font-semibold text-white/95 active:scale-[0.98] min-[480px]:min-h-[40px] min-[480px]:text-base sm:min-h-[44px] sm:py-2 sm:text-lg"
-              onClick={stepDown}
-              aria-label="Move down"
-            >
+            <button type="button" className={dpadBtnClass} onClick={stepDown} aria-label="Move down">
               ↓
             </button>
-            <button
-              type="button"
-              className="blunno-focus-visible glass-button min-h-[38px] py-1.5 text-sm font-semibold text-white/95 active:scale-[0.98] min-[480px]:min-h-[40px] min-[480px]:text-base sm:min-h-[44px] sm:py-2 sm:text-lg"
-              onClick={() => move(1)}
-              aria-label="Move right"
-            >
+            <button type="button" className={dpadBtnClass} onClick={() => move(1)} aria-label="Move right">
               →
             </button>
             <button
               type="button"
-              className="blunno-focus-visible glass-button min-h-[38px] py-1.5 text-sm font-semibold text-[var(--color-accent-secondary)] active:scale-[0.98] min-[480px]:min-h-[40px] min-[480px]:text-base sm:min-h-[44px] sm:py-2 sm:text-lg"
+              className={`${dpadBtnClass} text-[var(--tetris-accent-secondary)]`}
               onClick={rotate}
               aria-label="Rotate piece"
             >
@@ -429,11 +356,53 @@ export function BlunnoTetris(): ReactElement {
           <button
             type="button"
             onClick={hardDrop}
-            className="blunno-focus-visible glass-button w-full rounded-lg py-2 text-xs font-bold text-[var(--color-accent-primary)] sm:rounded-xl sm:py-2.5 sm:text-sm md:py-3"
+            className="blunno-focus-visible tetris-drop-btn min-h-[46px] w-full rounded-2xl px-3 py-2 text-sm font-bold tracking-[0.08em] text-white"
             aria-label="Hard drop — instant fall"
           >
             Drop
           </button>
+        </div>
+
+        <aside className="flex min-w-0 flex-col gap-2 md:justify-start">
+          <div className="hidden grid-cols-1 gap-2 md:grid">
+            <div className="tetris-chip">
+              <p className="tetris-chip-label">Level</p>
+              <p className="tetris-chip-value">{level}</p>
+            </div>
+            <div className="tetris-chip">
+              <p className="tetris-chip-label">Score</p>
+              <p className="tetris-chip-value text-[var(--color-accent-primary)]">{score}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 md:grid-cols-1">
+            <div className="tetris-chip">
+              <p className="tetris-chip-label">Lines</p>
+              <p className="tetris-chip-value">{lines}</p>
+            </div>
+            <div className="tetris-chip">
+              <p className="tetris-chip-label">Top</p>
+              <p className="tetris-chip-value">{topScore}</p>
+            </div>
+            <div className="tetris-chip">
+              <p className="tetris-chip-label">Speed</p>
+              <p className="tetris-chip-value">{speed}</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-1">
+            <button
+              type="button"
+              onClick={togglePause}
+              disabled={!running}
+              className={`${actionBtnClass} tetris-action-btn--pause disabled:cursor-not-allowed disabled:opacity-50`}
+            >
+              {paused ? 'Resume' : 'Pause'}
+            </button>
+            <button type="button" onClick={reset} className={`${actionBtnClass} tetris-action-btn--stop`}>
+              {running ? 'Restart' : 'Start'}
+            </button>
+          </div>
         </aside>
       </div>
     </div>
