@@ -6,11 +6,11 @@ import { useState, type ReactElement } from 'react';
 
 import { BalloonPop } from '@/components/features/play/BalloonPop';
 import { BlunnoTetris } from '@/components/features/play/BlunnoTetris';
-import { SpinnerGame } from '@/components/features/play/SpinnerGame';
+import { SudokuGame } from '@/components/features/play/SudokuGame';
 import { cn } from '@/lib/utils';
 import { audioService } from '@/services/audioService';
 
-type GameKey = 'tetris' | 'spinner' | 'balloon';
+type GameKey = 'tetris' | 'sudoku' | 'balloon';
 
 export function PlayHub(): ReactElement {
   const [selectedGame, setSelectedGame] = useState<GameKey | null>(null);
@@ -125,30 +125,30 @@ export function PlayHub(): ReactElement {
               <button
                 type="button"
                 onClick={() => {
-                  void openGame('spinner');
+                  void openGame('sudoku');
                 }}
                 className="flex flex-col items-center"
-                aria-label="Open fidget spinner game"
+                aria-label="Open Sudoku game"
               >
-                <div className="glass-card flex h-[140px] w-[220px] items-center justify-center rounded-2xl p-4 sm:w-[250px]">
-                  <svg
-                    viewBox="0 0 120 120"
-                    className="h-[100px] w-[100px] drop-shadow-[0_8px_20px_rgba(0,0,0,0.3)] sm:h-[108px] sm:w-[108px]"
-                    aria-hidden
-                  >
-                    <defs>
-                      <linearGradient id="spinnerPreviewGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stopColor="#5EEAD4" />
-                        <stop offset="50%" stopColor="#A78BFA" />
-                        <stop offset="100%" stopColor="#F0ABFC" />
-                      </linearGradient>
-                    </defs>
-                    <circle cx="60" cy="22" r="18" fill="url(#spinnerPreviewGrad)" opacity="0.92" />
-                    <circle cx="22" cy="88" r="18" fill="url(#spinnerPreviewGrad)" opacity="0.92" />
-                    <circle cx="98" cy="88" r="18" fill="url(#spinnerPreviewGrad)" opacity="0.92" />
-                    <circle cx="60" cy="60" r="22" fill="#1a1a2e" stroke="white" strokeOpacity="0.35" strokeWidth="2" />
-                    <circle cx="60" cy="60" r="10" fill="#00FFD1" opacity="0.95" />
-                  </svg>
+                <div className="glass-card flex h-[140px] w-[220px] items-center justify-center rounded-2xl p-3 sm:w-[250px]">
+                  <div className="grid grid-cols-9 gap-0.5 rounded-lg border border-white/15 bg-[#111236] p-1">
+                    {Array.from({ length: 81 }).map((_, i) => {
+                      const row = Math.floor(i / 9);
+                      const col = i % 9;
+                      const fixed = [0, 1, 4, 9, 10, 13, 20, 27, 32, 36, 40, 44, 48, 52, 58, 67, 70, 79].includes(i);
+                      return (
+                        <div
+                          key={`sudoku-${i}`}
+                          className={[
+                            'h-1.5 w-1.5 rounded-[1px] sm:h-2 sm:w-2',
+                            fixed ? 'bg-[#a78bfa]' : 'bg-[#1b2b5a]',
+                            row % 3 === 0 ? 'ring-1 ring-inset ring-white/10' : '',
+                            col % 3 === 0 ? 'ring-1 ring-inset ring-white/10' : '',
+                          ].join(' ')}
+                        />
+                      );
+                    })}
+                  </div>
                 </div>
               </button>
 
@@ -196,7 +196,7 @@ export function PlayHub(): ReactElement {
             </div>
             <div className="flex min-h-0 flex-1 w-full flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain">
               {selectedGame === 'tetris' && <BlunnoTetris />}
-              {selectedGame === 'spinner' && <SpinnerGame />}
+              {selectedGame === 'sudoku' && <SudokuGame />}
               {selectedGame === 'balloon' && <BalloonPop />}
             </div>
           </section>
