@@ -12,6 +12,27 @@ const MEANINGFUL_DELTA_DEG = 0.8;
 const ATTENTION_DECAY_PER_SEC = 0.12;
 const ATTENTION_IDLE_GRACE_MS = 900;
 
+// #region agent log
+function debugLog(runId: string, hypothesisId: string, location: string, message: string, data: Record<string, unknown>): void {
+  fetch('http://127.0.0.1:7625/ingest/8ca15716-a0fc-49e7-a068-15acecfda9c0', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'X-Debug-Session-Id': '401711',
+    },
+    body: JSON.stringify({
+      sessionId: '401711',
+      runId,
+      hypothesisId,
+      location,
+      message,
+      data,
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+}
+// #endregion
+
 function angleFromPointer(clientX: number, clientY: number, rect: DOMRect): number {
   const cx = rect.left + rect.width / 2;
   const cy = rect.top + rect.height / 2;
@@ -31,6 +52,10 @@ export function SpinnerGame(): ReactElement {
   const lastTickRef = useRef<number | null>(null);
   const lastMeaningfulInteractionAtRef = useRef<number>(Date.now());
   const prevPhaseRef = useRef<SpinnerPhase>('intro');
+  // #region agent log
+  const moveLogTsRef = useRef<number>(0);
+  const tickLogSecondRef = useRef<number>(-1);
+  // #endregion
 
   const [rotation, setRotation] = useState(0);
   const [lastAngle, setLastAngle] = useState<number | null>(null);
@@ -42,7 +67,18 @@ export function SpinnerGame(): ReactElement {
   const onPointerDown = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
     e.currentTarget.setPointerCapture(e.pointerId);
     const rect = e.currentTarget.getBoundingClientRect();
-    setLastAngle(angleFromPointer(e.clientX, e.clientY, rect));
+    const angle = angleFromPointer(e.clientX, e.clientY, rect);
+    setLastAngle(angle);
+    // #region agent log
+    debugLog('spinner-visual-baseline', 'H1', 'SpinnerGame.tsx:onPointerDown', 'pointer down captured', {
+      pointerType: e.pointerType,
+      x: Math.round(e.clientX),
+      y: Math.round(e.clientY),
+      angle: Math.round(angle * 100) / 100,
+      rectW: Math.round(rect.width),
+      rectH: Math.round(rect.height),
+    });
+    // #endregion
   }, []);
 
   const onPointerMove = useCallback(
@@ -54,8 +90,22 @@ export function SpinnerGame(): ReactElement {
       if (delta > 180) delta -= 360;
       if (delta < -180) delta += 360;
 
-      setRotation((r) => r + delta);
+      const nextRotation = rotation + delta;
+      setRotation(nextRotation);
       setLastAngle(current);
+      // #region agent log
+      const now = Date.now();
+      if (now - moveLogTsRef.current > 300) {
+        moveLogTsRef.current = now;
+        debugLog('spinner-visual-baseline', 'H1', 'SpinnerGame.tsx:onPointerMove', 'pointer move delta sampled', {
+          pointerType: e.pointerType,
+          delta: Math.round(delta * 100) / 100,
+          rotation: Math.round(nextRotation * 100) / 100,
+          phase,
+          attention: Math.round(attention * 100) / 100,
+        });
+      }
+      // #endregion
 
       if (phase !== 'running') return;
       const absDelta = Math.abs(delta);
@@ -65,7 +115,7 @@ export function SpinnerGame(): ReactElement {
       const boost = Math.min(0.22, 0.08 + absDelta * 0.004);
       setAttention((prev) => Math.min(1, prev + boost));
     },
-    [lastAngle, phase]
+    [lastAngle, phase, rotation, attention]
   );
 
   const onPointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
@@ -116,6 +166,18 @@ export function SpinnerGame(): ReactElement {
         if (idleMs <= ATTENTION_IDLE_GRACE_MS) return Math.min(1, prev + dtSeconds * 0.025);
         return Math.max(0, prev - dtSeconds * ATTENTION_DECAY_PER_SEC);
       });
+      // #region agent log
+      const secondBucket = Math.floor(ts / 1000);
+      if (secondBucket !== tickLogSecondRef.current) {
+        tickLogSecondRef.current = secondBucket;
+        debugLog('spinner-visual-baseline', 'H5', 'SpinnerGame.tsx:tick', 'session tick sampled', {
+          phase,
+          timeRemainingMs: Math.round(timeRemainingMs),
+          idleMs: Math.round(idleMs),
+          attention: Math.round(attention * 100) / 100,
+        });
+      }
+      // #endregion
 
       rafRef.current = window.requestAnimationFrame(tick);
     };
@@ -151,8 +213,16 @@ export function SpinnerGame(): ReactElement {
     if (phase === 'distracted') {
       void audioService.play('hover-soft');
     }
+    // #region agent log
+    debugLog('spinner-visual-baseline', 'H5', 'SpinnerGame.tsx:phaseEffect', 'phase transition', {
+      prevPhase: prev,
+      nextPhase: phase,
+      timeRemainingMs: Math.round(timeRemainingMs),
+      attention: Math.round(attention * 100) / 100,
+    });
+    // #endregion
     prevPhaseRef.current = phase;
-  }, [phase]);
+  }, [phase, timeRemainingMs, attention]);
 
   const phaseTitle = useMemo(() => {
     if (phase === 'running') return 'Keep focus on spinner';
@@ -169,6 +239,16 @@ export function SpinnerGame(): ReactElement {
   }, [phase]);
 
   const size = 'min(82vw, min(50dvh, 320px))';
+  // #region agent log
+  useEffect(() => {
+    debugLog('spinner-visual-baseline', 'H4', 'SpinnerGame.tsx:mount', 'spinner render baseline', {
+      sizeExpr: size,
+      imageInset: '8%',
+      blend: 'mix-blend-multiply',
+      phase,
+    });
+  }, []);
+  // #endregion
 
   return (
     <div className="mx-auto flex h-full min-h-0 w-full max-w-lg flex-col overflow-hidden bg-[#0D0524] px-2 py-1 [@media(min-height:640px)]:py-3">
