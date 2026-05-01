@@ -132,89 +132,95 @@ export function SudokuGame(): ReactElement {
 
   return (
     <div className="mx-auto flex h-full min-h-0 w-full max-w-xl flex-col overflow-hidden bg-[#0D0524] px-1.5 py-1 text-white sm:px-2 sm:py-2">
-      <div className="flex min-h-0 w-full flex-1 flex-col items-center gap-3 overflow-y-auto rounded-2xl border border-white/10 bg-white/5 p-3 backdrop-blur-sm sm:gap-4 sm:p-5">
-        <div className="w-full text-center">
-          <h2 className="font-sans text-base font-extrabold uppercase tracking-wide text-white sm:text-lg">Sudoku</h2>
-          <p className="mt-1 text-xs text-white/70 sm:text-sm">Fill the grid so each row, column, and 3x3 box uses digits 1-9.</p>
-        </div>
+      <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-2 backdrop-blur-sm sm:p-4">
+        <header className="shrink-0 text-center">
+          <h2 className="font-sans text-sm font-extrabold uppercase tracking-wide text-white sm:text-lg">Sudoku</h2>
+          <p className="mt-0.5 text-[11px] text-white/70 sm:mt-1 sm:text-sm">
+            Fill each row, column and 3x3 box with digits 1-9.
+          </p>
+        </header>
 
-        <div
-          role="application"
-          tabIndex={0}
-          onKeyDown={onKeyDown}
-          className="grid w-full max-w-[min(92vw,460px)] grid-cols-9 rounded-xl border border-white/25 bg-[#111236] p-1 outline-none"
-          aria-label="Sudoku board"
-        >
-          {board.map((row, rowIndex) =>
-            row.map((value, colIndex) => {
-              const isFixed = fixedBoard[rowIndex][colIndex] !== 0;
-              const isSelected = selected?.row === rowIndex && selected?.col === colIndex;
-              const isSameRow = selected?.row === rowIndex;
-              const isSameCol = selected?.col === colIndex;
-              const isConflict = conflicts.has(`${rowIndex}-${colIndex}`);
+        <section className="flex min-h-0 flex-1 items-center justify-center py-1.5 sm:py-2">
+          <div
+            role="application"
+            tabIndex={0}
+            onKeyDown={onKeyDown}
+            className="grid aspect-square h-full max-h-full w-full max-w-[min(88vw,410px)] grid-cols-9 rounded-xl border border-white/25 bg-[#111236] p-1 outline-none"
+            aria-label="Sudoku board"
+          >
+            {board.map((row, rowIndex) =>
+              row.map((value, colIndex) => {
+                const isFixed = fixedBoard[rowIndex][colIndex] !== 0;
+                const isSelected = selected?.row === rowIndex && selected?.col === colIndex;
+                const isSameRow = selected?.row === rowIndex;
+                const isSameCol = selected?.col === colIndex;
+                const isConflict = conflicts.has(`${rowIndex}-${colIndex}`);
 
-              return (
-                <button
-                  key={`${rowIndex}-${colIndex}`}
-                  type="button"
-                  onClick={() => onCellClick(rowIndex, colIndex)}
-                  className={[
-                    'aspect-square border border-white/10 text-center text-sm font-bold transition sm:text-base',
-                    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-primary)]/70',
-                    isFixed ? 'bg-[#1a1a44] text-white' : 'bg-[#101233] text-[var(--color-accent-primary)]',
-                    isSameRow || isSameCol ? 'bg-[#1a214f]' : '',
-                    isSelected ? 'ring-2 ring-inset ring-[var(--color-accent-primary)]' : '',
-                    isConflict ? 'bg-[#3c1325] text-[#fb7185]' : '',
-                    rowIndex % 3 === 0 ? 'border-t-white/40' : '',
-                    colIndex % 3 === 0 ? 'border-l-white/40' : '',
-                    rowIndex === 8 ? 'border-b-white/40' : '',
-                    colIndex === 8 ? 'border-r-white/40' : '',
-                  ].join(' ')}
-                  aria-label={`Row ${rowIndex + 1} Column ${colIndex + 1} value ${value || 'empty'}`}
-                >
-                  {value === 0 ? '' : value}
-                </button>
-              );
-            })
-          )}
-        </div>
+                return (
+                  <button
+                    key={`${rowIndex}-${colIndex}`}
+                    type="button"
+                    onClick={() => onCellClick(rowIndex, colIndex)}
+                    className={[
+                      'aspect-square border border-white/10 text-center text-sm font-bold transition sm:text-base',
+                      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-primary)]/70',
+                      isFixed ? 'bg-[#1a1a44] text-white' : 'bg-[#101233] text-[var(--color-accent-primary)]',
+                      isSameRow || isSameCol ? 'bg-[#1a214f]' : '',
+                      isSelected ? 'ring-2 ring-inset ring-[var(--color-accent-primary)]' : '',
+                      isConflict ? 'bg-[#3c1325] text-[#fb7185]' : '',
+                      rowIndex % 3 === 0 ? 'border-t-white/40' : '',
+                      colIndex % 3 === 0 ? 'border-l-white/40' : '',
+                      rowIndex === 8 ? 'border-b-white/40' : '',
+                      colIndex === 8 ? 'border-r-white/40' : '',
+                    ].join(' ')}
+                    aria-label={`Row ${rowIndex + 1} Column ${colIndex + 1} value ${value || 'empty'}`}
+                  >
+                    {value === 0 ? '' : value}
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </section>
 
-        <div className="grid w-full max-w-[min(92vw,460px)] grid-cols-5 gap-2">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+        <section className="shrink-0 space-y-1.5 sm:space-y-2">
+          <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+              <button
+                key={num}
+                type="button"
+                onClick={() => setCellValue(num)}
+                className="blunno-focus-visible glass-button min-h-[40px] rounded-xl text-sm font-bold text-white sm:min-h-[44px]"
+              >
+                {num}
+              </button>
+            ))}
             <button
-              key={num}
               type="button"
-              onClick={() => setCellValue(num)}
-              className="blunno-focus-visible glass-button min-h-[44px] rounded-xl text-sm font-bold text-white"
+              onClick={() => setCellValue(0)}
+              className="blunno-focus-visible glass-button col-span-2 min-h-[40px] rounded-xl text-[11px] font-bold uppercase tracking-wide text-white/90 sm:min-h-[44px] sm:text-xs"
             >
-              {num}
+              Clear cell
             </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => setCellValue(0)}
-            className="blunno-focus-visible glass-button col-span-2 min-h-[44px] rounded-xl text-xs font-bold uppercase tracking-wide text-white/90"
-          >
-            Clear cell
-          </button>
-          <button
-            type="button"
-            onClick={newPuzzle}
-            className="blunno-focus-visible glass-button col-span-3 min-h-[44px] rounded-xl text-xs font-bold uppercase tracking-wide text-[var(--color-accent-primary)]"
-          >
-            New puzzle
-          </button>
-        </div>
+            <button
+              type="button"
+              onClick={newPuzzle}
+              className="blunno-focus-visible glass-button col-span-3 min-h-[40px] rounded-xl text-[11px] font-bold uppercase tracking-wide text-[var(--color-accent-primary)] sm:min-h-[44px] sm:text-xs"
+            >
+              New puzzle
+            </button>
+          </div>
 
-        <div className="w-full text-center text-sm font-semibold">
-          {solved ? (
-            <p className="text-[#4ade80]">Solved. Great focus.</p>
-          ) : conflicts.size > 0 ? (
-            <p className="text-[#fb7185]">There are conflicts in the highlighted cells.</p>
-          ) : (
-            <p className="text-white/70">Select a cell and use keypad or keyboard (1-9).</p>
-          )}
-        </div>
+          <div className="text-center text-xs font-semibold sm:text-sm">
+            {solved ? (
+              <p className="text-[#4ade80]">Solved. Great focus.</p>
+            ) : conflicts.size > 0 ? (
+              <p className="text-[#fb7185]">There are conflicts in the highlighted cells.</p>
+            ) : (
+              <p className="text-white/70">Select a cell and use keypad or keyboard (1-9).</p>
+            )}
+          </div>
+        </section>
       </div>
     </div>
   );

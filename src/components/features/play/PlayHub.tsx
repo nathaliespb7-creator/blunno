@@ -174,7 +174,7 @@ export function PlayHub(): ReactElement {
             </div>
           </>
         ) : (
-          <section className="flex min-h-0 w-full flex-1 flex-col gap-2 overflow-x-hidden overflow-y-auto overscroll-y-contain p-1.5 sm:p-3">
+          <section className="flex min-h-0 w-full flex-1 flex-col gap-2 overflow-x-hidden overflow-y-hidden p-1.5 sm:p-3 [@media(max-height:700px)]:overflow-y-auto [@media(max-height:700px)]:overscroll-y-contain">
             <div className="flex w-full shrink-0 items-center justify-between gap-2">
               <button
                 type="button"
@@ -194,7 +194,7 @@ export function PlayHub(): ReactElement {
                 </svg>
               </Link>
             </div>
-            <div className="flex min-h-0 flex-1 w-full flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain">
+            <div className="flex min-h-0 flex-1 w-full flex-col overflow-hidden">
               {selectedGame === 'tetris' && <BlunnoTetris />}
               {selectedGame === 'sudoku' && <SudokuGame />}
               {selectedGame === 'balloon' && <BalloonPop />}
