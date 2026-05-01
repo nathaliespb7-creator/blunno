@@ -172,12 +172,15 @@ export function BlunnoTetris(): ReactElement {
     setPaused((p) => !p);
   }, [running]);
 
-  const move = useCallback((dx: number) => {
-    setPiece((prev) => {
-      if (!running || paused || collides(board, prev, dx, 0)) return prev;
-      return { ...prev, x: prev.x + dx };
-    });
-  }, [board, running, paused]);
+  const move = useCallback(
+    (dx: number) => {
+      setPiece((prev) => {
+        if (!running || paused || collides(board, prev, dx, 0)) return prev;
+        return { ...prev, x: prev.x + dx };
+      });
+    },
+    [board, running, paused]
+  );
 
   const rotate = useCallback(() => {
     setPiece((prev) => {
@@ -188,28 +191,25 @@ export function BlunnoTetris(): ReactElement {
     });
   }, [board, running, paused]);
 
-  const lockPieceAndContinue = useCallback(
-    (mergedBoard: number[][]) => {
-      const { board: cleared, lines: removed } = clearLines(mergedBoard);
-      if (removed > 0) {
-        setScore((s) => s + removed * 100);
-        setLines((l) => l + removed);
-        void audioService.play('pop');
-      }
+  const lockPieceAndContinue = useCallback((mergedBoard: number[][]) => {
+    const { board: cleared, lines: removed } = clearLines(mergedBoard);
+    if (removed > 0) {
+      setScore((s) => s + removed * 100);
+      setLines((l) => l + removed);
+      void audioService.play('pop');
+    }
 
-      const next = createPiece();
-      if (collides(cleared, next)) {
-        setBoard(cleared);
-        setPaused(false);
-        setRunning(false);
-        return;
-      }
-
+    const next = createPiece();
+    if (collides(cleared, next)) {
       setBoard(cleared);
-      setPiece(next);
-    },
-    []
-  );
+      setPaused(false);
+      setRunning(false);
+      return;
+    }
+
+    setBoard(cleared);
+    setPiece(next);
+  }, []);
 
   const stepDown = useCallback(() => {
     if (!running || paused) return;
@@ -286,35 +286,33 @@ export function BlunnoTetris(): ReactElement {
   }, [board, piece]);
 
   const actionBtnClass =
-    'blunno-focus-visible tetris-action-btn min-h-[44px] rounded-xl px-3 py-2 text-xs font-bold uppercase tracking-[0.08em] text-white sm:text-sm';
+    'blunno-focus-visible tetris-action-btn min-h-[44px] rounded-xl px-2 py-2 text-[10px] font-bold uppercase tracking-[0.08em] text-white sm:px-3 sm:text-xs md:text-sm';
   const dpadBtnClass =
     'blunno-focus-visible tetris-dpad-btn min-h-[44px] rounded-xl py-2 text-base font-semibold text-white active:scale-[0.98] sm:text-lg';
 
   return (
     <div
-      className="theme-play-grid mx-auto flex h-full min-h-0 w-full max-w-[980px] flex-col overflow-hidden rounded-[28px] p-3 text-[color:var(--color-text-primary)] sm:p-4"
+      className={[
+        'theme-play-grid mx-auto flex h-full min-h-0 w-full max-w-[980px] flex-col',
+        'gap-2 overflow-x-hidden overflow-y-auto overscroll-y-contain rounded-[28px] p-2',
+        'text-[color:var(--color-text-primary)] sm:gap-2.5 sm:p-3 [@media(max-height:700px)]:gap-1.5 [@media(max-height:700px)]:p-1.5',
+      ].join(' ')}
       onPointerDown={unlockAudioOnce}
     >
-      <div className="grid min-h-0 w-full flex-1 grid-cols-1 gap-3 md:grid-cols-[minmax(0,1fr)_minmax(180px,212px)]">
-        <div className="flex min-h-0 min-w-0 flex-col gap-3">
-          <div className="grid grid-cols-2 gap-2 md:hidden">
-            <div className="tetris-chip">
-              <p className="tetris-chip-label">Score</p>
-              <p className="tetris-chip-value text-[var(--color-accent-primary)]">{score}</p>
-            </div>
-            <div className="tetris-chip text-right">
-              <p className="tetris-chip-label">Top</p>
-              <p className="tetris-chip-value">{topScore}</p>
-            </div>
-          </div>
-
-          <div className="relative mx-auto w-full max-w-[560px] min-w-0 flex-1 md:max-w-none">
-            <div className="relative mx-auto aspect-[1/2] h-full max-h-[min(76dvh,680px)] w-auto max-w-full">
-              <div className="tetris-board-shell absolute inset-0 flex min-h-0 flex-col overflow-hidden rounded-[24px] p-2 sm:p-2.5">
-                <div className="grid h-full min-h-0 w-full min-w-0 grid-cols-10 auto-rows-[minmax(0,1fr)] gap-[1px] sm:gap-[2px]">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-row gap-2 [@media(max-height:700px)]:gap-1.5 sm:gap-3">
+        <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+          <div className="flex min-h-0 w-full flex-1 items-center justify-center">
+            <div
+              className={['relative w-full max-w-full', 'h-full max-h-full min-h-0', 'aspect-[1/2] w-auto'].join(' ')}
+            >
+              <div className="tetris-board-shell absolute inset-0 flex min-h-0 flex-col overflow-hidden rounded-[22px] p-1.5 sm:rounded-[24px] sm:p-2">
+                <div className="grid h-full min-h-0 w-full min-w-0 grid-cols-10 auto-rows-[minmax(0,1fr)] gap-px sm:gap-[2px]">
                   {renderBoard.flatMap((row, y) =>
                     row.map((cell, x) => (
-                      <div key={`${x}-${y}`} className={['min-h-0 min-w-0 rounded-[2px]', PIECE_COLOR_CLASS[cell]].join(' ')} />
+                      <div
+                        key={`${x}-${y}`}
+                        className={['min-h-0 min-w-0 rounded-[2px]', PIECE_COLOR_CLASS[cell]].join(' ')}
+                      />
                     ))
                   )}
                 </div>
@@ -323,7 +321,7 @@ export function BlunnoTetris(): ReactElement {
                 <button
                   type="button"
                   onClick={togglePause}
-                  className="absolute inset-0 z-10 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-[24px] border border-white/15 bg-[var(--overlay-scrim)] px-4 backdrop-blur-[2px] touch-manipulation"
+                  className="absolute inset-0 z-10 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-[22px] border border-white/15 bg-[var(--overlay-scrim)] px-4 backdrop-blur-[2px] touch-manipulation sm:rounded-[24px]"
                   aria-label="Resume game"
                 >
                   <span className="text-sm font-extrabold uppercase tracking-wider text-white">Paused</span>
@@ -332,65 +330,37 @@ export function BlunnoTetris(): ReactElement {
               )}
             </div>
           </div>
-
-          <div className="grid grid-cols-4 gap-2 text-center">
-            <button type="button" className={dpadBtnClass} onClick={() => move(-1)} aria-label="Move left">
-              ←
-            </button>
-            <button type="button" className={dpadBtnClass} onClick={stepDown} aria-label="Move down">
-              ↓
-            </button>
-            <button type="button" className={dpadBtnClass} onClick={() => move(1)} aria-label="Move right">
-              →
-            </button>
-            <button
-              type="button"
-              className={`${dpadBtnClass} text-[var(--tetris-accent-secondary)]`}
-              onClick={rotate}
-              aria-label="Rotate piece"
-            >
-              ↻
-            </button>
-          </div>
-
-          <button
-            type="button"
-            onClick={hardDrop}
-            className="blunno-focus-visible tetris-drop-btn min-h-[46px] w-full rounded-2xl px-3 py-2 text-sm font-bold tracking-[0.08em] text-white"
-            aria-label="Hard drop — instant fall"
-          >
-            Drop
-          </button>
         </div>
 
-        <aside className="flex min-w-0 flex-col gap-2 md:justify-start">
-          <div className="hidden grid-cols-1 gap-2 md:grid">
-            <div className="tetris-chip">
-              <p className="tetris-chip-label">Level</p>
-              <p className="tetris-chip-value">{level}</p>
-            </div>
-            <div className="tetris-chip">
-              <p className="tetris-chip-label">Score</p>
-              <p className="tetris-chip-value text-[var(--color-accent-primary)]">{score}</p>
-            </div>
+        <aside
+          className={[
+            'flex w-[7.25rem] shrink-0 flex-col gap-1.5 overflow-y-auto pr-0.5',
+            'sm:w-[8.5rem] md:w-[13.5rem]',
+            '[@media(max-height:700px)]:gap-1',
+          ].join(' ')}
+        >
+          <div className="tetris-chip">
+            <p className="tetris-chip-label">Level</p>
+            <p className="tetris-chip-value">{level}</p>
+          </div>
+          <div className="tetris-chip">
+            <p className="tetris-chip-label">Score</p>
+            <p className="tetris-chip-value text-[var(--color-accent-primary)]">{score}</p>
+          </div>
+          <div className="tetris-chip">
+            <p className="tetris-chip-label">Lines</p>
+            <p className="tetris-chip-value">{lines}</p>
+          </div>
+          <div className="tetris-chip">
+            <p className="tetris-chip-label">Top</p>
+            <p className="tetris-chip-value">{topScore}</p>
+          </div>
+          <div className="tetris-chip">
+            <p className="tetris-chip-label">Speed</p>
+            <p className="tetris-chip-value">{speed}</p>
           </div>
 
-          <div className="grid grid-cols-3 gap-2 md:grid-cols-1">
-            <div className="tetris-chip">
-              <p className="tetris-chip-label">Lines</p>
-              <p className="tetris-chip-value">{lines}</p>
-            </div>
-            <div className="tetris-chip">
-              <p className="tetris-chip-label">Top</p>
-              <p className="tetris-chip-value">{topScore}</p>
-            </div>
-            <div className="tetris-chip">
-              <p className="tetris-chip-label">Speed</p>
-              <p className="tetris-chip-value">{speed}</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2 md:grid-cols-1">
+          <div className="mt-0.5 flex flex-col gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={togglePause}
@@ -404,6 +374,37 @@ export function BlunnoTetris(): ReactElement {
             </button>
           </div>
         </aside>
+      </div>
+
+      <div className="flex shrink-0 flex-col gap-2 [@media(max-height:700px)]:gap-1.5">
+        <div className="grid grid-cols-4 gap-1.5 text-center sm:gap-2 [@media(max-height:700px)]:gap-1">
+          <button type="button" className={dpadBtnClass} onClick={() => move(-1)} aria-label="Move left">
+            ←
+          </button>
+          <button type="button" className={dpadBtnClass} onClick={stepDown} aria-label="Move down">
+            ↓
+          </button>
+          <button type="button" className={dpadBtnClass} onClick={() => move(1)} aria-label="Move right">
+            →
+          </button>
+          <button
+            type="button"
+            className={`${dpadBtnClass} text-[var(--tetris-accent-secondary)]`}
+            onClick={rotate}
+            aria-label="Rotate piece"
+          >
+            ↻
+          </button>
+        </div>
+
+        <button
+          type="button"
+          onClick={hardDrop}
+          className="blunno-focus-visible tetris-drop-btn min-h-[46px] w-full rounded-2xl px-3 py-2 text-sm font-bold tracking-[0.08em] text-white"
+          aria-label="Hard drop — instant fall"
+        >
+          Drop
+        </button>
       </div>
     </div>
   );
