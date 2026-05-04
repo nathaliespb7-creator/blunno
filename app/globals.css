@@ -1,96 +1,104 @@
 @import "tailwindcss";
 
 /*
-  Blunno design tokens — extracted from Figma (file Blunno, Page 2 / Home & screens)
-  https://www.figma.com/design/ohWsdMYDCBhnV1wfm1s5Kc/Blunno
+  Blunno — 5-color premium system (Choose screen palette)
+  Cores only: base dark, SOS plum, Planner sage, Play violet, Relax gold.
+  All other UI uses these + white/black alpha via color-mix or rgba.
 */
 
 :root {
-  /* Modern Glass Dark — semantic tokens (ADHD-first: calm contrast, one accent system) */
-  --color-bg: #0b0b1a;
-  --color-surface-1: rgba(255, 255, 255, 0.07);
-  --color-surface-2: rgba(255, 255, 255, 0.11);
-  --color-text-primary: rgba(255, 255, 255, 0.96);
-  --color-text-secondary: rgba(255, 255, 255, 0.62);
-  --color-accent-primary: #5eead4;
-  --color-accent-secondary: #a78bfa;
-  /* Semantic UI (Modern Glass) — distinct from legacy --color-success below */
-  --color-semantic-success: #34d399;
-  --color-semantic-warning: #fbbf24;
-  --color-semantic-danger: #fb7185;
-  --color-focus-ring: rgba(94, 234, 212, 0.55);
+  /* --- Five core colors (source of truth) --- */
+  --color-core-bg: #0b0b1a;
+  --color-core-sos: #905e8c;
+  --color-core-planner: #83a9ad;
+  --color-core-play: #6a3cae;
+  --color-core-relax: #e7b453;
 
-  /* Canvas / shell */
-  --app-bg: var(--color-bg);
+  /* Aliases / semantic mapping */
+  --color-bg: var(--color-core-bg);
+  --app-bg: var(--color-core-bg);
   --foreground: #ffffff;
   --foreground-soft: #fffbfb;
   --stroke-default: #000000;
-  --stroke-muted: #c7c7c7;
+  --stroke-muted: color-mix(in srgb, var(--foreground) 78%, var(--color-core-planner) 22%);
 
-  /* Brand & UI accents (from calendar / components) */
-  --color-blue-500: #456ce8;
-  --color-gold: #e7b453;
-  --color-lime: #dde845;
-  --color-magenta: #c03b93;
-  --color-coral: #c03b3b;
-  --color-cyan-accent: #6edae4;
+  /* Surfaces: neutral glass on base */
+  --color-surface-1: rgba(255, 255, 255, 0.07);
+  --color-surface-2: rgba(255, 255, 255, 0.11);
 
-  /* Legacy aliases → map to Figma */
-  --color-primary: var(--color-blue-500);
-  --color-primary-hover: #3a5dcc;
-  --color-secondary: #6a3cae;
-  --color-accent: #169fcc;
-  --color-success: #0b4f66;
-  --color-warning: var(--color-gold);
-  --color-error: var(--color-coral);
+  /* Text: calmer secondary for readability (ADHD-friendly) */
+  --color-text-primary: rgba(255, 255, 255, 0.96);
+  --color-text-secondary: rgba(255, 255, 255, 0.72);
 
-  /* Mode button gradients — Home frame */
-  --gradient-sos: linear-gradient(131deg, #2a1c29 4%, #905e8c 92%);
-  --gradient-planner: linear-gradient(127deg, #364547 4%, #83a9ad 93%);
-  --gradient-play: linear-gradient(131deg, #2c1948 1%, #6a3cae 100%);
-  --gradient-relax: linear-gradient(133deg, #81642f 21%, #e7b453 96%);
-  /* Planner / Figma cells: linear 5% → 90% (top-left to bottom-right ≈ 131deg) */
-  --gradient-slot: linear-gradient(131deg, #0b4f66 5%, #169fcc 90%);
+  /* Primary UI accent = planner sage (no cyan / blue-on-blue) */
+  --color-accent-primary: var(--color-core-planner);
+  --color-accent-secondary: var(--color-core-play);
 
-  /* Week strip — muted purples to match task rows; teal accent for selection / today */
-  --planner-day-bg: rgba(40, 32, 48, 0.5);
-  --planner-day-border: rgba(200, 160, 195, 0.22);
-  --planner-day-hover-bg: rgba(52, 40, 58, 0.62);
-  --planner-day-selected-bg: rgba(22, 36, 44, 0.88);
-  --planner-day-today-ring: rgba(94, 234, 212, 0.42);
-  --planner-week-nav-surface: rgba(38, 30, 46, 0.55);
-  --planner-week-nav-surface-hover: rgba(50, 40, 58, 0.65);
-  --planner-week-nav-border: rgba(200, 160, 195, 0.18);
+  --color-semantic-success: color-mix(in srgb, var(--color-core-planner) 75%, var(--foreground) 25%);
+  --color-semantic-warning: var(--color-core-relax);
+  --color-semantic-danger: color-mix(in srgb, var(--color-core-sos) 82%, var(--color-core-bg) 18%);
 
-  /* Today’s focus — dark teal card + bright cyan border (ref screenshot) */
-  --planner-summary-surface: #132f3c;
-  --planner-summary-border: #5eead4;
+  --color-focus-ring: color-mix(in srgb, var(--color-core-planner) 55%, transparent);
+
+  /* Legacy token names → five-color system (for gradual migration) */
+  --color-blue-500: var(--color-core-play);
+  --color-gold: var(--color-core-relax);
+  --color-lime: var(--color-semantic-success);
+  --color-magenta: var(--color-core-sos);
+  --color-coral: var(--color-semantic-danger);
+  --color-cyan-accent: var(--color-core-planner);
+
+  --color-primary: var(--color-core-planner);
+  --color-primary-hover: color-mix(in srgb, var(--color-core-planner) 88%, var(--foreground) 12%);
+  --color-secondary: var(--color-core-play);
+  --color-accent: var(--color-core-planner);
+  --color-success: color-mix(in srgb, var(--color-core-bg) 40%, var(--color-core-planner) 60%);
+  --color-warning: var(--color-core-relax);
+  --color-error: var(--color-semantic-danger);
+
+  /* Mode gradients — dark mix + each core hue */
+  --gradient-sos: linear-gradient(131deg, color-mix(in srgb, var(--color-core-bg) 72%, var(--color-core-sos) 28%) 4%, var(--color-core-sos) 92%);
+  --gradient-planner: linear-gradient(127deg, color-mix(in srgb, var(--color-core-bg) 58%, var(--color-core-planner) 42%) 4%, var(--color-core-planner) 93%);
+  --gradient-play: linear-gradient(131deg, color-mix(in srgb, var(--color-core-bg) 62%, var(--color-core-play) 38%) 1%, var(--color-core-play) 100%);
+  --gradient-relax: linear-gradient(133deg, color-mix(in srgb, var(--color-core-bg) 48%, var(--color-core-relax) 52%) 21%, var(--color-core-relax) 96%);
+  --gradient-slot: linear-gradient(131deg, color-mix(in srgb, var(--color-core-bg) 35%, var(--color-core-play) 65%) 5%, color-mix(in srgb, var(--color-core-planner) 40%, var(--color-core-play) 60%) 90%);
+
+  /* Planner week strip */
+  --planner-day-bg: color-mix(in srgb, var(--color-core-bg) 82%, var(--color-core-sos) 18%);
+  --planner-day-border: color-mix(in srgb, transparent 78%, var(--color-core-sos) 22%);
+  --planner-day-hover-bg: color-mix(in srgb, var(--color-core-bg) 72%, var(--color-core-sos) 28%);
+  --planner-day-selected-bg: color-mix(in srgb, var(--color-core-bg) 55%, var(--color-core-planner) 45%);
+  --planner-day-today-ring: color-mix(in srgb, transparent 58%, var(--color-core-planner) 42%);
+  --planner-week-nav-surface: color-mix(in srgb, var(--color-core-bg) 78%, var(--color-core-play) 22%);
+  --planner-week-nav-surface-hover: color-mix(in srgb, var(--color-core-bg) 70%, var(--color-core-play) 30%);
+  --planner-week-nav-border: color-mix(in srgb, transparent 80%, var(--color-core-sos) 20%);
+
+  /* Today card — planner accent, no teal */
+  --planner-summary-surface: color-mix(in srgb, var(--color-core-bg) 72%, var(--color-core-planner) 28%);
+  --planner-summary-border: color-mix(in srgb, var(--color-core-planner) 70%, transparent);
   --planner-summary-shadow: 0 4px 20px rgba(0, 8, 14, 0.55), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  --planner-star-foreground: #5eead4;
+  --planner-star-foreground: var(--color-core-planner);
 
-  /* Task rows — linear gradient 4% / 92% (Figma) */
   --planner-task-surface: var(--gradient-sos);
-  --planner-task-surface-completed: linear-gradient(131deg, #1a1218 4%, #5a3d57 92%);
-  --planner-task-border: rgba(220, 180, 215, 0.35);
-  --planner-task-border-completed: rgba(200, 160, 195, 0.22);
+  --planner-task-surface-completed: linear-gradient(131deg, color-mix(in srgb, var(--color-core-bg) 78%, var(--color-core-sos) 22%) 4%, color-mix(in srgb, var(--color-core-sos) 55%, var(--color-core-bg) 45%) 92%);
+  --planner-task-border: color-mix(in srgb, transparent 72%, var(--color-core-sos) 28%);
+  --planner-task-border-completed: color-mix(in srgb, transparent 78%, var(--color-core-sos) 22%);
   --planner-task-shadow: 0 4px 16px rgba(8, 4, 12, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.1);
-  --planner-task-input-fill: rgba(32, 22, 36, 0.92);
-  --planner-input-surface: rgba(36, 26, 40, 0.94);
+  --planner-task-input-fill: color-mix(in srgb, var(--color-core-bg) 88%, var(--color-core-sos) 12%);
+  --planner-input-surface: color-mix(in srgb, var(--color-core-bg) 82%, var(--color-core-sos) 18%);
 
-  /* Glass / overlays — softer Modern Glass (less noise than heavy neon glass) */
+  /* Glass / overlays */
   --glass-bg: var(--color-surface-1);
   --glass-border: rgba(255, 255, 255, 0.14);
   --glass-hover-bg: rgba(255, 255, 255, 0.13);
   --glass-hover-border: rgba(255, 255, 255, 0.22);
   --overlay-scrim: rgba(0, 0, 0, 0.6);
 
-  /* Elevation */
   --shadow-screen: 0 4px 4px rgba(0, 0, 0, 0.25);
   --shadow-text-title: 0 4px 4px rgba(0, 0, 0, 0.25);
   --shadow-inset-card-strong: inset 0 4px 200px rgba(0, 0, 0, 0.25);
   --shadow-inset-card-soft: inset 0 4px 50px rgba(0, 0, 0, 0.25);
 
-  /* Spacing scale (Figma: ~8 / 10 / 12 / 20 / padding cells 10–12) */
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-2-5: 0.625rem;
@@ -104,7 +112,6 @@
   --space-12: 3rem;
   --space-5-figma: 1.25rem;
 
-  /* Radius */
   --radius-sm: 0.375rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
@@ -116,7 +123,6 @@
   --radius-pill: 50px;
   --radius-calendar-cell: 15px;
 
-  /* Typography scale — Sarabun / Roboto / Inter from Figma text styles */
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
   --text-base: 1rem;
@@ -127,40 +133,50 @@
   --text-display: 2.375rem;
   --leading-tight: 1.25;
   --leading-snug: 1.4;
-  --leading-title: 3.18181818;
+  --leading-normal: 1.5;
+  --leading-title: 1.2;
   --tracking-wide: 0.01em;
   --tracking-widest: 0.2em;
 
-  /* Welcome — Figma Welcome (типографика + контраст на тёмном фоне) */
-  --welcome-bg: #0d081b;
-  --welcome-brand-teal: #2dd4bf;
+  /* Welcome */
+  --welcome-bg: var(--color-core-bg);
+  --welcome-brand-teal: var(--color-core-planner);
   --welcome-hero-size-min: 1.25rem;
   --welcome-hero-size-max: 1.5rem;
   --welcome-tag-size-min: 1.75rem;
   --welcome-tag-size-max: 2rem;
 
-  /* Play grid (Tetris) — inspired by redesigned game mockup */
-  --tetris-shell-bg: radial-gradient(140% 120% at 12% 4%, #130a3e 0%, #070525 68%, #050418 100%);
-  --tetris-shell-border: rgba(180, 176, 255, 0.2);
+  /* Sudoku — palette-only */
+  --sudoku-shell-bg: color-mix(in srgb, var(--color-core-bg) 90%, var(--color-core-play) 10%);
+  --sudoku-board-bg: color-mix(in srgb, var(--color-core-bg) 70%, var(--color-core-play) 30%);
+  --sudoku-cell-fixed: color-mix(in srgb, var(--color-core-bg) 55%, var(--color-core-play) 45%);
+  --sudoku-cell-editable: color-mix(in srgb, var(--color-core-bg) 82%, var(--color-core-play) 18%);
+  --sudoku-cell-highlight: color-mix(in srgb, var(--color-core-bg) 72%, var(--color-core-sos) 14%, var(--color-core-play) 14%);
+  --sudoku-conflict-bg: color-mix(in srgb, var(--color-core-bg) 50%, var(--color-core-sos) 50%);
+  --sudoku-conflict-text: color-mix(in srgb, var(--color-core-sos) 88%, var(--foreground) 12%);
+
+  /* Play / Tetris — only five cores + mixes */
+  --tetris-shell-bg: radial-gradient(140% 120% at 12% 4%, color-mix(in srgb, var(--color-core-bg) 70%, var(--color-core-play) 30%) 0%, var(--color-core-bg) 68%, color-mix(in srgb, var(--color-core-bg) 92%, var(--color-core-sos) 8%) 100%);
+  --tetris-shell-border: color-mix(in srgb, transparent 78%, var(--color-core-planner) 22%);
   --tetris-shell-shadow: 0 24px 48px rgba(1, 1, 15, 0.5);
-  --tetris-board-surface: linear-gradient(180deg, rgba(86, 157, 199, 0.9) 0%, rgba(59, 129, 170, 0.9) 100%);
-  --tetris-cell-empty: rgba(84, 152, 190, 0.28);
-  --tetris-grid-line: rgba(3, 35, 56, 0.34);
-  --tetris-piece-1: #2dd4bf;
-  --tetris-piece-2: #fb7185;
-  --tetris-piece-3: #f59e0b;
-  --tetris-piece-4: #fde047;
-  --tetris-piece-5: #4ade80;
-  --tetris-piece-6: #a78bfa;
-  --tetris-piece-7: #f97316;
-  --tetris-chip-bg: rgba(9, 8, 39, 0.58);
-  --tetris-chip-border: rgba(212, 218, 255, 0.35);
-  --tetris-btn-bg: rgba(8, 8, 42, 0.74);
-  --tetris-btn-border: rgba(216, 221, 255, 0.36);
-  --tetris-btn-hover: rgba(20, 20, 72, 0.86);
-  --tetris-accent-pause: #0b8e4f;
-  --tetris-accent-stop: #8a2323;
-  --tetris-accent-secondary: #3a58ff;
+  --tetris-board-surface: linear-gradient(180deg, color-mix(in srgb, var(--color-core-planner) 35%, var(--color-core-bg) 65%) 0%, color-mix(in srgb, var(--color-core-play) 28%, var(--color-core-bg) 72%) 100%);
+  --tetris-cell-empty: color-mix(in srgb, transparent 72%, var(--color-core-planner) 28%);
+  --tetris-grid-line: color-mix(in srgb, var(--color-core-bg) 55%, var(--color-core-play) 45%);
+  --tetris-piece-1: var(--color-core-planner);
+  --tetris-piece-2: var(--color-core-sos);
+  --tetris-piece-3: var(--color-core-relax);
+  --tetris-piece-4: color-mix(in srgb, var(--color-core-planner) 45%, var(--color-core-relax) 55%);
+  --tetris-piece-5: color-mix(in srgb, var(--color-core-play) 50%, var(--color-core-planner) 50%);
+  --tetris-piece-6: var(--color-core-play);
+  --tetris-piece-7: color-mix(in srgb, var(--color-core-sos) 45%, var(--color-core-play) 55%);
+  --tetris-chip-bg: color-mix(in srgb, var(--color-core-bg) 75%, var(--color-core-play) 25%);
+  --tetris-chip-border: color-mix(in srgb, transparent 70%, var(--color-core-planner) 30%);
+  --tetris-btn-bg: color-mix(in srgb, var(--color-core-bg) 78%, var(--color-core-play) 22%);
+  --tetris-btn-border: color-mix(in srgb, transparent 65%, var(--color-core-planner) 35%);
+  --tetris-btn-hover: color-mix(in srgb, var(--color-core-bg) 68%, var(--color-core-play) 32%);
+  --tetris-accent-pause: color-mix(in srgb, var(--color-core-planner) 70%, var(--color-core-bg) 30%);
+  --tetris-accent-stop: color-mix(in srgb, var(--color-core-sos) 72%, var(--color-core-bg) 28%);
+  --tetris-accent-secondary: color-mix(in srgb, var(--color-core-play) 65%, var(--color-core-planner) 35%);
 }
 
 @theme inline {
@@ -177,12 +193,20 @@
   --color-blunno-accent: var(--color-accent-primary);
   --color-blunno-accent-2: var(--color-accent-secondary);
   --color-blunno-focus: var(--color-focus-ring);
-  --color-blunno-blue: var(--color-blue-500);
-  --color-blunno-gold: var(--color-gold);
-  --color-blunno-lime: var(--color-lime);
-  --color-blunno-magenta: var(--color-magenta);
-  --color-blunno-coral: var(--color-coral);
-  --color-blunno-cyan: var(--color-cyan-accent);
+
+  /* Kept names; values map to 5-color system */
+  --color-blunno-blue: var(--color-accent-primary);
+  --color-blunno-gold: var(--color-core-relax);
+  --color-blunno-lime: var(--color-semantic-success);
+  --color-blunno-magenta: var(--color-core-sos);
+  --color-blunno-coral: var(--color-semantic-danger);
+  --color-blunno-cyan: var(--color-core-planner);
+
+  /* Mode solid fills for Tailwind utilities */
+  --color-blunno-sos: var(--color-core-sos);
+  --color-blunno-planner: var(--color-core-planner);
+  --color-blunno-play: var(--color-core-play);
+  --color-blunno-relax: var(--color-core-relax);
 
   --font-sans: var(--font-comfortaa), var(--font-sarabun), ui-sans-serif, system-ui, sans-serif;
   --font-body: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
@@ -195,7 +219,6 @@
   --shadow-text-title: var(--shadow-text-title);
 }
 
-/* Full-bleed shell */
 html {
   background-color: var(--app-bg);
   min-height: 100dvh;
@@ -211,9 +234,10 @@ body {
   touch-action: pan-y;
   background-color: var(--app-bg);
   color: var(--color-text-primary);
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
 }
 
-/* Utility: Figma title style (Sarabun extrabold + wide tracking) */
 .text-blunno-title {
   font-family: var(--font-sarabun), ui-sans-serif, system-ui, sans-serif;
   font-weight: 800;
@@ -223,7 +247,46 @@ body {
   text-shadow: var(--shadow-text-title);
 }
 
-/* Component helpers */
+/* Mode CTA tiles (Button variants) */
+.btn-mode-sos,
+.btn-mode-planner,
+.btn-mode-play,
+.btn-mode-relax {
+  color: var(--foreground);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: var(--shadow-inset-card-soft), var(--shadow-screen);
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+.btn-mode-sos {
+  background-image: var(--gradient-sos);
+}
+.btn-mode-planner {
+  background-image: var(--gradient-planner);
+}
+.btn-mode-play {
+  background-image: var(--gradient-play);
+}
+.btn-mode-relax {
+  background-image: var(--gradient-relax);
+}
+
+/* Play hub — game preview card hover */
+.play-game-card {
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+.play-game-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.35);
+}
+.play-game-card:focus-visible {
+  outline: 2px solid var(--color-focus-ring);
+  outline-offset: 3px;
+}
+
 .glass-button {
   background: var(--glass-bg);
   border: 1px solid var(--glass-border);
@@ -261,7 +324,7 @@ body {
 
 .tetris-board-shell {
   background: var(--tetris-board-surface);
-  border: 1px solid rgba(203, 223, 255, 0.24);
+  border: 1px solid color-mix(in srgb, transparent 76%, var(--color-core-planner) 24%);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.2),
     0 8px 26px rgba(0, 2, 16, 0.45);
@@ -281,7 +344,7 @@ body {
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
-  color: color-mix(in srgb, var(--color-text-primary) 80%, #9ea5d8 20%);
+  color: color-mix(in srgb, var(--color-text-primary) 85%, var(--color-core-planner) 15%);
 }
 
 .tetris-chip-value {
@@ -310,7 +373,7 @@ body {
 .tetris-dpad-btn:hover,
 .tetris-drop-btn:hover {
   background: var(--tetris-btn-hover);
-  border-color: rgba(233, 236, 255, 0.5);
+  border-color: color-mix(in srgb, transparent 45%, var(--color-core-planner) 55%);
 }
 
 .tetris-action-btn--pause {
@@ -325,7 +388,6 @@ body {
   background: color-mix(in srgb, var(--tetris-accent-secondary) 55%, var(--tetris-btn-bg) 45%);
 }
 
-/* Planner “Today’s focus” + task rows (gradients need background:, not bg-color utilities) */
 .planner-summary-card {
   background: var(--planner-summary-surface);
   border: 1px solid var(--planner-summary-border);
@@ -347,13 +409,11 @@ body {
   -webkit-backdrop-filter: blur(16px);
 }
 
-/* Shared: keyboard focus (WCAG-friendly) */
 .blunno-focus-visible:focus-visible {
   outline: 2px solid var(--color-focus-ring);
   outline-offset: 3px;
 }
 
-/* Nav / icon row — one glass pattern app-wide */
 .blunno-nav-btn {
   display: flex;
   align-items: center;
@@ -382,7 +442,6 @@ body {
   transform: scale(0.98);
 }
 
-/* Primary CTA — single loud action per surface */
 .blunno-btn-primary {
   display: inline-flex;
   align-items: center;
@@ -394,17 +453,17 @@ body {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   font-size: var(--text-sm);
-  border: 1px solid rgba(94, 234, 212, 0.35);
-  background: rgba(94, 234, 212, 0.12);
-  color: var(--color-accent-primary);
+  border: 1px solid color-mix(in srgb, var(--color-core-planner) 42%, transparent);
+  background: color-mix(in srgb, var(--color-core-planner) 18%, transparent);
+  color: var(--color-text-primary);
   transition:
     background 0.2s ease,
     border-color 0.2s ease;
 }
 
 .blunno-btn-primary:hover {
-  background: rgba(94, 234, 212, 0.2);
-  border-color: rgba(94, 234, 212, 0.5);
+  background: color-mix(in srgb, var(--color-core-planner) 28%, transparent);
+  border-color: color-mix(in srgb, var(--color-core-planner) 55%, transparent);
 }
 
 .blunno-btn-secondary {
@@ -428,11 +487,15 @@ body {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.gradient-bg {
-  background: linear-gradient(135deg, #1a1040 0%, #0d0820 100%);
+.bg-slot-gradient {
+  background-image: var(--gradient-slot);
+  background-size: 100% 100%;
 }
 
-/* Animation utilities */
+.gradient-bg {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--color-core-bg) 55%, var(--color-core-play) 45%) 0%, var(--color-core-bg) 100%);
+}
+
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
 }
@@ -478,5 +541,24 @@ body {
   }
   60% {
     transform: translateY(-5px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .play-game-card:hover {
+    transform: none;
+  }
+
+  .glass-button:active,
+  .blunno-nav-btn:active {
+    transform: none;
   }
 }

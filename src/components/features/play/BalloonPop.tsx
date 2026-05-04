@@ -13,7 +13,13 @@ type Balloon = {
   speed: number;
 };
 
-const COLORS = ['#6EDAE4', '#8B5CF6', '#E7B453', '#EC4899', '#34D399'];
+const COLORS = [
+  'var(--color-core-planner)',
+  'var(--color-core-play)',
+  'var(--color-core-relax)',
+  'var(--color-core-sos)',
+  'color-mix(in srgb, var(--color-core-planner) 50%, var(--color-core-relax) 50%)',
+] as const;
 const GAME_SECONDS = 30;
 
 export function BalloonPop(): ReactElement {

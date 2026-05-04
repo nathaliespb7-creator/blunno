@@ -37,30 +37,29 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseClasses =
-      'inline-flex items-center justify-center font-sans font-extrabold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blunno-blue focus-visible:ring-offset-2 focus-visible:ring-offset-blunno-bg disabled:opacity-50 disabled:cursor-not-allowed';
+      'inline-flex items-center justify-center font-sans font-extrabold transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blunno-accent focus-visible:ring-offset-2 focus-visible:ring-offset-blunno-bg active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100';
 
     const variants: Record<NonNullable<ButtonProps['variant']>, string> = {
       primary:
-        'bg-blunno-blue hover:brightness-110 text-white focus-visible:ring-blunno-blue shadow-screen',
+        'bg-[color-mix(in_srgb,var(--color-core-planner)_32%,transparent)] hover:bg-[color-mix(in_srgb,var(--color-core-planner)_42%,transparent)] text-white border border-[color-mix(in_srgb,var(--color-core-planner)_40%,transparent)] shadow-screen focus-visible:ring-blunno-accent',
       secondary:
-        'bg-secondary-600 hover:bg-secondary-700 text-white focus-visible:ring-secondary-500',
+        'bg-[color-mix(in_srgb,var(--color-core-play)_22%,var(--color-surface-2)_78%)] hover:bg-[color-mix(in_srgb,var(--color-core-play)_30%,var(--color-surface-2)_70%)] text-white border border-white/20 focus-visible:ring-blunno-accent-2',
       ghost:
         'bg-transparent hover:bg-white/10 text-white border border-white/20 hover:border-white/40',
       glass: 'glass-button text-white',
-      danger: 'bg-blunno-coral hover:brightness-110 text-white focus-visible:ring-blunno-coral',
-      sos: 'bg-blunno-sos text-white border border-white shadow-screen [box-shadow:inset_0_4px_50px_rgba(0,0,0,0.25)]',
-      planner:
-        'bg-blunno-planner text-white border border-white shadow-screen [box-shadow:inset_0_4px_200px_rgba(0,0,0,0.25)]',
-      play: 'bg-blunno-play text-white border border-white shadow-screen [box-shadow:inset_0_4px_50px_rgba(0,0,0,0.25)]',
-      relax:
-        'bg-blunno-relax text-[#fffbfb] border border-white shadow-screen [box-shadow:inset_0_4px_50px_rgba(0,0,0,0.25)]',
+      danger:
+        'bg-[color-mix(in_srgb,var(--color-core-sos)_55%,var(--color-core-bg)_45%)] hover:brightness-110 text-white focus-visible:ring-blunno-magenta border border-white/20',
+      sos: 'btn-mode-sos',
+      planner: 'btn-mode-planner',
+      play: 'btn-mode-play',
+      relax: 'btn-mode-relax text-[var(--foreground-soft)]',
     };
 
     const sizes: Record<NonNullable<ButtonProps['size']>, string> = {
-      sm: 'px-3 py-1.5 text-sm rounded-lg gap-1.5',
-      md: 'px-4 py-2 text-base rounded-xl gap-2',
-      lg: 'px-6 py-3 text-lg rounded-2xl gap-2.5',
-      xl: 'px-8 py-4 text-xl rounded-3xl gap-3',
+      sm: 'px-3 py-1.5 text-sm rounded-lg gap-1.5 min-h-11',
+      md: 'px-4 py-2 text-base rounded-xl gap-2 min-h-11',
+      lg: 'px-6 py-3 text-lg rounded-2xl gap-2.5 min-h-12',
+      xl: 'px-8 py-4 text-xl rounded-3xl gap-3 min-h-14',
       mode: 'min-h-[80px] w-full max-w-[350px] px-6 text-xl rounded-card tracking-figma uppercase shadow-screen',
     };
 

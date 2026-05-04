@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { useState, type ReactElement } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 export default function WelcomePage(): ReactElement {
   const router = useRouter();
   const [isHovered, setIsHovered] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   const handleBlobClick = async () => {
     await unlockAudioSession();
@@ -49,8 +50,8 @@ export default function WelcomePage(): ReactElement {
           role="button"
           tabIndex={0}
           aria-label="Go to mood selection"
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
+          whileHover={reduceMotion ? undefined : { scale: 1.02 }}
+          whileTap={reduceMotion ? undefined : { scale: 0.98 }}
           className="blunno-focus-visible relative min-w-0 cursor-pointer rounded-full outline-none"
         >
           <motion.div
@@ -58,8 +59,12 @@ export default function WelcomePage(): ReactElement {
               opacity: isHovered ? 0.55 : 0.28,
               scale: isHovered ? 1.06 : 1,
             }}
-            transition={{ duration: 0.5 }}
-            className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_50%_40%,rgba(94,234,212,0.18),rgba(167,139,250,0.12),transparent_72%)] blur-[64px]"
+            transition={{ duration: reduceMotion ? 0 : 0.5 }}
+            className="absolute inset-0 rounded-full blur-[64px]"
+            style={{
+              background:
+                'radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--color-core-planner) 26%, transparent), color-mix(in srgb, var(--color-core-play) 18%, transparent), transparent 72%)',
+            }}
           />
 
           <div className="relative z-20 flex min-w-0 justify-center">
@@ -70,7 +75,7 @@ export default function WelcomePage(): ReactElement {
         <motion.div
           initial={{ opacity: 0, y: 16, filter: 'blur(6px)' }}
           animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: reduceMotion ? 0 : 0.5 }}
           className={cn(
             'mt-8 flex w-full min-w-0 max-w-md flex-col items-center justify-center px-4 sm:max-w-lg md:mt-12'
           )}
@@ -89,7 +94,7 @@ export default function WelcomePage(): ReactElement {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 0.22 }}
+            transition={{ delay: reduceMotion ? 0 : 0.22 }}
             className={cn(
               'mt-2 w-full max-w-[min(100%,28rem)] text-balance',
               'flex flex-wrap items-baseline justify-center gap-x-2 gap-y-2 uppercase leading-snug'
@@ -109,7 +114,7 @@ export default function WelcomePage(): ReactElement {
             </span>
           </motion.p>
 
-          <p className="mt-6 max-w-xs text-center font-ui text-sm leading-snug text-[color:var(--color-text-secondary)]">
+          <p className="mt-6 max-w-xs text-center font-ui text-sm leading-normal text-[color:var(--color-text-secondary)]">
             Tap Blunno to continue — one gentle next step.
           </p>
         </motion.div>

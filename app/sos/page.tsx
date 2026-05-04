@@ -1,6 +1,6 @@
 'use client';
 
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import Link from 'next/link';
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 
@@ -31,7 +31,7 @@ const DEFAULT_TUNING: VisualTuning = {
   ringDiameterPx: 252,
   strokeWidthPx: 28,
   blurPx: 14,
-  glowColor: '#5EEAD4',
+  glowColor: '#83a9ad',
   blunnoSizePx: 120,
   blunnoOffsetXPx: -5,
   blunnoOffsetYPx: -13,
@@ -70,7 +70,7 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
 
 function buildRingFilters(blurPx: number, glowHex: string): { progress: string; wrapper: string } {
   const rgb = hexToRgb(glowHex);
-  const fallback = '94, 234, 212';
+  const fallback = '131, 169, 173';
   const rgba = rgb ? `${rgb.r}, ${rgb.g}, ${rgb.b}` : fallback;
   const progress = [
     `drop-shadow(0 0 ${blurPx}px ${glowHex})`,
@@ -81,6 +81,7 @@ function buildRingFilters(blurPx: number, glowHex: string): { progress: string; 
 }
 
 export default function SosPage(): ReactElement {
+  const reduceMotion = useReducedMotion();
   const svgRef = useRef<SVGSVGElement | null>(null);
   const lastAngleRef = useRef<number | null>(null);
   const cycleProgressRef = useRef(0);
@@ -335,8 +336,8 @@ export default function SosPage(): ReactElement {
                 x2={VIEW_SIZE}
                 y2={VIEW_SIZE}
               >
-                <stop offset="0%" stopColor="#5EEAD4" />
-                <stop offset="100%" stopColor="#A78BFA" />
+                <stop offset="0%" stopColor="#83a9ad" />
+                <stop offset="100%" stopColor="#6a3cae" />
               </linearGradient>
             </defs>
 
@@ -378,10 +379,10 @@ export default function SosPage(): ReactElement {
                 draggable={false}
                 className="max-h-full max-w-full object-contain object-center"
                 style={{ width: tuning.blunnoSizePx, height: tuning.blunnoSizePx }}
-                animate={isTracing ? { scale: 1 } : { scale: [1, 1.04, 1] }}
+                animate={isTracing ? { scale: 1 } : reduceMotion ? { scale: 1 } : { scale: [1, 1.04, 1] }}
                 transition={{
-                  duration: isTracing ? 0.2 : 8,
-                  repeat: isTracing ? 0 : Infinity,
+                  duration: isTracing ? 0.2 : reduceMotion ? 0 : 8,
+                  repeat: isTracing || reduceMotion ? 0 : Infinity,
                   ease: 'easeInOut',
                   times: [0, 0.5, 1],
                 }}

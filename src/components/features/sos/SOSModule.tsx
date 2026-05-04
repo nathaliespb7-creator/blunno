@@ -138,7 +138,7 @@ export const SOSModule = () => {
                     className={[
                       'min-w-0 rounded-2xl border px-1.5 py-2 text-center transition-colors',
                       isActive
-                        ? 'border-blunno-blue/50 bg-blunno-blue/15 text-white'
+                        ? 'border-blunno-accent/50 bg-blunno-accent/15 text-white'
                         : 'border-white/10 bg-white/5 text-white/60',
                     ].join(' ')}
                   >
@@ -189,7 +189,7 @@ export const SOSModule = () => {
             )}
           </div>
 
-          <p className="mt-4 text-xs text-white/45">
+          <p className="mt-4 text-xs leading-normal text-white/58">
             Pauses and repeats run automatically. You can stop anytime.
           </p>
         </Card>

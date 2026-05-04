@@ -67,7 +67,7 @@ function TodaySummaryCard({
     <section className="planner-summary-card mb-1.5 w-full max-w-lg shrink-0 rounded-2xl px-2.5 py-2.5 text-left sm:mx-auto sm:px-3.5 sm:py-2.5">
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-white/55">Today&apos;s focus</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wider text-white/62">Today&apos;s focus</p>
           <p className="mt-0.5 truncate text-sm font-bold text-white sm:text-base">
             {done} of {todayTasks.length} done
             <span className="ml-2 text-[var(--planner-star-foreground)]" aria-label={`Stars: ${stars}`}>
@@ -262,7 +262,7 @@ export default function PlannerPage(): ReactElement {
           </svg>
         </button>
         
-        <div className="text-center text-xs text-white/55 sm:text-sm">
+        <div className="text-center text-xs text-white/68 sm:text-sm">
           {formatMonthRange(weekDays)}
         </div>
         
@@ -279,7 +279,7 @@ export default function PlannerPage(): ReactElement {
 
       {/* Week strip — calendar context (secondary) */}
       <div className="shrink-0 pb-3">
-        <p className="mb-2 text-center text-[11px] font-medium uppercase tracking-wider text-white/40">Week</p>
+        <p className="mb-2 text-center text-[11px] font-medium uppercase tracking-wider text-white/58">Week</p>
         <div className="flex justify-between gap-1">
           {weekDays.map((date, idx) => {
             const dayKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
@@ -294,10 +294,10 @@ export default function PlannerPage(): ReactElement {
                 className={cn(
                   'blunno-focus-visible flex min-h-[44px] min-w-0 flex-1 flex-col items-center justify-center rounded-xl border py-1.5 transition-all',
                   isSelected &&
-                    'border-[var(--color-accent-primary)]/75 bg-[var(--planner-day-selected-bg)] shadow-[inset_0_0_0_1px_rgba(94,234,212,0.2)]',
+                    'border-[var(--color-accent-primary)]/75 bg-[var(--planner-day-selected-bg)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14)]',
                   !isSelected &&
                     isToday &&
-                    'border-[var(--planner-day-today-ring)] bg-[var(--planner-day-bg)] shadow-[0_0_0_1px_rgba(94,234,212,0.22)]',
+                    'border-[var(--planner-day-today-ring)] bg-[var(--planner-day-bg)] shadow-[0_0_0_1px_rgba(255,255,255,0.1)]',
                   !isSelected &&
                     !isToday &&
                     'border-[var(--planner-day-border)] bg-[var(--planner-day-bg)] hover:border-white/25 hover:bg-[var(--planner-day-hover-bg)]',
@@ -324,7 +324,7 @@ export default function PlannerPage(): ReactElement {
                   {date.getDate()}
                 </span>
                 {isToday && !isSelected && (
-                  <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-[var(--color-accent-primary)] shadow-[0_0_0_1px_rgba(94,234,212,0.35)]" aria-hidden />
+                  <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-[var(--color-accent-primary)] shadow-[0_0_0_1px_rgba(255,255,255,0.2)]" aria-hidden />
                 )}
               </button>
             );
@@ -473,8 +473,8 @@ export default function PlannerPage(): ReactElement {
       {/* Add task input – fixed at bottom */}
       <div className="shrink-0 border-t border-[var(--planner-task-border)] py-2.5">
         {showLimitHint && (
-          <div className="mb-3 rounded-xl bg-orange-500/20 border border-orange-500/30 px-3 py-2">
-            <p className="text-xs text-orange-200 text-center">
+          <div className="mb-3 rounded-xl border border-[color-mix(in_srgb,var(--color-core-relax)_42%,transparent)] bg-[color-mix(in_srgb,var(--color-core-relax)_14%,transparent)] px-3 py-2">
+            <p className="text-center text-xs leading-normal text-[color-mix(in_srgb,var(--foreground)_92%,var(--color-core-relax)_8%)]">
               You can add up to {MAX_EXTRA} extra tasks (max {MAX_TOTAL} total)
             </p>
           </div>
@@ -510,7 +510,7 @@ export default function PlannerPage(): ReactElement {
           </button>
         </div>
         {currentTasks.length >= MAX_TOTAL && !showLimitHint && (
-          <p className="mt-2 text-xs text-white/50 text-center">Max {MAX_TOTAL} tasks per day</p>
+          <p className="mt-2 text-center text-xs leading-normal text-white/62">Max {MAX_TOTAL} tasks per day</p>
         )}
       </div>
     </main>

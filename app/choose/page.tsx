@@ -13,45 +13,24 @@ type MoodTile = {
   id: MoodId;
   label: string;
   href: string;
-  /** Figma: точные градиенты */
-  gradient: string;
+  /** CSS custom property — gradients live in globals.css (5-color system) */
+  gradientVar: string;
 };
 
 const MOOD_TILES: readonly MoodTile[] = [
-  {
-    id: 'sos',
-    label: 'SOS',
-    href: '/sos',
-    gradient: 'linear-gradient(135deg, #2A1C29 0%, #905E8C 100%)',
-  },
-  {
-    id: 'planner',
-    label: 'PLANNER',
-    href: '/planner',
-    gradient: 'linear-gradient(135deg, #364547 0%, #83A9AD 100%)',
-  },
-  {
-    id: 'play',
-    label: 'PLAY',
-    href: '/play',
-    gradient: 'linear-gradient(135deg, #2C1948 0%, #6A3CAE 100%)',
-  },
-  {
-    id: 'relax',
-    label: 'RELAX',
-    href: '/relax',
-    gradient: 'linear-gradient(135deg, #81642F 0%, #E7B453 100%)',
-  },
+  { id: 'sos', label: 'SOS', href: '/sos', gradientVar: 'var(--gradient-sos)' },
+  { id: 'planner', label: 'PLANNER', href: '/planner', gradientVar: 'var(--gradient-planner)' },
+  { id: 'play', label: 'PLAY', href: '/play', gradientVar: 'var(--gradient-play)' },
+  { id: 'relax', label: 'RELAX', href: '/relax', gradientVar: 'var(--gradient-relax)' },
 ] as const;
 
-/** На обычных экранах без прокрутки; на очень низких вьюпорт — компактнее, при необходимости лёгкий скролл у main */
 const tileClass = cn(
   'group relative flex w-full max-w-sm items-center justify-center overflow-hidden rounded-2xl border border-white',
   'mx-auto px-4 py-4 text-center font-sans text-base font-extrabold uppercase tracking-wide text-white shadow-lg',
   'min-h-[64px] sm:min-h-[88px] md:min-h-[120px] md:max-w-md',
   '[@media(max-height:620px)]:min-h-[52px] [@media(max-height:620px)]:py-3 [@media(max-height:620px)]:text-sm',
   'transition-transform duration-200 [box-shadow:inset_0_4px_50px_rgba(0,0,0,0.2)] will-change-transform',
-  'hover:scale-105 hover:brightness-105 active:scale-[0.98]',
+  'hover:scale-105 hover:brightness-105 active:scale-[0.98] motion-reduce:hover:scale-100 motion-reduce:active:scale-100',
   'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50'
 );
 
@@ -75,7 +54,7 @@ export default function ChoosePage(): ReactElement {
     >
       <div
         className={cn(
-          'mx-auto flex min-h-0 min-w-0 w-full max-w-4xl flex-1 flex-col items-center justify-center gap-3',
+          'mx-auto flex min-h-0 min-w-0 w-full max-w-4xl flex-1 flex-col items-center justify-center gap-3 sm:gap-4',
           '[@media(max-height:620px)]:justify-start [@media(max-height:620px)]:gap-2'
         )}
       >
@@ -83,7 +62,7 @@ export default function ChoosePage(): ReactElement {
           <Link
             href="/"
             aria-label="Exit to welcome screen"
-            className="flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-[#1a1a2e]/90 text-white/95 shadow-md backdrop-blur-sm"
+            className={cn('blunno-focus-visible blunno-nav-btn text-white/95')}
           >
             <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
@@ -121,7 +100,7 @@ export default function ChoosePage(): ReactElement {
                   void handleModeTap(tile.href);
                 }}
                 className={tileClass}
-                style={{ backgroundImage: tile.gradient }}
+                style={{ backgroundImage: tile.gradientVar }}
               >
                 <span className="relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">{tile.label}</span>
               </button>

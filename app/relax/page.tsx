@@ -19,7 +19,7 @@ export default function RelaxPage(): ReactElement {
           <p className="font-sans text-[22px] font-extrabold uppercase tracking-figma [text-shadow:var(--shadow-text-title)]">
             RELAX WITH BLUNNO
           </p>
-          <p className="mt-4 text-sm text-white/65">
+          <p className="mt-4 text-sm leading-normal text-white/72">
             Quiet space for a slower pace — more exercises will land here soon.
           </p>
         </Card>

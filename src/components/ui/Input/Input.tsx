@@ -28,12 +28,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
     ref
   ) => {
     const baseClasses =
-      'w-full bg-transparent border transition-all duration-200 text-blunno-foreground placeholder:text-white/40 focus:outline-none focus:ring-2 focus:ring-blunno-blue/50 focus:border-blunno-blue disabled:opacity-50 disabled:cursor-not-allowed';
+      'w-full bg-transparent border transition-all duration-200 text-blunno-foreground placeholder:text-white/45 focus:outline-none focus:ring-2 focus:ring-blunno-accent/50 focus:border-blunno-accent disabled:opacity-50 disabled:cursor-not-allowed';
 
     const variants = {
-      default: 'border-white/20 focus:border-blunno-blue',
-      glass: 'border-white/30 bg-white/5 backdrop-blur-sm focus:border-blunno-blue',
-      outlined: 'border-white/40 focus:border-blunno-blue',
+      default: 'border-white/20 focus:border-blunno-accent',
+      glass: 'border-white/30 bg-white/5 backdrop-blur-sm focus:border-blunno-accent',
+      outlined: 'border-white/40 focus:border-blunno-accent',
     };
 
     const sizes = {

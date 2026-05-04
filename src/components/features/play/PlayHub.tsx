@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useState, type ReactElement } from 'react';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 
 import { BalloonPop } from '@/components/features/play/BalloonPop';
 import { BlunnoTetris } from '@/components/features/play/BlunnoTetris';
@@ -12,8 +12,28 @@ import { audioService } from '@/services/audioService';
 
 type GameKey = 'tetris' | 'sudoku' | 'balloon';
 
+// #region agent log
+function debugLog(runId: string, hypothesisId: string, location: string, message: string, data: Record<string, unknown>): void {
+  fetch('http://127.0.0.1:7625/ingest/8ca15716-a0fc-49e7-a068-15acecfda9c0', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '401711' },
+    body: JSON.stringify({
+      sessionId: '401711',
+      runId,
+      hypothesisId,
+      location,
+      message,
+      data,
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+}
+// #endregion
+
 export function PlayHub(): ReactElement {
   const [selectedGame, setSelectedGame] = useState<GameKey | null>(null);
+  const gameSectionRef = useRef<HTMLElement | null>(null);
+  const gameBodyRef = useRef<HTMLDivElement | null>(null);
 
   const openGame = async (game: GameKey): Promise<void> => {
     await audioService.ensureUnlocked();
@@ -25,24 +45,48 @@ export function PlayHub(): ReactElement {
     setSelectedGame(null);
   };
 
-  const tetrisPixels = [
-    [1, 0, '#38BDF8'],
-    [2, 0, '#38BDF8'],
-    [3, 0, '#38BDF8'],
-    [4, 0, '#38BDF8'],
-    [2, 1, '#E879F9'],
-    [1, 2, '#E879F9'],
-    [2, 2, '#E879F9'],
-    [3, 2, '#E879F9'],
-    [4, 2, '#FDE047'],
-    [5, 2, '#FDE047'],
-    [4, 3, '#FDE047'],
-    [5, 3, '#FDE047'],
-    [0, 4, '#A3E635'],
-    [1, 4, '#A3E635'],
-    [1, 5, '#A3E635'],
-    [2, 5, '#A3E635'],
-  ] as const;
+  const tetrisPixels: ReadonlyArray<readonly [number, number, string]> = [
+    [1, 0, 'var(--tetris-piece-1)'],
+    [2, 0, 'var(--tetris-piece-1)'],
+    [3, 0, 'var(--tetris-piece-1)'],
+    [4, 0, 'var(--tetris-piece-1)'],
+    [2, 1, 'var(--tetris-piece-6)'],
+    [1, 2, 'var(--tetris-piece-6)'],
+    [2, 2, 'var(--tetris-piece-6)'],
+    [3, 2, 'var(--tetris-piece-6)'],
+    [4, 2, 'var(--tetris-piece-3)'],
+    [5, 2, 'var(--tetris-piece-3)'],
+    [4, 3, 'var(--tetris-piece-3)'],
+    [5, 3, 'var(--tetris-piece-3)'],
+    [0, 4, 'var(--tetris-piece-5)'],
+    [1, 4, 'var(--tetris-piece-5)'],
+    [1, 5, 'var(--tetris-piece-5)'],
+    [2, 5, 'var(--tetris-piece-5)'],
+  ];
+
+  useEffect(() => {
+    if (selectedGame !== 'sudoku') return;
+    // #region agent log
+    const samplePlayHub = (reason: string) => {
+      if (!gameSectionRef.current || !gameBodyRef.current) return;
+      const section = gameSectionRef.current.getBoundingClientRect();
+      const body = gameBodyRef.current.getBoundingClientRect();
+      debugLog('sudoku-desktop-overlap', 'H3', 'PlayHub.tsx:samplePlayHub', 'playhub sudoku container sample', {
+        reason,
+        viewportW: window.innerWidth,
+        viewportH: window.innerHeight,
+        sectionH: Math.round(section.height),
+        bodyH: Math.round(body.height),
+        sectionOverflowY: window.getComputedStyle(gameSectionRef.current).overflowY,
+        bodyOverflowY: window.getComputedStyle(gameBodyRef.current).overflowY,
+      });
+    };
+    samplePlayHub('mount');
+    const onResize = () => samplePlayHub('resize');
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+    // #endregion
+  }, [selectedGame]);
 
   return (
     <main
@@ -98,7 +142,7 @@ export function PlayHub(): ReactElement {
                 onClick={() => {
                   void openGame('tetris');
                 }}
-                className="flex flex-col items-center"
+                className="play-game-card flex flex-col items-center rounded-2xl"
                 aria-label="Open Tetris game"
               >
                 <div className="glass-card flex h-[140px] w-[220px] items-center justify-center rounded-2xl p-3 sm:w-[250px]">
@@ -127,11 +171,11 @@ export function PlayHub(): ReactElement {
                 onClick={() => {
                   void openGame('sudoku');
                 }}
-                className="flex flex-col items-center"
+                className="play-game-card flex flex-col items-center rounded-2xl"
                 aria-label="Open Sudoku game"
               >
                 <div className="glass-card flex h-[140px] w-[220px] items-center justify-center rounded-2xl p-3 sm:w-[250px]">
-                  <div className="grid grid-cols-9 gap-0.5 rounded-lg border border-white/15 bg-[#111236] p-1">
+                  <div className="grid grid-cols-9 gap-0.5 rounded-lg border border-white/15 bg-[var(--sudoku-board-bg)] p-1">
                     {Array.from({ length: 81 }).map((_, i) => {
                       const row = Math.floor(i / 9);
                       const col = i % 9;
@@ -141,7 +185,7 @@ export function PlayHub(): ReactElement {
                           key={`sudoku-${i}`}
                           className={[
                             'h-1.5 w-1.5 rounded-[1px] sm:h-2 sm:w-2',
-                            fixed ? 'bg-[#a78bfa]' : 'bg-[#1b2b5a]',
+                            fixed ? 'bg-[var(--tetris-piece-6)]' : 'bg-[var(--sudoku-cell-editable)]',
                             row % 3 === 0 ? 'ring-1 ring-inset ring-white/10' : '',
                             col % 3 === 0 ? 'ring-1 ring-inset ring-white/10' : '',
                           ].join(' ')}
@@ -157,7 +201,7 @@ export function PlayHub(): ReactElement {
                 onClick={() => {
                   void openGame('balloon');
                 }}
-                className="flex flex-col items-center"
+                className="play-game-card flex flex-col items-center rounded-2xl"
                 aria-label="Open Balloon Pop game"
               >
                 <div className="glass-card flex h-[140px] w-[220px] items-center justify-center rounded-2xl p-3 sm:w-[250px]">
@@ -174,7 +218,7 @@ export function PlayHub(): ReactElement {
             </div>
           </>
         ) : (
-          <section className="flex min-h-0 w-full flex-1 flex-col gap-2 overflow-x-hidden overflow-y-hidden p-1.5 sm:p-3 [@media(max-height:700px)]:overflow-y-auto [@media(max-height:700px)]:overscroll-y-contain">
+          <section ref={gameSectionRef} className="flex min-h-0 w-full flex-1 flex-col gap-2 overflow-x-hidden overflow-y-hidden p-1.5 sm:p-3 [@media(max-height:700px)]:overflow-y-auto [@media(max-height:700px)]:overscroll-y-contain">
             <div className="flex w-full shrink-0 items-center justify-between gap-2">
               <button
                 type="button"
@@ -194,7 +238,7 @@ export function PlayHub(): ReactElement {
                 </svg>
               </Link>
             </div>
-            <div className="flex min-h-0 flex-1 w-full flex-col overflow-hidden">
+            <div ref={gameBodyRef} className="flex min-h-0 flex-1 w-full flex-col overflow-hidden">
               {selectedGame === 'tetris' && <BlunnoTetris />}
               {selectedGame === 'sudoku' && <SudokuGame />}
               {selectedGame === 'balloon' && <BalloonPop />}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState, type ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 
 import { audioService } from '@/services/audioService';
 
@@ -12,6 +12,24 @@ const PUZZLES = [
   '000260701680070090190004500820100040004602900050003028009300074040050036703018000',
   '300200000000107000706030500070009080900020004010800050009040301000702000000008006',
 ] as const;
+
+// #region agent log
+function debugLog(runId: string, hypothesisId: string, location: string, message: string, data: Record<string, unknown>): void {
+  fetch('http://127.0.0.1:7625/ingest/8ca15716-a0fc-49e7-a068-15acecfda9c0', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '401711' },
+    body: JSON.stringify({
+      sessionId: '401711',
+      runId,
+      hypothesisId,
+      location,
+      message,
+      data,
+      timestamp: Date.now(),
+    }),
+  }).catch(() => {});
+}
+// #endregion
 
 function parsePuzzle(puzzle: string): Board {
   const values = puzzle.split('').map((v) => Number(v));
@@ -75,6 +93,13 @@ function isSolved(board: Board): boolean {
 }
 
 export function SudokuGame(): ReactElement {
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const cardRef = useRef<HTMLDivElement | null>(null);
+  const headerRef = useRef<HTMLElement | null>(null);
+  const boardRegionRef = useRef<HTMLElement | null>(null);
+  const boardGridRef = useRef<HTMLDivElement | null>(null);
+  const controlsRef = useRef<HTMLElement | null>(null);
+  const statusRef = useRef<HTMLDivElement | null>(null);
   const [puzzleIndex, setPuzzleIndex] = useState(0);
   const [fixedBoard, setFixedBoard] = useState<Board>(() => parsePuzzle(PUZZLES[0]));
   const [board, setBoard] = useState<Board>(() => parsePuzzle(PUZZLES[0]));
@@ -130,22 +155,58 @@ export function SudokuGame(): ReactElement {
     [selected, setCellValue]
   );
 
+  useEffect(() => {
+    // #region agent log
+    const sampleLayout = (reason: string) => {
+      if (!cardRef.current || !headerRef.current || !boardRegionRef.current || !controlsRef.current || !statusRef.current) return;
+      const card = cardRef.current.getBoundingClientRect();
+      const header = headerRef.current.getBoundingClientRect();
+      const boardRegion = boardRegionRef.current.getBoundingClientRect();
+      const boardGrid = boardGridRef.current?.getBoundingClientRect();
+      const controls = controlsRef.current.getBoundingClientRect();
+      const status = statusRef.current.getBoundingClientRect();
+      const requiredStack = header.height + boardRegion.height + controls.height;
+      const controlsOverflowIntoBoard = boardRegion.bottom > controls.top;
+      debugLog('sudoku-desktop-overlap', 'H1', 'SudokuGame.tsx:sampleLayout', 'sudoku layout sample', {
+        reason,
+        viewportW: window.innerWidth,
+        viewportH: window.innerHeight,
+        cardH: Math.round(card.height),
+        headerH: Math.round(header.height),
+        boardRegionH: Math.round(boardRegion.height),
+        boardGridH: boardGrid ? Math.round(boardGrid.height) : null,
+        controlsH: Math.round(controls.height),
+        statusH: Math.round(status.height),
+        requiredStackH: Math.round(requiredStack),
+        overflowH: Math.round(requiredStack - card.height),
+        controlsOverflowIntoBoard,
+      });
+    };
+
+    const onResize = () => sampleLayout('resize');
+    sampleLayout('mount');
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+    // #endregion
+  }, []);
+
   return (
-    <div className="mx-auto flex h-full min-h-0 w-full max-w-xl flex-col overflow-hidden bg-[#0D0524] px-1.5 py-1 text-white sm:px-2 sm:py-2">
-      <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-2 backdrop-blur-sm sm:p-4">
-        <header className="shrink-0 text-center">
+    <div ref={rootRef} className="mx-auto flex h-full min-h-0 w-full max-w-xl flex-col overflow-hidden bg-[var(--sudoku-shell-bg)] px-1.5 py-1 text-white sm:px-2 sm:py-2">
+      <div ref={cardRef} className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-2 backdrop-blur-sm sm:p-4">
+        <header ref={headerRef} className="shrink-0 text-center">
           <h2 className="font-sans text-sm font-extrabold uppercase tracking-wide text-white sm:text-lg">Sudoku</h2>
           <p className="mt-0.5 text-[11px] text-white/70 sm:mt-1 sm:text-sm">
             Fill each row, column and 3x3 box with digits 1-9.
           </p>
         </header>
 
-        <section className="flex min-h-0 flex-1 items-center justify-center py-1.5 sm:py-2">
+        <section ref={boardRegionRef} className="flex min-h-0 flex-1 items-center justify-center py-1.5 sm:py-2">
           <div
+            ref={boardGridRef}
             role="application"
             tabIndex={0}
             onKeyDown={onKeyDown}
-            className="grid aspect-square h-full max-h-full w-full max-w-[min(88vw,410px)] grid-cols-9 rounded-xl border border-white/25 bg-[#111236] p-1 outline-none"
+            className="grid aspect-square h-full max-h-full w-full max-w-[min(88vw,410px)] grid-cols-9 rounded-xl border border-white/25 bg-[var(--sudoku-board-bg)] p-1 outline-none"
             aria-label="Sudoku board"
           >
             {board.map((row, rowIndex) =>
@@ -164,10 +225,10 @@ export function SudokuGame(): ReactElement {
                     className={[
                       'aspect-square border border-white/10 text-center text-sm font-bold transition sm:text-base',
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-primary)]/70',
-                      isFixed ? 'bg-[#1a1a44] text-white' : 'bg-[#101233] text-[var(--color-accent-primary)]',
-                      isSameRow || isSameCol ? 'bg-[#1a214f]' : '',
+                      isFixed ? 'bg-[var(--sudoku-cell-fixed)] text-white' : 'bg-[var(--sudoku-cell-editable)] text-[var(--color-accent-primary)]',
+                      isSameRow || isSameCol ? 'bg-[var(--sudoku-cell-highlight)]' : '',
                       isSelected ? 'ring-2 ring-inset ring-[var(--color-accent-primary)]' : '',
-                      isConflict ? 'bg-[#3c1325] text-[#fb7185]' : '',
+                      isConflict ? 'bg-[var(--sudoku-conflict-bg)] text-[var(--sudoku-conflict-text)]' : '',
                       rowIndex % 3 === 0 ? 'border-t-white/40' : '',
                       colIndex % 3 === 0 ? 'border-l-white/40' : '',
                       rowIndex === 8 ? 'border-b-white/40' : '',
@@ -183,7 +244,7 @@ export function SudokuGame(): ReactElement {
           </div>
         </section>
 
-        <section className="shrink-0 space-y-1.5 sm:space-y-2">
+        <section ref={controlsRef} className="shrink-0 space-y-1.5 sm:space-y-2">
           <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
               <button
@@ -211,11 +272,11 @@ export function SudokuGame(): ReactElement {
             </button>
           </div>
 
-          <div className="text-center text-xs font-semibold sm:text-sm">
+          <div ref={statusRef} className="text-center text-xs font-semibold sm:text-sm">
             {solved ? (
-              <p className="text-[#4ade80]">Solved. Great focus.</p>
+              <p className="text-[var(--color-semantic-success)]">Solved. Great focus.</p>
             ) : conflicts.size > 0 ? (
-              <p className="text-[#fb7185]">There are conflicts in the highlighted cells.</p>
+              <p className="text-[var(--color-semantic-danger)]">There are conflicts in the highlighted cells.</p>
             ) : (
               <p className="text-white/70">Select a cell and use keypad or keyboard (1-9).</p>
             )}

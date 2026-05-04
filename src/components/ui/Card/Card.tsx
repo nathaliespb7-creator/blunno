@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, type HTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
@@ -11,16 +11,17 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 
 const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, variant = 'default', padding = 'md', children, ...props }, ref) => {
-    const baseClasses = 'transition-all duration-200';
+    const baseClasses =
+      'transition-all duration-200 active:scale-[0.995] motion-reduce:active:scale-100';
 
     const variants: Record<NonNullable<CardProps['variant']>, string> = {
       default: 'rounded-3xl bg-white/5 border border-white/15',
       glass: 'rounded-3xl glass-card',
-      elevated: 'rounded-3xl bg-white/10 shadow-2xl border border-white/20',
+      elevated: 'rounded-3xl bg-white/10 shadow-2xl border border-white/20 hover:bg-white/[0.11]',
       outlined: 'rounded-3xl bg-transparent border-2 border-white/30',
       screen:
         'rounded-screen bg-blunno-bg border border-black shadow-screen overflow-hidden',
-      slot: 'rounded-card border border-white bg-blunno-slot shadow-screen',
+      slot: 'rounded-card border border-white bg-slot-gradient shadow-screen',
     };
 
     const paddings = {

@@ -33,7 +33,7 @@ function NotificationItem({
       'border-blunno-coral/70 bg-black/55 text-white shadow-[0_4px_4px_rgba(0,0,0,0.25)] backdrop-blur-md',
     warning:
       'border-blunno-gold/70 bg-black/50 text-white shadow-[0_4px_4px_rgba(0,0,0,0.25)] backdrop-blur-md',
-    info: 'border-blunno-blue/70 bg-black/50 text-white shadow-[0_4px_4px_rgba(0,0,0,0.25)] backdrop-blur-md',
+    info: 'border-blunno-accent/70 bg-black/50 text-white shadow-[0_4px_4px_rgba(0,0,0,0.25)] backdrop-blur-md',
   };
 
   const labels: Record<typeof type, string> = {
