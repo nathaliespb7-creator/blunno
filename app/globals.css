@@ -149,9 +149,9 @@
   /* Sudoku — palette-only */
   --sudoku-shell-bg: color-mix(in srgb, var(--color-core-bg) 90%, var(--color-core-play) 10%);
   --sudoku-board-bg: color-mix(in srgb, var(--color-core-bg) 70%, var(--color-core-play) 30%);
-  --sudoku-cell-fixed: color-mix(in srgb, var(--color-core-bg) 55%, var(--color-core-play) 45%);
-  --sudoku-cell-editable: color-mix(in srgb, var(--color-core-bg) 82%, var(--color-core-play) 18%);
-  --sudoku-cell-highlight: color-mix(in srgb, var(--color-core-bg) 72%, var(--color-core-sos) 14%, var(--color-core-play) 14%);
+  --sudoku-cell-fixed: color-mix(in srgb, var(--color-core-bg) 58%, var(--color-core-play) 42%);
+  --sudoku-cell-editable: color-mix(in srgb, var(--color-core-bg) 64%, var(--foreground) 20%, var(--color-core-play) 16%);
+  --sudoku-cell-highlight: color-mix(in srgb, var(--sudoku-cell-editable) 68%, var(--color-core-relax) 20%, var(--color-core-play) 12%);
   --sudoku-conflict-bg: color-mix(in srgb, var(--color-core-bg) 50%, var(--color-core-sos) 50%);
   --sudoku-conflict-text: color-mix(in srgb, var(--color-core-sos) 88%, var(--foreground) 12%);
 

@@ -200,13 +200,16 @@ export function SudokuGame(): ReactElement {
           </p>
         </header>
 
-        <section ref={boardRegionRef} className="flex min-h-0 flex-1 items-center justify-center py-1.5 sm:py-2">
+        <section
+          ref={boardRegionRef}
+          className="flex min-h-0 min-w-0 flex-1 items-center justify-center overflow-hidden py-1.5 sm:py-2 [@media(max-height:620px)]:py-1"
+        >
           <div
             ref={boardGridRef}
             role="application"
             tabIndex={0}
             onKeyDown={onKeyDown}
-            className="grid aspect-square h-full max-h-full w-full max-w-[min(88vw,410px)] grid-cols-9 rounded-xl border border-white/25 bg-[var(--sudoku-board-bg)] p-1 outline-none"
+            className="grid aspect-square mx-auto h-auto w-full min-w-0 max-h-full max-w-[min(94vw,500px)] sm:max-w-[min(92vw,540px)] grid-cols-9 rounded-xl border border-white/25 bg-[var(--sudoku-board-bg)] p-1 outline-none"
             aria-label="Sudoku board"
           >
             {board.map((row, rowIndex) =>
@@ -225,7 +228,7 @@ export function SudokuGame(): ReactElement {
                     className={[
                       'aspect-square border border-white/10 text-center text-sm font-bold transition sm:text-base',
                       'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--color-accent-primary)]/70',
-                      isFixed ? 'bg-[var(--sudoku-cell-fixed)] text-white' : 'bg-[var(--sudoku-cell-editable)] text-[var(--color-accent-primary)]',
+                      isFixed ? 'bg-[var(--sudoku-cell-fixed)] text-white' : 'bg-[var(--sudoku-cell-editable)] text-white',
                       isSameRow || isSameCol ? 'bg-[var(--sudoku-cell-highlight)]' : '',
                       isSelected ? 'ring-2 ring-inset ring-[var(--color-accent-primary)]' : '',
                       isConflict ? 'bg-[var(--sudoku-conflict-bg)] text-[var(--sudoku-conflict-text)]' : '',
@@ -244,32 +247,34 @@ export function SudokuGame(): ReactElement {
           </div>
         </section>
 
-        <section ref={controlsRef} className="shrink-0 space-y-1.5 sm:space-y-2">
-          <div className="grid grid-cols-5 gap-1.5 sm:gap-2">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+        <section ref={controlsRef} className="shrink-0 space-y-1 sm:space-y-1.5">
+          <div className="mx-auto w-full max-w-[min(94vw,500px)] sm:max-w-[min(92vw,540px)]">
+            <div className="grid grid-cols-5 gap-1 sm:gap-1.5">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                <button
+                  key={num}
+                  type="button"
+                  onClick={() => setCellValue(num)}
+                  className="blunno-focus-visible glass-button min-h-[36px] rounded-xl text-sm font-bold text-white sm:min-h-[40px]"
+                >
+                  {num}
+                </button>
+              ))}
               <button
-                key={num}
                 type="button"
-                onClick={() => setCellValue(num)}
-                className="blunno-focus-visible glass-button min-h-[40px] rounded-xl text-sm font-bold text-white sm:min-h-[44px]"
+                onClick={() => setCellValue(0)}
+                className="blunno-focus-visible glass-button col-span-2 min-h-[36px] rounded-xl text-[10px] font-bold uppercase tracking-wide text-white/90 sm:min-h-[40px] sm:text-xs"
               >
-                {num}
+                Clear cell
               </button>
-            ))}
-            <button
-              type="button"
-              onClick={() => setCellValue(0)}
-              className="blunno-focus-visible glass-button col-span-2 min-h-[40px] rounded-xl text-[11px] font-bold uppercase tracking-wide text-white/90 sm:min-h-[44px] sm:text-xs"
-            >
-              Clear cell
-            </button>
-            <button
-              type="button"
-              onClick={newPuzzle}
-              className="blunno-focus-visible glass-button col-span-3 min-h-[40px] rounded-xl text-[11px] font-bold uppercase tracking-wide text-[var(--color-accent-primary)] sm:min-h-[44px] sm:text-xs"
-            >
-              New puzzle
-            </button>
+              <button
+                type="button"
+                onClick={newPuzzle}
+                className="blunno-focus-visible glass-button col-span-3 min-h-[36px] rounded-xl text-[10px] font-bold uppercase tracking-wide text-[var(--color-accent-primary)] sm:min-h-[40px] sm:text-xs"
+              >
+                New puzzle
+              </button>
+            </div>
           </div>
 
           <div ref={statusRef} className="text-center text-xs font-semibold sm:text-sm">

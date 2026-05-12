@@ -1,36 +1,102 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Blunno
 
-## Getting Started
+Blunno is a calming, mobile-first Next.js app focused on reducing stress through short, lightweight activities:
+- quick breathing flow (`SOS`)
+- simple daily planning (`Planner`)
+- playful micro-games (`Play`)
+- a dedicated relax section (`Relax`)
 
-First, run the development server:
+Production: [https://blunno.app](https://blunno.app)
+
+## Main user flow
+
+1. `Welcome` (`/`) - intro screen with mascot interaction.
+2. `Choose` (`/choose`) - pick current mood/activity mode.
+3. Mode screens:
+   - `/sos` - 3-cycle breathing exercise with progress ring.
+   - `/planner` - daily task list and week navigation.
+   - `/play` - game hub (Sudoku, Tetris, Balloon Pop).
+   - `/relax` - lightweight relax placeholder screen.
+
+## Features
+
+- **5-color design system** via global CSS tokens and gradients.
+- **Accessibility-minded UI**:
+  - responsive layouts and safe-area padding
+  - `prefers-reduced-motion` support
+  - visible focus states and touch-friendly controls
+- **Audio feedback** powered by Howler.
+- **Game/state highlights**:
+  - Sudoku board with keypad and conflict highlighting
+  - Tetris with top-score persistence in `localStorage`
+  - Planner with daily/weekly UX (currently in-memory tasks)
+
+## Tech stack
+
+- Next.js 16 (App Router)
+- React 19 + TypeScript
+- Tailwind CSS 4
+- Framer Motion
+- Zustand
+- Howler
+
+## Project structure
+
+- `app/` - routes/pages (`/`, `/choose`, `/sos`, `/planner`, `/play`, `/relax`)
+- `src/components/features/` - feature UI (SOS, Play, Sudoku, Tetris, etc.)
+- `src/components/ui/` - reusable primitives
+- `app/globals.css` - design tokens, theme gradients, shared styles
+- `docs/` - implementation notes (including PWA/offline expectations)
+
+## Getting started
+
+### Requirements
+
+- Node.js 20+ recommended
+- npm
+
+### Install
+
+```bash
+npm install
+```
+
+### Run development server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Build production bundle
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+npm run build
+npm run start
+```
 
-## Learn More
+### Lint
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+npm run lint
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deployment
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Blunno is deployed on Vercel.
 
-## Deploy on Vercel
+Typical production deploy command:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+vercel deploy /absolute/path/to/blunno --prod --yes
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## PWA / offline notes
+
+See [`docs/PWA-OFFLINE.md`](docs/PWA-OFFLINE.md).
+
+Current status:
+- Manifest is configured.
+- `next-pwa` dependency exists but service worker integration is not fully wired in `next.config.ts`.
+- Planner data is not yet persisted across reloads (in-memory for now).

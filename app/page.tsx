@@ -13,7 +13,7 @@ export default function WelcomePage(): ReactElement {
   const [isHovered, setIsHovered] = useState(false);
   const reduceMotion = useReducedMotion();
 
-  const handleBlobClick = async () => {
+  const handleStartNow = async () => {
     await unlockAudioSession();
     playNavigationHoverSoft();
     router.push('/choose');
@@ -40,19 +40,8 @@ export default function WelcomePage(): ReactElement {
         <motion.div
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          onClick={handleBlobClick}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              void handleBlobClick();
-            }
-          }}
-          role="button"
-          tabIndex={0}
-          aria-label="Go to mood selection"
-          whileHover={reduceMotion ? undefined : { scale: 1.02 }}
-          whileTap={reduceMotion ? undefined : { scale: 0.98 }}
-          className="blunno-focus-visible relative min-w-0 cursor-pointer rounded-full outline-none"
+          aria-hidden
+          className="relative min-w-0 select-none rounded-full"
         >
           <motion.div
             animate={{
@@ -80,43 +69,36 @@ export default function WelcomePage(): ReactElement {
             'mt-8 flex w-full min-w-0 max-w-md flex-col items-center justify-center px-4 sm:max-w-lg md:mt-12'
           )}
         >
-          {/* Figma: #241305 на тёмном фоне нечитаем — белый для WCAG AA */}
-          <h2
+          <h1
             className={cn(
-              'font-welcome w-full max-w-[min(100%,28rem)] break-words text-balance font-bold leading-tight text-white',
-              'text-3xl sm:text-4xl md:text-[38px]',
-              '[text-shadow:0_4px_4px_rgba(0,0,0,0.25)]'
+              'font-welcome w-full max-w-[min(100%,28rem)] break-words text-balance font-bold leading-[1.05] tracking-tight text-white',
+              'text-5xl sm:text-6xl md:text-7xl',
+              '[text-shadow:0_4px_24px_rgba(0,0,0,0.35)]'
             )}
           >
-            No stress, no mess
-          </h2>
+            Blunno
+          </h1>
 
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: reduceMotion ? 0 : 0.22 }}
             className={cn(
-              'mt-2 w-full max-w-[min(100%,28rem)] text-balance',
-              'flex flex-wrap items-baseline justify-center gap-x-2 gap-y-2 uppercase leading-snug'
+              'mt-3 w-full max-w-[min(100%,24rem)] text-balance font-ui text-base font-medium leading-snug text-white/85 sm:mt-4 sm:text-lg'
             )}
-            aria-label="JUST BLUNNO BEST"
           >
-            <span className="font-welcome text-[22px] text-white/95 sm:text-2xl [text-shadow:0_1px_2px_rgba(0,0,0,0.35)]">
-              JUST
-            </span>
-            <span
-              className="font-welcome text-[26px] text-[var(--color-accent-primary)] sm:text-3xl [text-shadow:0_1px_2px_rgba(0,0,0,0.35)]"
-            >
-              BLUNNO
-            </span>
-            <span className="font-welcome text-[22px] text-white/95 sm:text-2xl [text-shadow:0_1px_2px_rgba(0,0,0,0.35)]">
-              BEST
-            </span>
+            Your pocket reset for study stress
           </motion.p>
 
-          <p className="mt-6 max-w-xs text-center font-ui text-sm leading-normal text-[color:var(--color-text-secondary)]">
-            Tap Blunno to continue — one gentle next step.
-          </p>
+          <button
+            type="button"
+            onClick={() => {
+              void handleStartNow();
+            }}
+            className="blunno-btn-primary blunno-focus-visible mt-8 w-full max-w-[min(100%,20rem)] sm:mt-10"
+          >
+            Start now
+          </button>
         </motion.div>
       </div>
     </div>
