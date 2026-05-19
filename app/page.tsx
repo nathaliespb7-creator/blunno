@@ -1,22 +1,20 @@
 'use client';
 
-import { motion } from 'framer-motion';
-import { Plus_Jakarta_Sans } from 'next/font/google';
+import { motion, useReducedMotion } from 'framer-motion';
 import { type ReactElement } from 'react';
 import { useRouter } from 'next/navigation';
 
-import { BlunnoBlob } from '@/components/shared/BlunnoBlob';
+import { WelcomeCTA } from '@/components/features/welcome/WelcomeCTA';
+import { WelcomeMascot } from '@/components/features/welcome/WelcomeMascot';
+import { useMounted } from '@/hooks/useMounted';
 import { playNavigationHoverSoft, unlockAudioSession } from '@/lib/navigationSound';
 import { cn } from '@/lib/utils';
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['400', '700', '800'],
-  display: 'swap',
-});
-
 export default function WelcomePage(): ReactElement {
   const router = useRouter();
+  const mounted = useMounted();
+  const reduceMotion = useReducedMotion();
+  const animate = mounted && !reduceMotion;
 
   const handleStartNow = async () => {
     await unlockAudioSession();
@@ -24,61 +22,104 @@ export default function WelcomePage(): ReactElement {
     router.push('/choose');
   };
 
+  const fadeUp = (delay: number) =>
+    animate
+      ? {
+          initial: { y: 20, opacity: 0 },
+          animate: { y: 0, opacity: 1 },
+          transition: { duration: 0.8, ease: 'easeOut' as const, delay },
+        }
+      : { initial: false as const, animate: { y: 0, opacity: 1 } };
+
   return (
     <main
       className={cn(
-        plusJakartaSans.className,
-        'fixed inset-0 z-0 flex flex-col items-center justify-center overflow-x-hidden overflow-y-hidden',
-        'bg-[#131121] px-5 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]'
+        'font-[family-name:var(--font-plus-jakarta)]',
+        'fixed inset-0 z-0 overflow-hidden',
+        'flex items-stretch justify-center'
       )}
+      style={{ background: 'var(--welcome-bg-gradient)' }}
     >
-      <div className="relative z-10 flex w-full max-w-[420px] flex-col items-center text-center">
-        <div
-          className="pointer-events-none absolute -top-8 h-56 w-56 rounded-full blur-[64px]"
-          style={{
-            background: 'radial-gradient(circle, rgba(201,191,255,0.32) 0%, rgba(155,208,208,0.18) 48%, transparent 74%)',
-          }}
-        />
+      <motion.div
+        className="pointer-events-none absolute rounded-full"
+        initial={false}
+        animate={
+          animate ? { scale: [1, 1.05, 1], opacity: [0.3, 0.4, 0.3] } : { scale: 1, opacity: 0.35 }
+        }
+        transition={{ duration: animate ? 8 : 0, repeat: animate ? Infinity : 0, ease: 'easeInOut' }}
+        style={{
+          top: '-10%',
+          left: '10%',
+          width: '80%',
+          height: '40%',
+          background:
+            'radial-gradient(ellipse at center, rgba(93,63,224,0.15) 0%, transparent 70%)',
+          filter: 'blur(40px)',
+        }}
+        aria-hidden
+      />
+      <motion.div
+        className="pointer-events-none absolute rounded-full"
+        initial={false}
+        animate={
+          animate ? { scale: [1, 1.1, 1], opacity: [0.2, 0.3, 0.2] } : { scale: 1, opacity: 0.25 }
+        }
+        transition={{
+          duration: animate ? 10 : 0,
+          repeat: animate ? Infinity : 0,
+          ease: 'easeInOut',
+          delay: animate ? 1 : 0,
+        }}
+        style={{
+          bottom: '0%',
+          right: '-20%',
+          width: '100%',
+          height: '50%',
+          background:
+            'radial-gradient(ellipse at center, rgba(124,90,255,0.1) 0%, transparent 70%)',
+          filter: 'blur(50px)',
+        }}
+        aria-hidden
+      />
+
+      {/* Make v23 frame: 393×852 — content top-[120px], CTA bottom pb-[72px] */}
+      <div className="relative z-10 mx-auto h-dvh w-full max-w-[393px] shrink-0">
+        <div className="absolute inset-x-0 top-[calc(var(--welcome-content-top)+env(safe-area-inset-top))] z-10 flex flex-col items-center px-6 text-center">
+          <WelcomeMascot />
+
+          <div className="mt-4 flex flex-col items-center space-y-3">
+            <motion.h1
+              {...fadeUp(0.4)}
+              className="bg-clip-text text-[48px] font-normal leading-[1.1] text-transparent"
+              style={{
+                fontFamily: 'var(--font-tiro-telugu), serif',
+                backgroundImage: 'linear-gradient(180deg, #FFFFFF 0%, #C4B5FD 100%)',
+                filter: 'drop-shadow(0px 4px 20px rgba(124, 90, 255, 0.15))',
+              }}
+            >
+              Blunno
+            </motion.h1>
+
+            <motion.p
+              {...fadeUp(0.5)}
+              className="max-w-[280px] text-[17px] font-normal leading-[1.4] tracking-[0.02em] opacity-90"
+              style={{
+                color: 'var(--welcome-subtitle)',
+                textShadow: '0 2px 10px var(--welcome-subtitle-glow)',
+              }}
+            >
+              Your pocket reset for any stress
+            </motion.p>
+          </div>
+        </div>
 
         <motion.div
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.45 }}
-          className="mb-9"
-          aria-hidden
+          {...fadeUp(0.6)}
+          className="absolute inset-x-0 bottom-0 z-20 flex flex-col items-center px-6"
+          style={{ paddingBottom: 'calc(var(--welcome-cta-bottom) + env(safe-area-inset-bottom))' }}
         >
-          <BlunnoBlob className="shrink-0" />
+          <WelcomeCTA className="w-full" onClick={() => void handleStartNow()} />
         </motion.div>
-
-        <h1
-          className="text-[40px] font-extrabold leading-[1.06] tracking-[0.01em] text-[#e5dff6] sm:text-[46px]"
-          style={{ textShadow: '0 4px 22px rgba(201,191,255,0.26)' }}
-        >
-          Blunno
-        </h1>
-
-        <p className="mt-4 max-w-[320px] text-balance text-[20px] font-normal leading-[1.35] text-[#c9c4d8]">
-          Your pocket reset for study stress
-        </p>
-
-        <button
-          type="button"
-          onClick={() => {
-            void handleStartNow();
-          }}
-          className={cn(
-            'blunno-focus-visible mx-auto mt-10 w-full max-w-[280px] rounded-full px-8 py-[14px]',
-            'text-center text-[18px] font-bold uppercase tracking-[0.06em] text-[#2e009c]',
-            'transition duration-200 ease-out hover:scale-[1.02]',
-            'focus-visible:scale-[1.02] active:scale-[0.99]'
-          )}
-          style={{
-            background: 'linear-gradient(135deg, #917eff 0%, #c9bfff 100%)',
-            boxShadow: '0 0 15px rgba(145, 126, 255, 0.5)',
-          }}
-        >
-          START NOW
-        </button>
       </div>
     </main>
   );

@@ -1,5 +1,5 @@
 import './globals.css';
-import { Comfortaa, Inter, Poppins, Roboto, Sarabun, Tiro_Telugu } from 'next/font/google';
+import { Comfortaa, Inter, Plus_Jakarta_Sans, Poppins, Roboto, Sarabun, Tiro_Telugu } from 'next/font/google';
 import type { Metadata, Viewport } from 'next';
 
 import { AudioUnlock } from '@/components/shared/AudioUnlock';
@@ -32,6 +32,13 @@ const sarabun = Sarabun({
 const tiroTelugu = Tiro_Telugu({
   subsets: ['latin'],
   variable: '--font-tiro-telugu',
+  display: 'swap',
+  weight: ['400'],
+});
+
+const plusJakartaSans = Plus_Jakarta_Sans({
+  subsets: ['latin'],
+  variable: '--font-plus-jakarta',
   display: 'swap',
   weight: ['400'],
 });
@@ -85,7 +92,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${welcomeDisplay.variable} ${tiroTelugu.variable} ${comfortaa.variable} ${sarabun.variable} ${roboto.variable} ${inter.variable} min-h-dvh overflow-x-hidden bg-blunno-bg`}
+      className={`${welcomeDisplay.variable} ${tiroTelugu.variable} ${plusJakartaSans.variable} ${comfortaa.variable} ${sarabun.variable} ${roboto.variable} ${inter.variable} min-h-dvh overflow-x-hidden bg-blunno-bg`}
     >
       <body className="min-h-dvh w-full max-w-[100vw] overflow-x-hidden font-ui leading-normal text-blunno-foreground antialiased">
         <AudioUnlock />

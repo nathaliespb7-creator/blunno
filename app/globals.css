@@ -138,8 +138,9 @@
   --tracking-wide: 0.01em;
   --tracking-widest: 0.2em;
 
-  /* Welcome — Luminous Serenity tokens (screen-specific, does not affect other modes) */
-  --welcome-bg: #131121;
+  /* Welcome — Luminous Serenity tokens (Figma Make v23) */
+  --welcome-bg-gradient: linear-gradient(180deg, #0a0815 0%, #120f25 100%);
+  --welcome-bg: #0a0815;
   --welcome-surface-lowest: #0e0c1b;
   --welcome-surface: #1c1a29;
   --welcome-on-surface: #e5dff6;
@@ -154,6 +155,12 @@
   --welcome-text-shadow: 0 6px 24px rgba(2, 2, 10, 0.48);
   --welcome-cta-shadow: 0 8px 24px rgba(16, 12, 40, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.16);
   --welcome-brand-teal: var(--color-core-planner);
+  --welcome-subtitle: #6edae4;
+  --welcome-subtitle-glow: rgba(110, 218, 228, 0.2);
+  /* Make v23 welcome frame (393×852): content top 120px, CTA bottom padding 72px */
+  --welcome-content-top: 120px;
+  --welcome-cta-bottom: 72px;
+  --welcome-neon-purple: #8b6bff;
   --welcome-hero-size-min: 1.25rem;
   --welcome-hero-size-max: 1.5rem;
   --welcome-tag-size-min: 1.75rem;
@@ -479,19 +486,24 @@ body {
   border-color: color-mix(in srgb, var(--color-core-planner) 55%, transparent);
 }
 
+.welcome-subtitle {
+  color: color-mix(in srgb, var(--welcome-subtitle) 90%, transparent);
+  text-shadow: 0 0 18px var(--welcome-subtitle-glow);
+}
+
 .welcome-btn-primary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 48px;
-  padding: 0.78rem 1.35rem;
-  border-radius: var(--radius-2xl);
-  font-weight: 800;
-  letter-spacing: 0.08em;
+  padding: 0.875rem 2rem;
+  border-radius: var(--radius-pill);
+  font-weight: 700;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  font-size: var(--text-sm);
-  border: 1px solid color-mix(in srgb, var(--welcome-primary) 70%, var(--welcome-outline) 30%);
-  background: linear-gradient(135deg, var(--welcome-primary) 0%, var(--welcome-primary-strong) 100%);
+  font-size: 1.125rem;
+  border: 2px solid color-mix(in srgb, var(--welcome-primary) 35%, transparent);
+  background: linear-gradient(135deg, var(--welcome-primary-strong) 0%, var(--welcome-primary) 100%);
   color: var(--welcome-on-primary);
   box-shadow: var(--welcome-cta-shadow);
   transition:

@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion, type TargetAndTransition } from 'framer-motion';
+import Image from 'next/image';
 import { useBlunnoStore, type BlunnoState, type BreathPhase } from '@/store/blunnoStore';
 import { BLUNNO_MASCOT_PNG } from '@/lib/assets';
 import { cn } from '@/lib/utils';
@@ -86,13 +87,16 @@ export const BlunnoBlob = ({ className }: BlunnoBlobProps) => {
         whileHover={reduceMotion ? undefined : { scale: 1.02 }}
         transition={{ type: 'spring', stiffness: 400, damping: 17 }}
       >
-        <motion.img
+        <Image
           src={BLUNNO_MASCOT_PNG}
           alt="Blunno"
+          width={350}
+          height={350}
+          priority
+          loading="eager"
           className="h-full w-full object-contain"
           draggable={false}
-          decoding="async"
-          fetchPriority="high"
+          sizes="(max-width: 640px) 88vw, 320px"
           style={{
             filter: IMG_FILTER,
           }}
