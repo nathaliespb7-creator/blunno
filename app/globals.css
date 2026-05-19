@@ -160,6 +160,8 @@
   /* Make v23 welcome frame (393×852): content top 120px, CTA bottom padding 72px */
   --welcome-content-top: 120px;
   --welcome-cta-bottom: 72px;
+  /* CTA block: bottom padding + button height (3.5rem) */
+  --welcome-cta-reserved: calc(var(--welcome-cta-bottom) + 3.5rem + env(safe-area-inset-bottom));
   --welcome-neon-purple: #8b6bff;
   --welcome-hero-size-min: 1.25rem;
   --welcome-hero-size-max: 1.5rem;
@@ -628,12 +630,40 @@ body {
   }
 }
 
+.welcome-frame {
+  position: relative;
+  z-index: 10;
+  margin-inline: auto;
+  width: 100%;
+  max-width: 393px;
+  height: 100svh;
+  min-height: 100svh;
+  max-height: 100svh;
+  flex-shrink: 0;
+}
+
+.welcome-content {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(var(--welcome-content-top) + env(safe-area-inset-top));
+  bottom: var(--welcome-cta-reserved);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-inline: 1.5rem;
+  text-align: center;
+  overflow: hidden;
+}
+
 .welcome-mascot-root {
   position: relative;
   margin-inline: auto;
+  flex-shrink: 1;
   aspect-ratio: 1;
-  width: min(88vw, 350px);
+  width: min(88vw, 350px, calc(100svh - 28rem));
   max-width: 350px;
+  min-width: 0;
 }
 
 .welcome-mascot-glow {
