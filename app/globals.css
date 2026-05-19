@@ -561,6 +561,204 @@ body {
   background: linear-gradient(135deg, color-mix(in srgb, var(--color-core-bg) 55%, var(--color-core-play) 45%) 0%, var(--color-core-bg) 100%);
 }
 
+/* --- Welcome screen animations (GPU-friendly, iOS Safari) --- */
+
+@keyframes welcomeMascotFloat {
+  0%,
+  100% {
+    transform: translateY(-8px);
+  }
+  50% {
+    transform: translateY(8px);
+  }
+}
+
+@keyframes welcomeMascotGlow {
+  0%,
+  100% {
+    opacity: 0.65;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.95;
+    transform: scale(1.12);
+  }
+}
+
+@keyframes welcomeCtaBorderPulse {
+  0%,
+  100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes welcomeCtaShine {
+  0% {
+    transform: translateX(-150%) skewX(-30deg);
+  }
+  100% {
+    transform: translateX(250%) skewX(-30deg);
+  }
+}
+
+@keyframes welcomeBgPulseA {
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.05);
+  }
+}
+
+@keyframes welcomeBgPulseB {
+  0%,
+  100% {
+    opacity: 0.2;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.1);
+  }
+}
+
+.welcome-mascot-root {
+  position: relative;
+  margin-inline: auto;
+  aspect-ratio: 1;
+  width: min(88vw, 350px);
+  max-width: 350px;
+}
+
+.welcome-mascot-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(124, 90, 255, 0.55) 0%,
+    rgba(93, 63, 224, 0.18) 50%,
+    transparent 70%
+  );
+  filter: blur(35px);
+  will-change: transform, opacity;
+  animation: welcomeMascotGlow 4s ease-in-out infinite;
+}
+
+.welcome-mascot-float {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  will-change: transform;
+  animation: welcomeMascotFloat 4s ease-in-out infinite;
+}
+
+.welcome-cta {
+  position: relative;
+  display: flex;
+  height: 3.5rem;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 9999px;
+  background: rgba(18, 12, 48, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow:
+    0 10px 40px -10px rgba(124, 90, 255, 0.45),
+    inset 0 0 16px rgba(124, 90, 255, 0.12);
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  color: #fff;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.welcome-cta-border {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 1.5px solid #8b6bff;
+  animation: welcomeCtaBorderPulse 4s ease-in-out infinite;
+}
+
+.welcome-cta-shine {
+  pointer-events: none;
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  z-index: 0;
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 100%
+  );
+  will-change: transform;
+  animation: welcomeCtaShine 2s ease-in-out 1.5s infinite;
+}
+
+.welcome-cta-inner-glow {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  opacity: 0.5;
+  box-shadow: inset 0 0 12px #8b6bff;
+}
+
+.welcome-bg-blob-a {
+  animation: welcomeBgPulseA 8s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.welcome-bg-blob-b {
+  animation: welcomeBgPulseB 10s ease-in-out infinite;
+  animation-delay: 1s;
+  will-change: transform, opacity;
+}
+
+.welcome-enter {
+  animation: slideUp 0.8s ease-out both;
+}
+
+.welcome-enter-delay-1 {
+  animation-delay: 0.15s;
+}
+
+.welcome-enter-delay-2 {
+  animation-delay: 0.25s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-mascot-float,
+  .welcome-mascot-glow,
+  .welcome-cta-border,
+  .welcome-cta-shine,
+  .welcome-bg-blob-a,
+  .welcome-bg-blob-b,
+  .welcome-enter,
+  .welcome-enter-delay-1,
+  .welcome-enter-delay-2 {
+    animation: none !important;
+  }
+
+  .welcome-mascot-float {
+    transform: none;
+  }
+}
+
 .animate-fade-in {
   animation: fadeIn 0.3s ease-out;
 }
