@@ -21,7 +21,7 @@ export default function WelcomePage(): ReactElement {
     <main
       className={cn(
         'font-[family-name:var(--font-plus-jakarta)]',
-        'fixed inset-0 z-0 overflow-hidden',
+        'fixed inset-0 z-0 overflow-x-hidden overflow-y-auto',
         'flex items-stretch justify-center'
       )}
       style={{ background: 'var(--welcome-bg-gradient)' }}
@@ -60,25 +60,10 @@ export default function WelcomePage(): ReactElement {
         <div className="welcome-content">
           <WelcomeMascot />
 
-          <div className="mt-4 flex shrink-0 flex-col items-center space-y-3">
-            <h1
-              className="bg-clip-text text-[48px] font-normal leading-[1.1] text-transparent"
-              style={{
-                fontFamily: 'var(--font-tiro-telugu), serif',
-                backgroundImage: 'linear-gradient(180deg, #FFFFFF 0%, #C4B5FD 100%)',
-                filter: 'drop-shadow(0px 4px 20px rgba(124, 90, 255, 0.15))',
-              }}
-            >
-              Blunno
-            </h1>
+          <div className="welcome-copy mt-4 flex shrink-0 flex-col items-center space-y-3">
+            <h1 className="welcome-title">Blunno</h1>
 
-            <p
-              className="max-w-[280px] text-[17px] font-normal leading-[1.4] tracking-[0.02em] opacity-90"
-              style={{
-                color: 'var(--welcome-subtitle)',
-                textShadow: '0 2px 10px var(--welcome-subtitle-glow)',
-              }}
-            >
+            <p className="welcome-subtitle">
               Your pocket reset for any stress
             </p>
           </div>
