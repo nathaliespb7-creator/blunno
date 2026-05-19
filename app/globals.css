@@ -568,10 +568,10 @@ body {
 @keyframes welcomeMascotFloat {
   0%,
   100% {
-    transform: translateY(-8px);
+    transform: translate3d(0, -10px, 0);
   }
   50% {
-    transform: translateY(8px);
+    transform: translate3d(0, 10px, 0);
   }
 }
 
@@ -599,10 +599,10 @@ body {
 
 @keyframes welcomeCtaShine {
   0% {
-    transform: translateX(-150%) skewX(-30deg);
+    transform: translate3d(-120%, 0, 0) skewX(-25deg);
   }
   100% {
-    transform: translateX(250%) skewX(-30deg);
+    transform: translate3d(220%, 0, 0) skewX(-25deg);
   }
 }
 
@@ -653,7 +653,7 @@ body {
   align-items: center;
   padding-inline: 1.5rem;
   text-align: center;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .welcome-mascot-root {
@@ -678,16 +678,20 @@ body {
     transparent 70%
   );
   filter: blur(35px);
-  will-change: transform, opacity;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
   animation: welcomeMascotGlow 4s ease-in-out infinite;
+  -webkit-animation: welcomeMascotGlow 4s ease-in-out infinite;
 }
 
 .welcome-mascot-float {
   position: absolute;
   inset: 0;
   z-index: 10;
-  will-change: transform;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
   animation: welcomeMascotFloat 4s ease-in-out infinite;
+  -webkit-animation: welcomeMascotFloat 4s ease-in-out infinite;
 }
 
 .welcome-cta {
@@ -711,15 +715,22 @@ body {
   color: #fff;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  transition: transform 0.15s ease;
+}
+
+.welcome-cta:active {
+  transform: scale(0.98);
 }
 
 .welcome-cta-border {
   pointer-events: none;
   position: absolute;
   inset: 0;
+  z-index: 2;
   border-radius: 9999px;
   border: 1.5px solid #8b6bff;
   animation: welcomeCtaBorderPulse 4s ease-in-out infinite;
+  -webkit-animation: welcomeCtaBorderPulse 4s ease-in-out infinite;
 }
 
 .welcome-cta-shine {
@@ -727,16 +738,20 @@ body {
   position: absolute;
   inset-block: 0;
   left: 0;
-  z-index: 0;
-  width: 100%;
+  z-index: 1;
+  width: 55%;
   background: linear-gradient(
     90deg,
     transparent 0%,
-    rgba(255, 255, 255, 0.35) 50%,
+    rgba(255, 255, 255, 0.15) 30%,
+    rgba(255, 255, 255, 0.5) 50%,
+    rgba(255, 255, 255, 0.15) 70%,
     transparent 100%
   );
-  will-change: transform;
-  animation: welcomeCtaShine 2s ease-in-out 1.5s infinite;
+  transform: translate3d(-120%, 0, 0) skewX(-25deg);
+  -webkit-transform: translate3d(-120%, 0, 0) skewX(-25deg);
+  animation: welcomeCtaShine 2.2s ease-in-out 1.2s infinite;
+  -webkit-animation: welcomeCtaShine 2.2s ease-in-out 1.2s infinite;
 }
 
 .welcome-cta-inner-glow {
@@ -844,6 +859,15 @@ body {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+
+  .welcome-mascot-float,
+  .welcome-mascot-glow,
+  .welcome-cta-border,
+  .welcome-cta-shine {
+    animation: none !important;
+    -webkit-animation: none !important;
+    transform: none !important;
   }
 
   .play-game-card:hover {

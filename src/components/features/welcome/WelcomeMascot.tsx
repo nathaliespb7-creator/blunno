@@ -1,6 +1,5 @@
 'use client';
 
-import { useReducedMotion } from 'framer-motion';
 import Image from 'next/image';
 
 import { WELCOME_MASCOT_PNG } from '@/lib/assets';
@@ -11,12 +10,10 @@ type WelcomeMascotProps = {
 };
 
 export function WelcomeMascot({ className }: WelcomeMascotProps) {
-  const reduceMotion = useReducedMotion();
-
   return (
     <div className={cn('welcome-mascot-root', className)} aria-hidden>
-      {!reduceMotion ? <div className="welcome-mascot-glow" /> : null}
-      <div className={cn(!reduceMotion ? 'welcome-mascot-float' : 'relative h-full w-full')}>
+      <div className="welcome-mascot-glow" />
+      <div className="welcome-mascot-float">
         <Image
           src={WELCOME_MASCOT_PNG}
           alt=""
