@@ -1,19 +1,19 @@
 'use client';
 
+import { GlassCellDecor } from '@/components/shared/make-v81/GlassCellDecor';
 import { cn } from '@/lib/utils';
 
 type WelcomeCTAProps = {
-  onClick: () => void;
+  href: string;
+  onNavigate?: () => void;
   className?: string;
 };
 
-export function WelcomeCTA({ onClick, className }: WelcomeCTAProps) {
+export function WelcomeCTA({ href, onNavigate, className }: WelcomeCTAProps) {
   return (
-    <button type="button" onClick={onClick} className={cn('welcome-cta group', className)}>
-      <span aria-hidden className="welcome-cta-border" />
-      <span aria-hidden className="welcome-cta-inner-glow" />
-      <span aria-hidden className="welcome-cta-shine" />
+    <a href={href} onClick={onNavigate} className={cn('welcome-cta group', className)}>
+      <GlassCellDecor />
       <span className="relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">Start Now</span>
-    </button>
+    </a>
   );
 }

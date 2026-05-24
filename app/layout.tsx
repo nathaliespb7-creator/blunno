@@ -2,8 +2,8 @@ import './globals.css';
 import { Comfortaa, Inter, Plus_Jakarta_Sans, Poppins, Roboto, Sarabun, Tiro_Telugu } from 'next/font/google';
 import type { Metadata, Viewport } from 'next';
 
-import { AudioUnlock } from '@/components/shared/AudioUnlock';
 import { DevCacheReset } from '@/components/shared/DevCacheReset';
+import { ServiceWorkerRegister } from '@/components/shared/ServiceWorkerRegister';
 import { Notification } from '@/components/ui';
 
 const comfortaa = Comfortaa({
@@ -57,10 +57,10 @@ const inter = Inter({
   weight: ['400'],
 });
 
-const shellBg = '#0B0B1A';
+const iconBg = '#153066';
 
 export const viewport: Viewport = {
-  themeColor: shellBg,
+  themeColor: iconBg,
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
@@ -80,7 +80,7 @@ export const metadata: Metadata = {
       { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
       { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
-    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    apple: [{ url: '/apple-touch-icon-v6.png', sizes: '180x180', type: 'image/png' }],
   },
 };
 
@@ -92,11 +92,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${welcomeDisplay.variable} ${tiroTelugu.variable} ${plusJakartaSans.variable} ${comfortaa.variable} ${sarabun.variable} ${roboto.variable} ${inter.variable} min-h-dvh overflow-x-hidden bg-blunno-bg`}
+      className={`${welcomeDisplay.variable} ${tiroTelugu.variable} ${plusJakartaSans.variable} ${comfortaa.variable} ${sarabun.variable} ${roboto.variable} ${inter.variable} min-h-dvh overflow-x-hidden`}
     >
       <body className="min-h-dvh w-full max-w-[100vw] overflow-x-hidden font-ui leading-normal text-blunno-foreground antialiased">
-        <AudioUnlock />
         <DevCacheReset />
+        <ServiceWorkerRegister />
         {children}
         <Notification />
       </body>

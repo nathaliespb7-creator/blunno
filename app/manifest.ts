@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Your gentle companion for anxiety and ADHD',
     start_url: '/',
     display: 'standalone',
-    background_color: '#0b0b1a',
-    theme_color: '#0b0b1a',
+    background_color: '#153066',
+    theme_color: '#153066',
     orientation: 'portrait',
     icons: [
       {

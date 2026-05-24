@@ -13,24 +13,6 @@ const PUZZLES = [
   '300200000000107000706030500070009080900020004010800050009040301000702000000008006',
 ] as const;
 
-// #region agent log
-function debugLog(runId: string, hypothesisId: string, location: string, message: string, data: Record<string, unknown>): void {
-  fetch('http://127.0.0.1:7625/ingest/8ca15716-a0fc-49e7-a068-15acecfda9c0', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Debug-Session-Id': '401711' },
-    body: JSON.stringify({
-      sessionId: '401711',
-      runId,
-      hypothesisId,
-      location,
-      message,
-      data,
-      timestamp: Date.now(),
-    }),
-  }).catch(() => {});
-}
-// #endregion
-
 function parsePuzzle(puzzle: string): Board {
   const values = puzzle.split('').map((v) => Number(v));
   const rows: Board = [];
@@ -155,44 +137,9 @@ export function SudokuGame(): ReactElement {
     [selected, setCellValue]
   );
 
-  useEffect(() => {
-    // #region agent log
-    const sampleLayout = (reason: string) => {
-      if (!cardRef.current || !headerRef.current || !boardRegionRef.current || !controlsRef.current || !statusRef.current) return;
-      const card = cardRef.current.getBoundingClientRect();
-      const header = headerRef.current.getBoundingClientRect();
-      const boardRegion = boardRegionRef.current.getBoundingClientRect();
-      const boardGrid = boardGridRef.current?.getBoundingClientRect();
-      const controls = controlsRef.current.getBoundingClientRect();
-      const status = statusRef.current.getBoundingClientRect();
-      const requiredStack = header.height + boardRegion.height + controls.height;
-      const controlsOverflowIntoBoard = boardRegion.bottom > controls.top;
-      debugLog('sudoku-desktop-overlap', 'H1', 'SudokuGame.tsx:sampleLayout', 'sudoku layout sample', {
-        reason,
-        viewportW: window.innerWidth,
-        viewportH: window.innerHeight,
-        cardH: Math.round(card.height),
-        headerH: Math.round(header.height),
-        boardRegionH: Math.round(boardRegion.height),
-        boardGridH: boardGrid ? Math.round(boardGrid.height) : null,
-        controlsH: Math.round(controls.height),
-        statusH: Math.round(status.height),
-        requiredStackH: Math.round(requiredStack),
-        overflowH: Math.round(requiredStack - card.height),
-        controlsOverflowIntoBoard,
-      });
-    };
-
-    const onResize = () => sampleLayout('resize');
-    sampleLayout('mount');
-    window.addEventListener('resize', onResize);
-    return () => window.removeEventListener('resize', onResize);
-    // #endregion
-  }, []);
-
   return (
-    <div ref={rootRef} className="mx-auto flex h-full min-h-0 w-full max-w-xl flex-col overflow-hidden bg-[var(--sudoku-shell-bg)] px-1.5 py-1 text-white sm:px-2 sm:py-2">
-      <div ref={cardRef} className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/5 p-2 backdrop-blur-sm sm:p-4">
+    <div ref={rootRef} className="mx-auto flex h-full min-h-0 w-full max-w-xl flex-col overflow-hidden px-1 py-1 text-white">
+      <div ref={cardRef} className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[24px] border border-white/10 bg-[rgba(10,8,20,0.4)] p-2 backdrop-blur-xl sm:p-3">
         <header ref={headerRef} className="shrink-0 text-center">
           <h2 className="font-sans text-sm font-extrabold uppercase tracking-wide text-white sm:text-lg">Sudoku</h2>
           <p className="mt-0.5 text-[11px] text-white/70 sm:mt-1 sm:text-sm">

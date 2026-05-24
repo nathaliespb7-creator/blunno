@@ -1,7 +1,6 @@
 'use client';
 
-import { type ReactElement } from 'react';
-import { useRouter } from 'next/navigation';
+import { useEffect, type ReactElement } from 'react';
 
 import { WelcomeCTA } from '@/components/features/welcome/WelcomeCTA';
 import { WelcomeMascot } from '@/components/features/welcome/WelcomeMascot';
@@ -9,23 +8,26 @@ import { playNavigationHoverSoft, unlockAudioSession } from '@/lib/navigationSou
 import { cn } from '@/lib/utils';
 
 export default function WelcomePage(): ReactElement {
-  const router = useRouter();
+  useEffect(() => {
+    document.documentElement.classList.add('welcome-route');
+    return () => {
+      document.documentElement.classList.remove('welcome-route');
+    };
+  }, []);
 
-  const handleStartNow = async () => {
-    await unlockAudioSession();
-    playNavigationHoverSoft();
-    router.push('/choose');
+  const handleStartNow = () => {
+    void (async () => {
+      try {
+        await unlockAudioSession();
+        playNavigationHoverSoft();
+      } catch {
+        /* navigation must not depend on sound */
+      }
+    })();
   };
 
   return (
-    <main
-      className={cn(
-        'font-[family-name:var(--font-plus-jakarta)]',
-        'fixed inset-0 z-0 overflow-x-hidden overflow-y-auto',
-        'flex items-stretch justify-center'
-      )}
-      style={{ background: 'var(--welcome-bg-gradient)' }}
-    >
+    <main className={cn('welcome-screen', 'font-[family-name:var(--font-plus-jakarta)]')}>
       <div
         className="pointer-events-none absolute rounded-full"
         style={{
@@ -55,7 +57,6 @@ export default function WelcomePage(): ReactElement {
         aria-hidden
       />
 
-      {/* Make v23 frame: 393×852 — content top 120px, CTA bottom pb 72px */}
       <div className="welcome-frame">
         <div className="welcome-content">
           <WelcomeMascot />
@@ -64,16 +65,13 @@ export default function WelcomePage(): ReactElement {
             <h1 className="welcome-title">Blunno</h1>
 
             <p className="welcome-subtitle">
-              Your pocket reset for any stress
+              Your pocket reset for study stress
             </p>
           </div>
         </div>
 
-        <div
-          className="absolute inset-x-0 bottom-0 z-20 flex shrink-0 flex-col items-center px-6"
-          style={{ paddingBottom: 'calc(var(--welcome-cta-bottom) + env(safe-area-inset-bottom))' }}
-        >
-          <WelcomeCTA className="w-full" onClick={() => void handleStartNow()} />
+        <div className="welcome-cta-bar">
+          <WelcomeCTA href="/choose" className="w-full" onNavigate={handleStartNow} />
         </div>
       </div>
     </main>

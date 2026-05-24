@@ -1,29 +1,137 @@
-import type { Metadata } from 'next';
-import type { ReactElement } from 'react';
+'use client';
 
-import { TopNav } from '@/components/shared/TopNav';
-import { Card } from '@/components/ui';
+import { Pause, Play, Volume2 } from 'lucide-react';
+import { useCallback, useEffect, useState, type ReactElement } from 'react';
 
-export const metadata: Metadata = {
-  title: 'Relax - Blunno',
-  description: 'Relaxation exercises and peaceful activities',
-};
+import {
+  DEFAULT_RELAX_VOLUME,
+  RELAX_SOUNDS,
+  defaultRelaxVolumes,
+  type RelaxSound,
+  type RelaxSoundId,
+} from '@/config/relaxSounds';
+import { GlassListCell, GlassListCellAction } from '@/components/shared/make-v81/GlassListCell';
+import { ModeScreenTopBar } from '@/components/shared/make-v81/ModeScreenTopBar';
+import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
+import { relaxAudioService } from '@/services/relaxAudioService';
 
 export default function RelaxPage(): ReactElement {
-  return (
-    <main className="min-h-screen bg-blunno-bg text-blunno-foreground">
-      <TopNav title="Relax" />
+  const [activeSound, setActiveSound] = useState<RelaxSoundId | null>(null);
+  const [volumes, setVolumes] = useState<Record<RelaxSoundId, number>>(defaultRelaxVolumes);
 
-      <div className="mx-auto w-full max-w-md px-4 py-8">
-        <Card variant="glass" padding="lg" className="border-white/20 shadow-screen">
-          <p className="font-sans text-[22px] font-extrabold uppercase tracking-figma [text-shadow:var(--shadow-text-title)]">
-            RELAX WITH BLUNNO
-          </p>
-          <p className="mt-4 text-sm leading-normal text-white/72">
-            Quiet space for a slower pace — more exercises will land here soon.
-          </p>
-        </Card>
+  useEffect(() => {
+    if (!activeSound) {
+      relaxAudioService.stop();
+      return;
+    }
+
+    const sound = RELAX_SOUNDS.find((item) => item.id === activeSound);
+    if (!sound?.audioSrc) {
+      relaxAudioService.stop();
+      return;
+    }
+
+    void relaxAudioService.play(
+      activeSound,
+      sound.audioSrc,
+      volumes[activeSound] ?? DEFAULT_RELAX_VOLUME
+    );
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- volume applied live via updateVolume
+  }, [activeSound]);
+
+  useEffect(() => () => relaxAudioService.stop(), []);
+
+  const toggleSound = useCallback(
+    (sound: RelaxSound) => {
+      if (activeSound === sound.id) {
+        setActiveSound(null);
+        return;
+      }
+      setActiveSound(sound.id);
+    },
+    [activeSound]
+  );
+
+  const updateVolume = (id: RelaxSoundId, value: number) => {
+    setVolumes((prev) => ({ ...prev, [id]: value }));
+    if (activeSound === id) {
+      relaxAudioService.setVolume(value);
+    }
+  };
+
+  return (
+    <ScreenFrame glowVariant="relax" className="v81-screen--relax">
+      <ModeScreenTopBar
+        title="Relax"
+        backHref="/choose"
+        backLabel="Back to mode selection"
+        homeHref="/choose"
+        homeLabel="Exit to mode selection"
+      />
+
+      <p className="v81-relax-intro">Choose your calming sound</p>
+
+      <div className="v81-scroll-area v81-glass-cell-list v81-glass-cell-list--centered pb-4" data-testid="relax-sound-list">
+        {RELAX_SOUNDS.map((sound, index) => {
+          const isActive = activeSound === sound.id;
+          const volume = volumes[sound.id];
+          const Icon = sound.icon;
+          const hasAudio = Boolean(sound.audioSrc);
+
+          return (
+            <GlassListCell
+              key={sound.id}
+              as="div"
+              accentColor={sound.color}
+              title={sound.name}
+              subtitle={hasAudio ? sound.description : `${sound.description} · coming soon`}
+              subtitleVariant="description"
+              icon={Icon}
+              animationDelay={`${0.05 + index * 0.05}s`}
+              footer={
+                isActive ? (
+                  <div className="v81-relax-volume">
+                    <Volume2 className="h-[18px] w-[18px] shrink-0 text-white/50" strokeWidth={2} />
+                    <div className="v81-relax-volume-track">
+                      <div className="v81-relax-volume-rail" aria-hidden />
+                      <div
+                        className="v81-relax-volume-fill"
+                        style={{
+                          width: `${volume}%`,
+                          background: `linear-gradient(90deg, ${sound.color}80 0%, ${sound.color}50 100%)`,
+                          boxShadow: `0 0 10px ${sound.color}60`,
+                        }}
+                      />
+                      <input
+                        type="range"
+                        min={0}
+                        max={100}
+                        value={volume}
+                        onInput={(e) => updateVolume(sound.id, Number(e.currentTarget.value))}
+                        className="v81-relax-volume-input"
+                        aria-label={`${sound.name} volume`}
+                      />
+                    </div>
+                    <span className="min-w-[36px] shrink-0 text-right text-[13px] font-semibold text-white/60">
+                      {volume}%
+                    </span>
+                  </div>
+                ) : undefined
+              }
+              trailing={
+                <GlassListCellAction
+                  icon={isActive ? Pause : Play}
+                  label={isActive ? `Pause ${sound.name}` : `Play ${sound.name}`}
+                  onClick={() => toggleSound(sound)}
+                  accentColor={sound.color}
+                  active={isActive}
+                  filled={!isActive}
+                />
+              }
+            />
+          );
+        })}
       </div>
-    </main>
+    </ScreenFrame>
   );
 }

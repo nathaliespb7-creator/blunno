@@ -1,113 +1,65 @@
 'use client';
 
-import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import type { ReactElement } from 'react';
+import { useEffect, type ReactElement } from 'react';
 
+import { ModeScreenTopBar } from '@/components/shared/make-v81/ModeScreenTopBar';
+import { MoodTile } from '@/components/shared/make-v81/MoodTile';
+import { MOOD_HREFS, V81_MOODS } from '@/components/shared/make-v81/moods';
+import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
 import { playNavigationHoverSoft, unlockAudioSession } from '@/lib/navigationSound';
-import { cn } from '@/lib/utils';
-
-type MoodId = 'sos' | 'planner' | 'play' | 'relax';
-
-type MoodTile = {
-  id: MoodId;
-  label: string;
-  href: string;
-  /** CSS custom property — gradients live in globals.css (5-color system) */
-  gradientVar: string;
-};
-
-const MOOD_TILES: readonly MoodTile[] = [
-  { id: 'sos', label: 'SOS', href: '/sos', gradientVar: 'var(--gradient-sos)' },
-  { id: 'planner', label: 'PLANNER', href: '/planner', gradientVar: 'var(--gradient-planner)' },
-  { id: 'play', label: 'PLAY', href: '/play', gradientVar: 'var(--gradient-play)' },
-  { id: 'relax', label: 'RELAX', href: '/relax', gradientVar: 'var(--gradient-relax)' },
-] as const;
-
-const tileClass = cn(
-  'group relative flex w-full max-w-sm items-center justify-center overflow-hidden rounded-2xl border border-white',
-  'mx-auto px-4 py-4 text-center font-sans text-base font-extrabold uppercase tracking-wide text-white shadow-lg',
-  'min-h-[64px] sm:min-h-[88px] md:min-h-[120px] md:max-w-md',
-  '[@media(max-height:620px)]:min-h-[52px] [@media(max-height:620px)]:py-3 [@media(max-height:620px)]:text-sm',
-  'transition-transform duration-200 [box-shadow:inset_0_4px_50px_rgba(0,0,0,0.2)] will-change-transform',
-  'hover:scale-105 hover:brightness-105 active:scale-[0.98] motion-reduce:hover:scale-100 motion-reduce:active:scale-100',
-  'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50'
-);
 
 export default function ChoosePage(): ReactElement {
-  const router = useRouter();
+  useEffect(() => {
+    if (!navigator.onLine) return;
 
-  const handleModeTap = async (href: string) => {
-    await unlockAudioSession();
-    playNavigationHoverSoft();
-    router.push(href);
+    void (async () => {
+      for (const route of Object.values(MOOD_HREFS)) {
+        try {
+          await fetch(route, { credentials: 'same-origin' });
+        } catch {
+          /* prefetch is best-effort */
+        }
+      }
+    })();
+  }, []);
+
+  const handleModeNavigate = () => {
+    void (async () => {
+      try {
+        await unlockAudioSession();
+        playNavigationHoverSoft();
+      } catch {
+        /* navigation must not depend on sound */
+      }
+    })();
   };
 
   return (
-    <main
-      className={cn(
-        'flex min-h-dvh max-h-dvh flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain bg-blunno-bg text-blunno-foreground',
-        'px-4 py-4 sm:px-5 sm:py-6',
-        '[@media(max-height:620px)]:py-3',
-        'pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]'
-      )}
-    >
-      <div
-        className={cn(
-          'mx-auto flex min-h-0 min-w-0 w-full max-w-4xl flex-1 flex-col items-center justify-center gap-3 sm:gap-4',
-          '[@media(max-height:620px)]:justify-start [@media(max-height:620px)]:gap-2'
-        )}
-      >
-        <div className="flex w-full shrink-0 justify-end">
-          <Link
-            href="/"
-            aria-label="Exit to welcome screen"
-            className={cn('blunno-focus-visible blunno-nav-btn text-white/95')}
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
-          </Link>
-        </div>
+    <ScreenFrame className="v81-screen--choose">
+      <ModeScreenTopBar
+        title="Choose Your Mood"
+        backHref="/"
+        backLabel="Back"
+        homeHref="/"
+        homeLabel="Exit to welcome screen"
+      />
 
-        <h1
-          className={cn(
-            'w-full shrink-0 py-2 text-center font-sans text-lg font-extrabold uppercase leading-tight tracking-figma text-white [text-shadow:var(--shadow-text-title)]',
-            'sm:text-xl md:text-[22px]',
-            '[@media(max-height:620px)]:py-1 [@media(max-height:620px)]:text-base'
-          )}
-        >
-          CHOOSE YOUR MOOD
-        </h1>
-
+      <div className="flex min-h-0 flex-1 flex-col items-center">
         <nav
-          className="flex min-h-0 w-full flex-1 flex-col items-stretch justify-center py-1 [@media(max-height:620px)]:py-0"
+          className="v81-glass-cell-list v81-glass-cell-list--centered w-full max-w-[340px]"
           aria-label="Choose your mood"
         >
-          <div
-            className={cn(
-              'grid min-h-0 w-full grid-cols-1 gap-3 p-0.5 sm:gap-4',
-              '[@media(max-height:620px)]:gap-2',
-              'md:grid-cols-2 md:gap-4 lg:gap-5'
-            )}
-          >
-            {MOOD_TILES.map((tile) => (
-              <button
-                key={tile.id}
-                type="button"
-                onClick={() => {
-                  void handleModeTap(tile.href);
-                }}
-                className={tileClass}
-                style={{ backgroundImage: tile.gradientVar }}
-              >
-                <span className="relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]">{tile.label}</span>
-              </button>
-            ))}
-          </div>
+          {V81_MOODS.map((mood, index) => (
+            <MoodTile
+              key={mood.id}
+              mood={mood}
+              href={MOOD_HREFS[mood.id] ?? '/choose'}
+              delayIndex={index}
+              onNavigate={handleModeNavigate}
+            />
+          ))}
         </nav>
       </div>
-    </main>
+    </ScreenFrame>
   );
 }

@@ -1,112 +1,50 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
-import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
+import { useEffect, useState, type ReactElement } from 'react';
+import { ChevronLeft, Home } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
-import { BLUNNO_MASCOT_PNG } from '@/lib/assets';
-import { playSosExhale, unlockAudioSession } from '@/lib/navigationSound';
+import { SosBreathRing } from '@/components/features/sos/SosBreathRing';
+import { SosCompletionStars } from '@/components/features/sos/SosCompletionStars';
+import { SosModeToggle } from '@/components/features/sos/SosModeToggle';
+import { GlassActionButton } from '@/components/shared/make-v81/GlassActionButton';
+import { GlassIconButton } from '@/components/shared/make-v81/GlassIconButton';
+import { GradientTitle } from '@/components/shared/make-v81/GradientTitle';
+import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
+import { useSosBreathEngine } from '@/hooks/useSosBreathEngine';
+import { useSosTraceEngine } from '@/hooks/useSosTraceEngine';
+import { SOS_BREATHS_PER_RING, SOS_TOTAL_CYCLES, type SosMode } from '@/lib/sosBreathing';
 import { cn } from '@/lib/utils';
 
-const TOTAL_CYCLES = 3;
-const VIEW_SIZE = 320;
-const CX = VIEW_SIZE / 2;
-const CY = VIEW_SIZE / 2;
-const TWO_PI = Math.PI * 2;
-
-type ExerciseStatus = 'active' | 'completed';
-
-type VisualTuning = {
-  ringDiameterPx: number;
-  strokeWidthPx: number;
-  blurPx: number;
-  glowColor: string;
-  blunnoSizePx: number;
-  blunnoOffsetXPx: number;
-  blunnoOffsetYPx: number;
-  sectionGapPx: number;
-};
-
-const DEFAULT_TUNING: VisualTuning = {
-  ringDiameterPx: 252,
-  strokeWidthPx: 28,
-  blurPx: 14,
-  glowColor: '#83a9ad',
+const DEFAULT_TUNING = {
+  ringDiameterPx: 280,
+  strokeWidthPx: 26,
+  blurPx: 10,
+  glowColor: '#00FFD1',
   blunnoSizePx: 120,
-  blunnoOffsetXPx: -5,
-  blunnoOffsetYPx: -13,
-  /** Gap between ring, cycle/hint, and buttons (inner column only; header uses Choose `gap-3`) */
-  sectionGapPx: 16,
-};
-
-const tuning = DEFAULT_TUNING;
-
-function cycleFeedbackMessage(completedCycle: number): string {
-  if (completedCycle === 1) return 'Nice! Cycle 1 of 3';
-  if (completedCycle === 2) return 'Great! Cycle 2 of 3';
-  return 'Last round! You’ve got this.';
-}
-
-function getAngleFromClient(
-  clientX: number,
-  clientY: number,
-  rect: DOMRect,
-  width: number,
-  height: number,
-  cx: number,
-  cy: number
-): number {
-  const x = ((clientX - rect.left) / rect.width) * width;
-  const y = ((clientY - rect.top) / rect.height) * height;
-  return Math.atan2(x - cx, -(y - cy));
-}
-
-function hexToRgb(hex: string): { r: number; g: number; b: number } | null {
-  const m = /^#?([0-9a-fA-F]{6})$/.exec(hex.trim());
-  if (!m) return null;
-  const n = parseInt(m[1], 16);
-  return { r: (n >> 16) & 255, g: (n >> 8) & 255, b: n & 255 };
-}
-
-function buildRingFilters(blurPx: number, glowHex: string): { progress: string; wrapper: string } {
-  const rgb = hexToRgb(glowHex);
-  const fallback = '131, 169, 173';
-  const rgba = rgb ? `${rgb.r}, ${rgb.g}, ${rgb.b}` : fallback;
-  const progress = [
-    `drop-shadow(0 0 ${blurPx}px ${glowHex})`,
-    `drop-shadow(0 0 ${blurPx * 1.8}px rgba(${rgba}, 0.28))`,
-  ].join(' ');
-  const wrapper = `0 0 ${blurPx * 1.6}px rgba(${rgba}, 0.28)`;
-  return { progress, wrapper };
-}
+  blunnoOffsetYPx: -6,
+  sectionGapPx: 20,
+} as const;
 
 export default function SosPage(): ReactElement {
-  const reduceMotion = useReducedMotion();
-  const svgRef = useRef<SVGSVGElement | null>(null);
-  const lastAngleRef = useRef<number | null>(null);
-  const cycleProgressRef = useRef(0);
-  const completedCyclesRef = useRef(0);
-  const [cycleProgress, setCycleProgress] = useState(0);
-  const [completedCycles, setCompletedCycles] = useState(0);
-  const [exerciseStatus, setExerciseStatus] = useState<ExerciseStatus>('active');
-  const [feedback, setFeedback] = useState<string>('');
-  const [isTracing, setIsTracing] = useState(false);
-  const isTrackingRef = useRef(false);
+  const router = useRouter();
+  const [mode, setMode] = useState<SosMode>('guided');
+  const guided = useSosBreathEngine();
+  const trace = useSosTraceEngine();
 
-  const { ringRadius, strokeView, circ } = useMemo(() => {
-    const d = Math.max(120, Math.min(tuning.ringDiameterPx, 480));
-    const swPx = Math.max(2, Math.min(tuning.strokeWidthPx, 40));
-    const sw = (swPx * VIEW_SIZE) / d;
-    const rr = VIEW_SIZE / 2 - sw / 2;
-    const r = Math.max(8, rr);
-    const c = 2 * Math.PI * r;
-    return { ringRadius: r, strokeView: sw, circ: c };
-  }, [tuning.ringDiameterPx, tuning.strokeWidthPx]);
-
-  const ringFilters = useMemo(
-    () => buildRingFilters(tuning.blurPx, tuning.glowColor),
-    [tuning.blurPx, tuning.glowColor]
-  );
+  const isGuided = mode === 'guided';
+  const session = isGuided ? guided : trace;
+  const {
+    status,
+    cycleIndex,
+    breathIndexInCycle,
+    phaseLabel,
+    secondsLeft,
+    cycleProgress,
+    feedback,
+    reset,
+    stop,
+  } = session;
 
   useEffect(() => {
     document.title = 'SOS - Breathe with Blunno';
@@ -116,322 +54,169 @@ export default function SosPage(): ReactElement {
       meta.setAttribute('name', 'description');
       document.head.appendChild(meta);
     }
-    meta.setAttribute('content', 'Three breathing cycles with Blunno');
+    meta.setAttribute('content', 'Guided or trace 3-2-3 breathing with Blunno');
   }, []);
 
-  useEffect(() => {
-    const el = svgRef.current;
-    if (!el) return;
-    const onTouchMove = (e: TouchEvent) => {
-      if (isTrackingRef.current) e.preventDefault();
-    };
-    el.addEventListener('touchmove', onTouchMove, { passive: false });
-    return () => el.removeEventListener('touchmove', onTouchMove);
-  }, []);
-
-  const applyCycleCompletion = useCallback((newCompleted: number) => {
-    setFeedback(cycleFeedbackMessage(newCompleted));
-    playSosExhale();
-    if (newCompleted >= TOTAL_CYCLES) {
-      setExerciseStatus('completed');
-      cycleProgressRef.current = 1;
-      setCycleProgress(1);
-    }
-  }, []);
-
-  const appendAngleDelta = useCallback(
-    (deltaRad: number) => {
-      if (completedCyclesRef.current >= TOTAL_CYCLES) return;
-
-      let p = cycleProgressRef.current + deltaRad / TWO_PI;
-
-      while (p >= 1 && completedCyclesRef.current < TOTAL_CYCLES) {
-        p -= 1;
-        completedCyclesRef.current += 1;
-        const n = completedCyclesRef.current;
-        setCompletedCycles(n);
-        applyCycleCompletion(n);
-      }
-
-      while (p < 0) {
-        p += 1;
-      }
-
-      if (completedCyclesRef.current >= TOTAL_CYCLES) {
-        cycleProgressRef.current = 1;
-        setCycleProgress(1);
-        return;
-      }
-
-      cycleProgressRef.current = p;
-      setCycleProgress(p);
-    },
-    [applyCycleCompletion]
-  );
-
-  const handlePointerMove = useCallback(
-    (clientX: number, clientY: number) => {
-      if (!isTrackingRef.current || completedCyclesRef.current >= TOTAL_CYCLES) return;
-      const el = svgRef.current;
-      if (!el) return;
-      const rect = el.getBoundingClientRect();
-      const a = getAngleFromClient(clientX, clientY, rect, VIEW_SIZE, VIEW_SIZE, CX, CY);
-      if (lastAngleRef.current === null) {
-        lastAngleRef.current = a;
-        return;
-      }
-      let da = a - lastAngleRef.current;
-      if (da > Math.PI) da -= TWO_PI;
-      if (da < -Math.PI) da += TWO_PI;
-      lastAngleRef.current = a;
-      appendAngleDelta(da);
-    },
-    [appendAngleDelta]
-  );
-
-  const onPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (completedCyclesRef.current >= TOTAL_CYCLES) return;
-    void unlockAudioSession();
-    e.currentTarget.setPointerCapture(e.pointerId);
-    isTrackingRef.current = true;
-    setIsTracing(true);
-    const rect = e.currentTarget.getBoundingClientRect();
-    const a = getAngleFromClient(e.clientX, e.clientY, rect, VIEW_SIZE, VIEW_SIZE, CX, CY);
-    lastAngleRef.current = a;
+  const handleModeChange = (next: SosMode) => {
+    if (status !== 'idle') return;
+    guided.reset();
+    trace.reset();
+    setMode(next);
   };
 
-  const onPointerUp = (e: React.PointerEvent<SVGSVGElement>) => {
-    try {
-      e.currentTarget.releasePointerCapture(e.pointerId);
-    } catch {
-      /* ignore */
-    }
-    isTrackingRef.current = false;
-    lastAngleRef.current = null;
-    setIsTracing(false);
+  const handleStart = () => {
+    if (isGuided) void guided.start();
   };
 
-  const resetExercise = () => {
-    cycleProgressRef.current = 0;
-    completedCyclesRef.current = 0;
-    setCycleProgress(0);
-    setCompletedCycles(0);
-    setExerciseStatus('active');
-    setFeedback('');
-    isTrackingRef.current = false;
-    lastAngleRef.current = null;
-    setIsTracing(false);
+  const handleReset = () => {
+    guided.reset();
+    trace.reset();
   };
 
-  const dashArray = useMemo(() => {
-    const drawn = circ * cycleProgress;
-    return `${drawn} ${circ}`;
-  }, [circ, cycleProgress]);
+  const handleStop = () => {
+    stop();
+  };
 
-  const currentCycleLabel = Math.min(completedCycles + 1, TOTAL_CYCLES);
+  const idleHint = isGuided
+    ? 'Tap the ring to begin · 3-2-3 breathing'
+    : 'Touch the ring and trace slowly · 3-2-3';
 
-  const breathPhaseLabel = useMemo(() => {
-    if (exerciseStatus === 'completed') return 'Complete';
-    const p = cycleProgress;
-    if (p < 1 / 3) return 'Inhale';
-    if (p < 2 / 3) return 'Hold';
-    return 'Exhale';
-  }, [cycleProgress, exerciseStatus]);
-
-  const ringSizeStyle = {
-    width: tuning.ringDiameterPx,
-    height: tuning.ringDiameterPx,
-    maxWidth: 'min(90vw, 100%)',
-    maxHeight: 'min(90vw, 55dvh)',
-    boxShadow: ringFilters.wrapper,
-  } as const;
-
-  const ringTextColumnStyle = { gap: tuning.sectionGapPx } as const;
+  const runningHint = isGuided
+    ? 'Follow the ring and let Blunno guide your breath.'
+    : 'Move your finger clockwise around the ring · breathe slowly.';
 
   return (
-    <main
-      className={cn(
-        'flex min-h-screen min-h-dvh max-h-dvh flex-col overflow-x-hidden overflow-y-auto overscroll-y-contain',
-        'bg-blunno-bg text-blunno-foreground',
-        'px-4 py-4 sm:px-5 sm:py-6',
-        '[@media(max-height:620px)]:py-3',
-        'pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]'
-      )}
-    >
-      <div
-        className={cn(
-          'mx-auto flex min-h-0 min-w-0 w-full max-w-4xl flex-1 flex-col items-center justify-center gap-3',
-          '[@media(max-height:620px)]:justify-start [@media(max-height:620px)]:gap-2'
-        )}
-      >
-        <div className="flex w-full shrink-0 justify-end">
-          <Link
-            href="/choose"
-            aria-label="Exit to mode selection"
-            className="blunno-focus-visible blunno-nav-btn text-white/95"
-          >
-            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-              <polyline points="9 22 9 12 15 12 15 22" />
-            </svg>
-          </Link>
-        </div>
+    <ScreenFrame className="overflow-hidden">
+      {status === 'completed' && <SosCompletionStars />}
 
-        <h1
-          className={cn(
-            'w-full shrink-0 py-2 text-center font-sans text-lg font-extrabold uppercase leading-tight tracking-figma [text-shadow:var(--shadow-text-title)]',
-            'sm:text-xl md:text-[22px]',
-            '[@media(max-height:620px)]:py-1 [@media(max-height:620px)]:text-base'
-          )}
-        >
-          <span className="text-white">BREATHE WITH </span>
-          <span className="text-[var(--color-accent-primary)]">BLUNNO</span>
-        </h1>
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col">
+        <header className="shrink-0">
+          <div className="v81-top-bar">
+            <GlassIconButton onClick={() => router.back()} icon={ChevronLeft} label="Back" />
+            <GlassIconButton href="/choose" icon={Home} label="Exit to mode selection" />
+          </div>
+
+          <div className="mb-3 text-center" data-testid="sos-header">
+            <div className="flex items-center justify-center gap-2">
+              <span className="text-[17px] font-light italic tracking-wide text-[rgba(196,181,253,0.55)]">breathe with</span>
+              <GradientTitle as="h2" size="sm" className="!text-[32px] !tracking-[0.5px]">
+                Blunno
+              </GradientTitle>
+            </div>
+          </div>
+        </header>
+
+        {status === 'idle' && (
+          <div className="mb-3 flex shrink-0 justify-center">
+            <SosModeToggle mode={mode} onChange={handleModeChange} />
+          </div>
+        )}
 
         <div
           className={cn(
-            'flex min-h-0 w-full flex-1 flex-col items-stretch justify-center py-1 [@media(max-height:620px)]:py-0',
-            'touch-none select-none'
+            'flex min-h-0 flex-1 flex-col items-center touch-none select-none',
+            status === 'completed' ? 'justify-start pt-2 pb-4' : 'justify-center'
           )}
           aria-label="SOS breathing exercise"
         >
           <div
             className="mx-auto flex w-full max-w-sm flex-col items-center"
-            style={ringTextColumnStyle}
+            style={{ gap: status === 'completed' ? 16 : DEFAULT_TUNING.sectionGapPx }}
           >
-          <div
-            className={cn(
-              'relative mx-auto flex shrink-0 items-center justify-center overflow-visible rounded-full aspect-square',
-              exerciseStatus === 'completed' && 'pointer-events-none opacity-[0.98]'
-            )}
-            style={ringSizeStyle}
-          >
-          <svg
-            ref={svgRef}
-            role="img"
-            aria-label="Trace around the ring to fill the progress"
-            viewBox={`0 0 ${VIEW_SIZE} ${VIEW_SIZE}`}
-            preserveAspectRatio="xMidYMid meet"
-            className={cn(
-              'absolute inset-0 z-10 size-full touch-none overflow-visible',
-              exerciseStatus === 'active' && 'cursor-pointer'
-            )}
-            onPointerDown={onPointerDown}
-            onPointerMove={(e) => {
-              if (e.pointerType === 'mouse' && e.buttons !== 1) return;
-              handlePointerMove(e.clientX, e.clientY);
-            }}
-            onPointerUp={onPointerUp}
-            onPointerCancel={onPointerUp}
-            onPointerLeave={(e) => {
-              if (e.pointerType === 'mouse' && e.buttons === 0) onPointerUp(e);
-            }}
-          >
-            <defs>
-              <linearGradient
-                id="sosRingGradient"
-                gradientUnits="userSpaceOnUse"
-                x1={0}
-                y1={0}
-                x2={VIEW_SIZE}
-                y2={VIEW_SIZE}
-              >
-                <stop offset="0%" stopColor="#83a9ad" />
-                <stop offset="100%" stopColor="#6a3cae" />
-              </linearGradient>
-            </defs>
+            <SosBreathRing
+              mode={mode}
+              status={status}
+              cycleProgress={cycleProgress}
+              tuning={
+                status === 'completed'
+                  ? { ...DEFAULT_TUNING, ringDiameterPx: 260, blunnoSizePx: 112 }
+                  : DEFAULT_TUNING
+              }
+              onStart={handleStart}
+              onTraceBegin={trace.beginPointer}
+              onTraceMove={trace.movePointer}
+              onTraceEnd={trace.endPointer}
+            />
 
-            <g transform={`rotate(-90 ${CX} ${CY})`}>
-              <circle
-                cx={CX}
-                cy={CY}
-                r={ringRadius}
-                fill="none"
-                stroke="rgba(255,255,255,0.14)"
-                strokeWidth={strokeView}
-                strokeLinecap="round"
-              />
-              <circle
-                cx={CX}
-                cy={CY}
-                r={ringRadius}
-                fill="none"
-                stroke="url(#sosRingGradient)"
-                strokeWidth={strokeView}
-                strokeLinecap="round"
-                strokeDasharray={dashArray}
-                style={{ filter: ringFilters.progress }}
-              />
-            </g>
-          </svg>
+            <div className="flex w-full shrink-0 flex-col items-center gap-1 px-1 text-center">
+              <p className="text-sm font-medium text-white/80" aria-live="polite" data-testid="sos-phase-label">
+                {status === 'completed' ? 'Complete' : phaseLabel}
+              </p>
 
-          <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
-            <div
-              style={{
-                transform: `translate(${tuning.blunnoOffsetXPx}px, ${tuning.blunnoOffsetYPx}px)`,
-              }}
-            >
-              <motion.img
-                src={BLUNNO_MASCOT_PNG}
-                alt="Blunno character"
-                width={tuning.blunnoSizePx}
-                height={tuning.blunnoSizePx}
-                draggable={false}
-                className="max-h-full max-w-full object-contain object-center"
-                style={{ width: tuning.blunnoSizePx, height: tuning.blunnoSizePx }}
-                animate={isTracing ? { scale: 1 } : reduceMotion ? { scale: 1 } : { scale: [1, 1.04, 1] }}
-                transition={{
-                  duration: isTracing ? 0.2 : reduceMotion ? 0 : 8,
-                  repeat: isTracing || reduceMotion ? 0 : Infinity,
-                  ease: 'easeInOut',
-                  times: [0, 0.5, 1],
-                }}
-              />
-            </div>
-          </div>
-          </div>
-
-          <div className="flex w-full shrink-0 flex-col items-center gap-1 px-1 text-center">
-            <p
-              className="font-sans text-xs font-semibold uppercase tracking-[0.14em] text-[var(--color-accent-primary)] sm:text-sm"
-              aria-live="polite"
-            >
-              {breathPhaseLabel}
-            </p>
-            <p className="font-sans text-sm font-semibold tracking-wide text-white/95 sm:text-base">
-              Cycle {exerciseStatus === 'completed' ? TOTAL_CYCLES : currentCycleLabel} of {TOTAL_CYCLES}
-            </p>
-
-            <div aria-live="polite" aria-atomic="true">
-              {feedback ? (
-                <p className="max-w-sm text-sm font-semibold leading-snug text-white/90 sm:text-base">
-                  {feedback}
-                </p>
-              ) : (
-                <p className="max-w-sm text-xs font-medium leading-snug text-white/65 sm:text-sm">
-                  Trace the ring with your finger or mouse until it fills.
+              {isGuided && status === 'running' && (
+                <p className="text-2xl font-semibold tabular-nums text-white" data-testid="sos-countdown">
+                  {secondsLeft}
                 </p>
               )}
-            </div>
-          </div>
 
-          {exerciseStatus === 'completed' && (
-            <div className="flex w-full shrink-0 flex-col gap-2 sm:flex-row sm:gap-3">
-              <Link href="/choose" className="blunno-btn-primary blunno-focus-visible flex-1 justify-center text-center sm:py-3.5 sm:text-base">
-                Complete
-              </Link>
-              <button
-                type="button"
-                className="blunno-btn-secondary blunno-focus-visible flex-1 justify-center sm:py-3.5 sm:text-base"
-                onClick={resetExercise}
-              >
-                Repeat
-              </button>
+              {status === 'running' && (
+                <p className="text-xs font-medium tracking-wide text-white/55">
+                  Breath {breathIndexInCycle} of {SOS_BREATHS_PER_RING}
+                </p>
+              )}
+
+              <p className="text-sm font-semibold tracking-wide text-white/95">
+                Cycle {status === 'completed' ? SOS_TOTAL_CYCLES : cycleIndex} of {SOS_TOTAL_CYCLES}
+              </p>
+
+              <div aria-live="polite" aria-atomic="true">
+                {feedback ? (
+                  <p className="max-w-sm text-sm font-semibold leading-snug text-white/90">{feedback}</p>
+                ) : status === 'idle' ? (
+                  <p className="max-w-sm text-xs font-medium leading-snug text-white/60">{idleHint}</p>
+                ) : status === 'running' ? (
+                  <p className="max-w-sm text-xs font-medium leading-snug text-white/60">{runningHint}</p>
+                ) : status === 'completed' ? (
+                  <p className="max-w-sm text-sm font-semibold leading-snug text-white/90" data-testid="sos-completion-message">
+                    You did it. Breathe easy.
+                  </p>
+                ) : null}
+              </div>
             </div>
-          )}
           </div>
         </div>
+
+        <div className="mt-auto shrink-0 space-y-3 border-t border-white/5 bg-[#0C0A1A]/80 pt-4 backdrop-blur-md">
+          {status === 'completed' ? (
+            <>
+              <GlassActionButton
+                href="/choose"
+                borderColor="rgba(255,255,255,0.3)"
+                borderGradient="linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 100%)"
+                textColor="#FFF"
+              >
+                Complete
+              </GlassActionButton>
+              <GlassActionButton
+                onClick={handleReset}
+                borderColor="#45A1A1"
+                borderGradient="linear-gradient(135deg, #5BB5B5 0%, #45A1A1 50%, #357373 100%)"
+                textColor="#6EDAE4"
+              >
+                Stay
+              </GlassActionButton>
+            </>
+          ) : status === 'running' ? (
+            <GlassActionButton
+              onClick={handleStop}
+              borderColor="#45A1A1"
+              borderGradient="linear-gradient(135deg, #5BB5B5 0%, #45A1A1 50%, #357373 100%)"
+              textColor="#6EDAE4"
+            >
+              Stop
+            </GlassActionButton>
+          ) : isGuided ? (
+            <GlassActionButton
+              onClick={handleStart}
+              borderColor="#45A1A1"
+              borderGradient="linear-gradient(135deg, #5BB5B5 0%, #45A1A1 50%, #357373 100%)"
+              textColor="#6EDAE4"
+            >
+              Start breathing
+            </GlassActionButton>
+          ) : null}
+        </div>
       </div>
-    </main>
+    </ScreenFrame>
   );
 }

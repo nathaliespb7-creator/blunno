@@ -1,8 +1,14 @@
 'use client';
 
-import Link from 'next/link';
-import { useEffect, useRef, useState, type ReactElement } from 'react';
+import { Check, ChevronLeft, ChevronRight, Home, Lock, Pencil, Plus, Sparkles } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 
+import { GlassCellDecor } from '@/components/shared/make-v81/GlassCellDecor';
+import { GlassIconButton } from '@/components/shared/make-v81/GlassIconButton';
+import { GlassListCell } from '@/components/shared/make-v81/GlassListCell';
+import { GradientTitle } from '@/components/shared/make-v81/GradientTitle';
+import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
 import { playTaskCompleteInhale, unlockAudioSession } from '@/lib/navigationSound';
 import { cn } from '@/lib/utils';
 
@@ -23,6 +29,8 @@ const MAX_EXTRA = 3;
 const MAX_TOTAL = DEFAULT_TASKS.length + MAX_EXTRA; // 8
 
 type TasksMap = Record<string, Task[]>;
+type EditingState = { day: string; taskId: string } | null;
+const PLANNER_STORAGE_KEY = 'blunno:planner:tasks:v1';
 
 function getTodayKey(): string {
   const now = new Date();
@@ -46,51 +54,31 @@ function getWeekDays(dateKey: string, weekOffset: number = 0): Date[] {
   return week;
 }
 
-interface TodaySummaryCardProps {
-  tasksMap: TasksMap;
-  selectedKey: string;
-  onJumpToToday: () => void;
+const TASK_ACCENTS = ['#7BA89A', '#9D84B7', '#D4A373', '#81B896', '#E07A5F'] as const;
+
+function getWeekNumber(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
+  const dayNum = d.getUTCDay() || 7;
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
+  return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 }
 
-function TodaySummaryCard({
-  tasksMap,
-  selectedKey,
-  onJumpToToday,
-}: TodaySummaryCardProps): ReactElement {
-  const todayKey = getTodayKey();
-  const todayTasks = tasksMap[todayKey] || [];
-  const done = todayTasks.filter((t) => t.completed).length;
-  const stars = done;
-  const isViewingToday = selectedKey === todayKey;
+function formatMonthTitle(week: Date[]): string {
+  const ref = week[3] ?? week[0];
+  return ref.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+}
 
-  return (
-    <section className="planner-summary-card mb-1.5 w-full max-w-lg shrink-0 rounded-2xl px-2.5 py-2.5 text-left sm:mx-auto sm:px-3.5 sm:py-2.5">
-      <div className="flex items-start justify-between gap-2">
-        <div className="min-w-0">
-          <p className="text-[10px] font-semibold uppercase tracking-wider text-white/62">Today&apos;s focus</p>
-          <p className="mt-0.5 truncate text-sm font-bold text-white sm:text-base">
-            {done} of {todayTasks.length} done
-            <span className="ml-2 text-[var(--planner-star-foreground)]" aria-label={`Stars: ${stars}`}>
-              <span aria-hidden>★</span> {stars}
-            </span>
-          </p>
-        </div>
-        {!isViewingToday && (
-          <button
-            type="button"
-            onClick={onJumpToToday}
-            className="blunno-btn-primary blunno-focus-visible shrink-0 px-2.5 py-1 text-[11px] sm:text-xs"
-          >
-            Today
-          </button>
-        )}
-      </div>
-    </section>
-  );
+function cloneDefaultTasks(): Task[] {
+  return DEFAULT_TASKS.map((t) => ({ ...t }));
+}
+
+function tasksForDay(tasksMap: TasksMap, dayKey: string): Task[] {
+  return tasksMap[dayKey] ?? cloneDefaultTasks();
 }
 
 export default function PlannerPage(): ReactElement {
-  const hasUnlockedAudioRef = useRef(false);
+  const router = useRouter();
   const [selectedKey, setSelectedKey] = useState<string>(getTodayKey());
   const [weekOffset, setWeekOffset] = useState<number>(0);
   const [tasksMap, setTasksMap] = useState<TasksMap>(() => {
@@ -98,67 +86,150 @@ export default function PlannerPage(): ReactElement {
     return { [today]: [...DEFAULT_TASKS.map(t => ({ ...t }))] };
   });
   const [newTaskText, setNewTaskText] = useState('');
-  const [editing, setEditing] = useState<{ day: string; index: number } | null>(null);
+  const [editing, setEditing] = useState<EditingState>(null);
   const [editValue, setEditValue] = useState('');
   const [showLimitHint, setShowLimitHint] = useState(false);
+  const editingRef = useRef<EditingState>(editing);
+  const editValueRef = useRef(editValue);
+  const newTaskInputRef = useRef<HTMLInputElement>(null);
 
-  const currentTasks = tasksMap[selectedKey] || [];
-  const weekDays = getWeekDays(selectedKey, weekOffset);
+  const currentTasks = tasksForDay(tasksMap, selectedKey);
+  const weekDays = getWeekDays(getTodayKey(), weekOffset);
   const todayKey = getTodayKey();
 
   useEffect(() => {
+    editingRef.current = editing;
+  }, [editing]);
+
+  useEffect(() => {
+    editValueRef.current = editValue;
+  }, [editValue]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    try {
+      const raw = window.localStorage.getItem(PLANNER_STORAGE_KEY);
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as unknown;
+      if (!parsed || typeof parsed !== 'object') return;
+
+      const hydrated = Object.entries(parsed as Record<string, unknown>).reduce<TasksMap>((acc, [key, value]) => {
+        if (!Array.isArray(value)) return acc;
+        const tasks = value
+          .map((item) => {
+            if (!item || typeof item !== 'object') return null;
+            const candidate = item as Partial<Task>;
+            if (typeof candidate.id !== 'string' || typeof candidate.text !== 'string' || typeof candidate.completed !== 'boolean') {
+              return null;
+            }
+            return {
+              id: candidate.id,
+              text: candidate.text,
+              completed: candidate.completed,
+            } satisfies Task;
+          })
+          .filter((task): task is Task => Boolean(task));
+        if (tasks.length === 0) return acc;
+        acc[key] = tasks;
+        return acc;
+      }, {});
+
+      if (Object.keys(hydrated).length > 0) {
+        setTasksMap(hydrated);
+      }
+    } catch {
+      /* Ignore malformed persisted state */
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    window.localStorage.setItem(PLANNER_STORAGE_KEY, JSON.stringify(tasksMap));
+  }, [tasksMap]);
+
+  const saveEditFor = useCallback((state: EditingState, value: string) => {
+    if (!state) return;
+    const nextText = value.trim();
+    if (!nextText) return;
+
     setTasksMap((prev) => {
-      if (prev[selectedKey] !== undefined) return prev;
-      return {
-        ...prev,
-        [selectedKey]: DEFAULT_TASKS.map((t) => ({ ...t })),
-      };
+      const tasks = [...tasksForDay(prev, state.day)];
+      const index = tasks.findIndex((task) => task.id === state.taskId);
+      if (index < 0) return prev;
+      tasks[index] = { ...tasks[index], text: nextText };
+      return { ...prev, [state.day]: tasks };
     });
-  }, [selectedKey]);
+  }, []);
+
+  const commitEditingIfNeeded = useCallback(() => {
+    const state = editingRef.current;
+    if (!state) return;
+    saveEditFor(state, editValueRef.current);
+    setEditing(null);
+  }, [saveEditFor]);
+
+  const selectDay = (dayKey: string) => {
+    commitEditingIfNeeded();
+    setSelectedKey(dayKey);
+  };
 
   const goPrevWeek = () => {
-    setWeekOffset(prev => prev - 1);
-    // Set selected day to Monday of the new week
-    const newWeekDays = getWeekDays(selectedKey, weekOffset - 1);
-    const mondayKey = `${newWeekDays[0].getFullYear()}-${newWeekDays[0].getMonth() + 1}-${newWeekDays[0].getDate()}`;
-    setSelectedKey(mondayKey);
+    commitEditingIfNeeded();
+    setWeekOffset((prev) => {
+      const nextOffset = prev - 1;
+      const newWeekDays = getWeekDays(getTodayKey(), nextOffset);
+      const mondayKey = `${newWeekDays[0].getFullYear()}-${newWeekDays[0].getMonth() + 1}-${newWeekDays[0].getDate()}`;
+      setSelectedKey(mondayKey);
+      return nextOffset;
+    });
   };
 
   const goNextWeek = () => {
-    setWeekOffset(prev => prev + 1);
-    // Set selected day to Monday of the new week
-    const newWeekDays = getWeekDays(selectedKey, weekOffset + 1);
-    const mondayKey = `${newWeekDays[0].getFullYear()}-${newWeekDays[0].getMonth() + 1}-${newWeekDays[0].getDate()}`;
-    setSelectedKey(mondayKey);
-  };
-
-  const goCurrentWeek = () => {
-    setWeekOffset(0);
-    setSelectedKey(getTodayKey());
+    commitEditingIfNeeded();
+    setWeekOffset((prev) => {
+      const nextOffset = prev + 1;
+      const newWeekDays = getWeekDays(getTodayKey(), nextOffset);
+      const mondayKey = `${newWeekDays[0].getFullYear()}-${newWeekDays[0].getMonth() + 1}-${newWeekDays[0].getDate()}`;
+      setSelectedKey(mondayKey);
+      return nextOffset;
+    });
   };
 
   const addTask = () => {
-    if (!newTaskText.trim()) return;
-    if (currentTasks.length >= MAX_TOTAL) {
+    const text = newTaskText.trim();
+    if (!text) return;
+
+    let added = false;
+    setTasksMap((prev) => {
+      const tasks = tasksForDay(prev, selectedKey);
+      if (tasks.length >= MAX_TOTAL) return prev;
+
+      added = true;
+      const newTask: Task = {
+        id: Date.now().toString(),
+        text,
+        completed: false,
+      };
+      return {
+        ...prev,
+        [selectedKey]: [...tasks, newTask],
+      };
+    });
+
+    if (!added) {
       setShowLimitHint(true);
       setTimeout(() => setShowLimitHint(false), 3000);
       return;
     }
-    const newTask: Task = {
-      id: Date.now().toString(),
-      text: newTaskText.trim(),
-      completed: false,
-    };
-    setTasksMap(prev => ({
-      ...prev,
-      [selectedKey]: [...(prev[selectedKey] || []), newTask],
-    }));
+
     setNewTaskText('');
+    newTaskInputRef.current?.blur();
   };
 
   const toggleCompleted = (index: number) => {
     setTasksMap(prev => {
-      const tasks = [...(prev[selectedKey] || [])];
+      const tasks = [...tasksForDay(prev, selectedKey)];
       const task = tasks[index];
       if (!task) return prev;
       const willBecomeComplete = !task.completed;
@@ -171,19 +242,13 @@ export default function PlannerPage(): ReactElement {
     });
   };
 
-  const startEdit = (index: number, text: string) => {
-    setEditing({ day: selectedKey, index });
+  const startEdit = (taskId: string, text: string) => {
+    setEditing({ day: selectedKey, taskId });
     setEditValue(text);
   };
 
   const saveEdit = () => {
-    if (!editing) return;
-    if (editValue.trim() === '') return;
-    setTasksMap(prev => {
-      const tasks = [...(prev[editing.day] || [])];
-      tasks[editing.index] = { ...tasks[editing.index], text: editValue.trim() };
-      return { ...prev, [editing.day]: tasks };
-    });
+    saveEditFor(editing, editValue);
     setEditing(null);
   };
 
@@ -192,161 +257,97 @@ export default function PlannerPage(): ReactElement {
     if (e.key === 'Escape') setEditing(null);
   };
 
-  const formatMonthRange = (week: Date[]): string => {
-    const start = week[0];
-    const end = week[6];
-    const startMonth = start.toLocaleString('en-US', { month: 'long' });
-    const endMonth = end.toLocaleString('en-US', { month: 'long' });
-    if (startMonth === endMonth) {
-      return `${startMonth} ${start.getDate()} – ${end.getDate()}, ${start.getFullYear()}`;
-    }
-    return `${startMonth} ${start.getDate()} – ${endMonth} ${end.getDate()}, ${start.getFullYear()}`;
-  };
+  const composerAccent = TASK_ACCENTS[currentTasks.length % TASK_ACCENTS.length];
+  const isAtLimit = currentTasks.length >= MAX_TOTAL;
 
   return (
-    <main
-      onPointerDownCapture={() => {
-        if (hasUnlockedAudioRef.current) return;
-        hasUnlockedAudioRef.current = true;
-        void unlockAudioSession();
-      }}
-      className={cn(
-        'relative flex h-dvh max-h-dvh min-h-0 w-full flex-col overflow-hidden overscroll-none text-white',
-        'bg-blunno-bg',
-        'px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(0.75rem,env(safe-area-inset-bottom))]'
-      )}
-    >
-      {/* Header — same structure as SOS / Play: home row, then centered title */}
-      <div className="flex w-full shrink-0 justify-end">
-        <Link
-          href="/choose"
-          aria-label="Exit to mode selection"
-          className="blunno-focus-visible blunno-nav-btn text-white/95"
-        >
-          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.7">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-            <polyline points="9 22 9 12 15 12 15 22" />
-          </svg>
-        </Link>
-      </div>
-      <h1
-        className={cn(
-          'w-full shrink-0 pb-2 text-center font-sans text-lg font-extrabold uppercase leading-tight tracking-figma [text-shadow:var(--shadow-text-title)]',
-          'sm:text-xl md:text-[22px]',
-          '[@media(max-height:620px)]:py-1 [@media(max-height:620px)]:text-base'
-        )}
-      >
-        <span className="text-white">PLAN WITH </span>
-        <span className="text-[var(--color-accent-primary)]">BLUNNO</span>
-      </h1>
-      <div className="mb-3 h-px w-full shrink-0 bg-white/10" aria-hidden />
-
-      {/* Today-first — primary block */}
-      <div className="shrink-0 pt-1 sm:pt-2">
-      <TodaySummaryCard
-        tasksMap={tasksMap}
-        selectedKey={selectedKey}
-        onJumpToToday={goCurrentWeek}
-      />
+    <ScreenFrame className="v81-screen--planner">
+      <div className="v81-top-bar">
+        <GlassIconButton onClick={() => router.back()} icon={ChevronLeft} label="Back" />
+        <GradientTitle size="lg">{formatMonthTitle(weekDays)}</GradientTitle>
+        <GlassIconButton href="/choose" icon={Home} label="Exit to mode selection" />
       </div>
 
-      {/* Month range — secondary navigation */}
-      <div className="flex shrink-0 items-center justify-between pb-2 pt-1">
-        <button
-          onClick={goPrevWeek}
-          className="blunno-focus-visible flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--planner-week-nav-border)] bg-[var(--planner-week-nav-surface)] text-white/90 shadow-sm transition-colors hover:border-white/20 hover:bg-[var(--planner-week-nav-surface-hover)]"
-          aria-label="Previous week"
-        >
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M15 18l-6-6 6-6" />
-          </svg>
+      <div className="mb-3 flex items-center justify-between px-1">
+        <button type="button" onClick={goPrevWeek} className="blunno-focus-visible text-white/30 hover:text-white/60" aria-label="Previous week">
+          <ChevronLeft className="h-4 w-4" strokeWidth={2} />
         </button>
-        
-        <div className="text-center text-xs text-white/68 sm:text-sm">
-          {formatMonthRange(weekDays)}
-        </div>
-        
-        <button
-          onClick={goNextWeek}
-          className="blunno-focus-visible flex h-11 w-11 items-center justify-center rounded-xl border border-[var(--planner-week-nav-border)] bg-[var(--planner-week-nav-surface)] text-white/90 shadow-sm transition-colors hover:border-white/20 hover:bg-[var(--planner-week-nav-surface-hover)]"
-          aria-label="Next week"
-        >
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M9 18l6-6-6-6" />
-          </svg>
+        <span className="text-xs uppercase tracking-widest text-white/40">Week {getWeekNumber(weekDays[0])}</span>
+        <button type="button" onClick={goNextWeek} className="blunno-focus-visible text-white/30 hover:text-white/60" aria-label="Next week">
+          <ChevronRight className="h-4 w-4" strokeWidth={2} />
         </button>
       </div>
 
-      {/* Week strip — calendar context (secondary) */}
-      <div className="shrink-0 pb-3">
-        <p className="mb-2 text-center text-[11px] font-medium uppercase tracking-wider text-white/58">Week</p>
-        <div className="flex justify-between gap-1">
-          {weekDays.map((date, idx) => {
-            const dayKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
-            const isSelected = dayKey === selectedKey;
-            const isToday = dayKey === todayKey;
-            const isWeekend = idx === 5 || idx === 6; // sat, sun
-            return (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => setSelectedKey(dayKey)}
-                className={cn(
-                  'blunno-focus-visible flex min-h-[44px] min-w-0 flex-1 flex-col items-center justify-center rounded-xl border py-1.5 transition-all',
-                  isSelected &&
-                    'border-[var(--color-accent-primary)]/75 bg-[var(--planner-day-selected-bg)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.14)]',
-                  !isSelected &&
-                    isToday &&
-                    'border-[var(--planner-day-today-ring)] bg-[var(--planner-day-bg)] shadow-[0_0_0_1px_rgba(255,255,255,0.1)]',
-                  !isSelected &&
-                    !isToday &&
-                    'border-[var(--planner-day-border)] bg-[var(--planner-day-bg)] hover:border-white/25 hover:bg-[var(--planner-day-hover-bg)]',
-                  !isSelected && !isToday && isWeekend && 'opacity-[0.98]'
-                )}
-              >
-                <span
-                  className={cn(
-                    'text-[10px] font-medium',
-                    isSelected && 'text-[var(--color-accent-primary)]',
-                    !isSelected && 'text-white/60',
-                    !isSelected && isWeekend && 'text-white/50'
-                  )}
-                >
-                  {date.toLocaleString('en-US', { weekday: 'short' }).toUpperCase()}
-                </span>
-                <span
-                  className={cn(
-                    'text-sm font-semibold',
-                    isSelected && 'text-white',
-                    !isSelected && 'text-white/92'
-                  )}
-                >
-                  {date.getDate()}
-                </span>
-                {isToday && !isSelected && (
-                  <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-[var(--color-accent-primary)] shadow-[0_0_0_1px_rgba(255,255,255,0.2)]" aria-hidden />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+      <div className="mb-3 flex shrink-0 justify-between gap-1.5">
+        {weekDays.map((date, idx) => {
+          const dayKey = `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}`;
+          const isSelected = dayKey === selectedKey;
+          const isToday = dayKey === todayKey;
+          const isWeekend = idx >= 5;
+          const hasActivity = (tasksMap[dayKey] || []).some((t) => t.completed);
 
-      {/* Task list — scrolls inside column; add bar stays fixed at bottom */}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-y-contain touch-pan-y [-webkit-overflow-scrolling:touch]">
-        <div className="space-y-1.5 pb-2">
-          {currentTasks.map((task, idx) => {
-              return (
-            <div
-              key={task.id}
-              className={cn(
-                'planner-task-row flex min-w-0 items-center justify-between gap-2 rounded-2xl border border-[var(--planner-task-border)] py-2.5 pl-2.5 pr-3 shadow-[var(--planner-task-shadow)] transition',
-                task.completed &&
-                  'planner-task-row--completed border-[var(--planner-task-border-completed)]'
-              )}
+          return (
+            <button
+              key={dayKey}
+              type="button"
+              onClick={() => selectDay(dayKey)}
+              className="v81-planner-day blunno-focus-visible"
+              style={{
+                background: isSelected
+                  ? isWeekend
+                    ? 'linear-gradient(135deg, rgba(255,200,80,0.25) 0%, rgba(255,200,80,0.15) 100%)'
+                    : 'linear-gradient(135deg, rgba(123,97,255,0.3) 0%, rgba(123,97,255,0.2) 100%)'
+                  : isWeekend
+                    ? 'linear-gradient(135deg, rgba(255,200,80,0.12) 0%, rgba(255,200,80,0.06) 100%)'
+                    : 'rgba(18, 12, 48, 0.6)',
+                boxShadow: isSelected
+                  ? isWeekend
+                    ? '0 0 20px -4px rgba(255,200,80,0.4), inset 0 0 12px rgba(255,200,80,0.2)'
+                    : '0 0 20px -4px rgba(123,97,255,0.4), inset 0 0 12px rgba(123,97,255,0.2)'
+                  : '0 10px 32px -10px rgba(124, 90, 255, 0.35), inset 0 0 14px rgba(124, 90, 255, 0.1)',
+              }}
             >
-              {editing && editing.day === selectedKey && editing.index === idx ? (
-                <>
+              <GlassCellDecor
+                borderColor={
+                  isSelected ? (isWeekend ? '#FFD080' : '#8b6bff') : isWeekend ? 'rgba(255,200,80,0.45)' : '#8b6bff'
+                }
+              />
+              <span className="relative z-10 text-[10px] uppercase tracking-wide" style={{ color: isSelected ? (isWeekend ? 'rgba(255,220,120,0.95)' : 'rgba(196,181,253,0.9)') : isWeekend ? 'rgba(255,200,80,0.5)' : 'rgba(255,255,255,0.35)' }}>
+                {date.toLocaleString('en-US', { weekday: 'short' })}
+              </span>
+              <span className="relative z-10 text-lg" style={{ fontWeight: isSelected ? 700 : 400, color: isSelected ? (isWeekend ? '#FFE5A0' : '#FFFFFF') : isWeekend ? 'rgba(255,200,80,0.65)' : 'rgba(255,255,255,0.55)' }}>
+                {date.getDate()}
+              </span>
+              <div className="relative z-10 flex h-[5px] items-center justify-center">
+                {(hasActivity || isToday) && (
+                  <span className="h-[5px] w-[5px] rounded-full" style={{ background: isSelected ? '#C4B5FD' : 'rgba(123,97,255,0.6)' }} />
+                )}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      <div className="mb-2 flex shrink-0 items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Sparkles className="h-[14px] w-[14px] text-[rgba(196,181,253,0.6)]" strokeWidth={1.5} />
+          <span className="text-[13px] uppercase tracking-wide text-[rgba(196,181,253,0.55)]">Today&apos;s plan</span>
+        </div>
+        <span className="text-xs text-white/25">{currentTasks.length} tasks</span>
+      </div>
+
+      <div className="v81-scroll-area mb-3 v81-glass-cell-list">
+        {currentTasks.map((task, idx) => {
+          const accent = TASK_ACCENTS[idx % TASK_ACCENTS.length];
+          return (
+            <GlassListCell
+              key={task.id}
+              as="div"
+              accentColor={accent}
+              opacity={task.completed ? 0.5 : 1}
+            >
+              <div className="relative z-10 flex min-w-0 flex-1 items-center">
+                {editing && editing.day === selectedKey && editing.taskId === task.id ? (
                   <input
                     type="text"
                     value={editValue}
@@ -354,165 +355,106 @@ export default function PlannerPage(): ReactElement {
                     onBlur={saveEdit}
                     onKeyDown={onKeyDownEdit}
                     autoFocus
-                    className="min-w-0 flex-1 rounded-lg border border-[var(--planner-task-border)] bg-[var(--planner-task-input-fill)] px-2 py-1.5 text-base text-white outline-none touch-manipulation focus:border-[var(--color-accent-primary)]/50 focus:ring-1 focus:ring-[var(--color-focus-ring)]"
-                    style={{
-                      minHeight: '44px',
-                      fontSize: '16px', // Prevents zoom on iOS
-                      WebkitAppearance: 'none'
-                    }}
+                    className="min-w-0 flex-1 rounded-lg border border-white/15 bg-black/30 px-2 py-1.5 text-base text-white outline-none"
+                    style={{ minHeight: '44px', fontSize: '16px' }}
                   />
-                  <label className="relative flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center">
-                    <input
-                      type="checkbox"
-                      checked={task.completed}
-                      onChange={() => toggleCompleted(idx)}
-                      className="peer sr-only"
-                      aria-label={task.completed ? `Mark "${task.text}" as not done` : `Mark "${task.text}" as done`}
-                    />
-                    <span
-                      className={cn(
-                        'flex h-7 w-7 items-center justify-center rounded-full border-2 transition peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--color-focus-ring)]',
-                        task.completed
-                          ? 'border-[var(--color-accent-primary)]/50 bg-[var(--color-accent-primary)]/15 shadow-none'
-                          : 'border-white/28 bg-transparent'
-                      )}
-                    >
-                      {task.completed && (
-                        <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                    </span>
-                  </label>
-                </>
-              ) : (
-                <>
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => {
-                      startEdit(idx, task.text);
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        startEdit(idx, task.text);
-                      }
-                    }}
-                    className={`min-w-0 flex-1 cursor-text break-words text-sm touch-manipulation select-none sm:text-base ${task.completed ? 'text-white opacity-60 line-through' : 'text-white'}`}
-                    style={{ 
-                      minHeight: '44px', 
-                      display: 'flex', 
-                      alignItems: 'center',
-                      WebkitTouchCallout: 'none',
-                      WebkitUserSelect: 'none',
-                      userSelect: 'none'
-                    }}
-                  >
-                    {task.text}
-                  </span>
+                ) : (
                   <button
                     type="button"
-                    aria-label={`Edit task: ${task.text}`}
-                    onClick={() => {
-                      startEdit(idx, task.text);
-                    }}
-                    className="flex h-11 min-h-[44px] min-w-[44px] shrink-0 items-center justify-center rounded-xl text-white/85 hover:text-white active:opacity-80 touch-manipulation"
-                    style={{
-                      WebkitTouchCallout: 'none',
-                      WebkitUserSelect: 'none',
-                      userSelect: 'none'
-                    }}
+                    onClick={() => startEdit(task.id, task.text)}
+                    className={cn('min-w-0 flex-1 text-left text-[15px] font-semibold text-white/90', task.completed && 'line-through')}
                   >
-                    <svg
-                      className="h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                      stroke="currentColor"
-                      strokeWidth={1.75}
-                      aria-hidden
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10"
-                      />
-                    </svg>
+                    {task.text}
                   </button>
-                  <label className="relative flex h-11 w-11 shrink-0 cursor-pointer items-center justify-center">
-                    <input
-                      type="checkbox"
-                      checked={task.completed}
-                      onChange={() => toggleCompleted(idx)}
-                      className="peer sr-only"
-                      aria-label={task.completed ? `Mark "${task.text}" as not done` : `Mark "${task.text}" as done`}
-                    />
-                    <span
-                      className={cn(
-                        'flex h-7 w-7 items-center justify-center rounded-full border-2 transition peer-focus-visible:ring-2 peer-focus-visible:ring-[var(--color-focus-ring)]',
-                        task.completed
-                          ? 'border-[var(--color-accent-primary)]/50 bg-[var(--color-accent-primary)]/15 shadow-none'
-                          : 'border-white/28 bg-transparent'
-                      )}
-                    >
-                      {task.completed && (
-                        <svg className="h-4 w-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                        </svg>
-                      )}
-                    </span>
-                  </label>
-                </>
+                )}
+              </div>
+              <div className="relative z-10 ml-3 flex shrink-0 items-center gap-2">
+                <button type="button" onClick={() => startEdit(task.id, task.text)} className="blunno-focus-visible flex h-8 w-8 items-center justify-center rounded-full bg-black/30" aria-label={`Edit ${task.text}`}>
+                  <Pencil className="h-[13px] w-[13px]" style={{ color: accent }} strokeWidth={2} />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleCompleted(idx)}
+                  className="blunno-focus-visible flex h-8 w-8 items-center justify-center rounded-full border"
+                  style={{
+                    background: task.completed ? accent : 'rgba(18,12,48,0.5)',
+                    borderColor: accent,
+                    boxShadow: task.completed ? `0 0 12px ${accent}` : 'none',
+                  }}
+                  aria-label={task.completed ? `Mark incomplete: ${task.text}` : `Mark complete: ${task.text}`}
+                >
+                  {task.completed && <Check className="h-4 w-4 text-[#120F25]" strokeWidth={3} />}
+                </button>
+              </div>
+            </GlassListCell>
+          );
+        })}
+
+        {showLimitHint && (
+          <p className="text-center text-xs text-[var(--v81-theme-gold)]">
+            You can add up to {MAX_EXTRA} extra tasks (max {MAX_TOTAL} total)
+          </p>
+        )}
+
+        <GlassListCell
+          as="div"
+          accentColor={composerAccent}
+          showAccentBar={!isAtLimit}
+          opacity={isAtLimit ? 0.55 : 0.85}
+          className={cn(!isAtLimit && 'v81-planner-composer-dashed')}
+        >
+          <div className="relative z-10 flex min-w-0 flex-1 items-center gap-3">
+            <div
+              className="v81-planner-composer-icon"
+              style={{
+                borderColor: composerAccent,
+                borderStyle: isAtLimit ? 'solid' : 'dashed',
+                opacity: isAtLimit ? 0.5 : 0.7,
+              }}
+              aria-hidden
+            >
+              {isAtLimit ? (
+                <Lock className="h-3.5 w-3.5" style={{ color: composerAccent }} strokeWidth={2} />
+              ) : (
+                <Plus className="h-3.5 w-3.5" style={{ color: composerAccent }} strokeWidth={2.5} />
               )}
             </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* Add task input – fixed at bottom */}
-      <div className="shrink-0 border-t border-[var(--planner-task-border)] py-2.5">
-        {showLimitHint && (
-          <div className="mb-3 rounded-xl border border-[color-mix(in_srgb,var(--color-core-relax)_42%,transparent)] bg-[color-mix(in_srgb,var(--color-core-relax)_14%,transparent)] px-3 py-2">
-            <p className="text-center text-xs leading-normal text-[color-mix(in_srgb,var(--foreground)_92%,var(--color-core-relax)_8%)]">
-              You can add up to {MAX_EXTRA} extra tasks (max {MAX_TOTAL} total)
-            </p>
+            <input
+              ref={newTaskInputRef}
+              type="text"
+              value={newTaskText}
+              onChange={(e) => setNewTaskText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  addTask();
+                }
+              }}
+              placeholder={isAtLimit ? `Max ${MAX_TOTAL} tasks reached` : 'Add a new task...'}
+              className="v81-planner-composer-inline-input blunno-focus-visible"
+              maxLength={60}
+              disabled={isAtLimit}
+              aria-label="Add a new task"
+            />
           </div>
-        )}
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={newTaskText}
-            onChange={(e) => setNewTaskText(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                addTask();
-              }
-            }}
-            placeholder="Add a new task..."
-            className="blunno-focus-visible flex-1 rounded-xl border border-[var(--planner-task-border)] bg-[var(--planner-input-surface)] px-4 py-2 text-white placeholder-white/50 outline-none transition-all focus:ring-2 focus:ring-[var(--color-focus-ring)]"
-            maxLength={60}
-            disabled={currentTasks.length >= MAX_TOTAL}
-          />
-          <button
-            type="button"
-            onClick={addTask}
-            disabled={currentTasks.length >= MAX_TOTAL || !newTaskText.trim()}
-            className={cn(
-              'blunno-focus-visible rounded-xl px-4 py-2 font-semibold transition-all min-h-[44px]',
-              currentTasks.length >= MAX_TOTAL || !newTaskText.trim()
-                ? 'cursor-not-allowed bg-white/8 text-white/35'
-                : 'blunno-btn-primary border-0 py-2'
-            )}
-          >
-            Add
-          </button>
-        </div>
-        {currentTasks.length >= MAX_TOTAL && !showLimitHint && (
-          <p className="mt-2 text-center text-xs leading-normal text-white/62">Max {MAX_TOTAL} tasks per day</p>
-        )}
+          <div className="relative z-10 ml-3 flex shrink-0 items-center">
+            <button
+              type="button"
+              onClick={addTask}
+              disabled={isAtLimit || !newTaskText.trim()}
+              className="v81-planner-composer-submit-inline blunno-focus-visible"
+              style={{
+                borderColor: composerAccent,
+                background: newTaskText.trim() && !isAtLimit ? `${composerAccent}40` : 'rgba(18,12,48,0.5)',
+                boxShadow: newTaskText.trim() && !isAtLimit ? `0 0 12px ${composerAccent}55` : 'none',
+              }}
+              aria-label="Add Task"
+            >
+              <Plus className="h-4 w-4 text-white/90" strokeWidth={2.5} />
+            </button>
+          </div>
+        </GlassListCell>
       </div>
-    </main>
+    </ScreenFrame>
   );
 }

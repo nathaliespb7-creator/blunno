@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 
 import { audioService } from '@/services/audioService';
 
@@ -13,6 +13,12 @@ type Piece = {
 
 const BOARD_W = 10;
 const BOARD_H = 20;
+
+/** Gravity tick (ms between automatic drops). Higher = slower fall. */
+const DROP_MS_BASE = 680;
+const DROP_MS_MIN = 100;
+const DROP_MS_PER_LEVEL = 28;
+const DROP_MS_REFERENCE = 520;
 
 /* Colors from :root --tetris-* (play-grid-clear theme) */
 const PIECE_COLOR_CLASS: Record<number, string> = {
@@ -149,8 +155,27 @@ export function BlunnoTetris(): ReactElement {
     return Number.isFinite(parsed) ? parsed : 0;
   });
 
+  const boardRef = useRef(board);
+  const pieceRef = useRef(piece);
+  const runningRef = useRef(running);
+  const pausedRef = useRef(paused);
+
+  useEffect(() => {
+    boardRef.current = board;
+    pieceRef.current = piece;
+    runningRef.current = running;
+    pausedRef.current = paused;
+  }, [board, piece, running, paused]);
+
   const level = Math.max(1, Math.floor(lines / 10) + 1);
-  const speed = useMemo(() => Math.floor(500 / (level + 1)), [level]);
+  const dropIntervalMs = useMemo(
+    () => Math.max(DROP_MS_MIN, DROP_MS_BASE - (level - 1) * DROP_MS_PER_LEVEL),
+    [level]
+  );
+  const speed = useMemo(
+    () => Math.floor((500 / (level + 1)) * (DROP_MS_REFERENCE / DROP_MS_BASE)),
+    [level]
+  );
 
   const unlockAudioOnce = useCallback((): void => {
     if (isAudioUnlocked) return;
@@ -159,8 +184,14 @@ export function BlunnoTetris(): ReactElement {
   }, [isAudioUnlocked]);
 
   const reset = useCallback(() => {
-    setBoard(emptyBoard());
-    setPiece(createPiece());
+    const nextBoard = emptyBoard();
+    const nextPiece = createPiece();
+    boardRef.current = nextBoard;
+    pieceRef.current = nextPiece;
+    runningRef.current = true;
+    pausedRef.current = false;
+    setBoard(nextBoard);
+    setPiece(nextPiece);
     setScore(0);
     setLines(0);
     setPaused(false);
@@ -172,24 +203,30 @@ export function BlunnoTetris(): ReactElement {
     setPaused((p) => !p);
   }, [running]);
 
-  const move = useCallback(
-    (dx: number) => {
-      setPiece((prev) => {
-        if (!running || paused || collides(board, prev, dx, 0)) return prev;
-        return { ...prev, x: prev.x + dx };
-      });
-    },
-    [board, running, paused]
-  );
+  const move = useCallback((dx: number) => {
+    if (!runningRef.current || pausedRef.current) return;
+
+    const currentBoard = boardRef.current;
+    const currentPiece = pieceRef.current;
+    if (collides(currentBoard, currentPiece, dx, 0)) return;
+
+    const nextPiece = { ...currentPiece, x: currentPiece.x + dx };
+    pieceRef.current = nextPiece;
+    setPiece(nextPiece);
+  }, []);
 
   const rotate = useCallback(() => {
-    setPiece((prev) => {
-      if (!running || paused) return prev;
-      const rotated = rotateRight(prev.shape);
-      if (collides(board, prev, 0, 0, rotated)) return prev;
-      return { ...prev, shape: rotated };
-    });
-  }, [board, running, paused]);
+    if (!runningRef.current || pausedRef.current) return;
+
+    const currentBoard = boardRef.current;
+    const currentPiece = pieceRef.current;
+    const rotated = rotateRight(currentPiece.shape);
+    if (collides(currentBoard, currentPiece, 0, 0, rotated)) return;
+
+    const nextPiece = { ...currentPiece, shape: rotated };
+    pieceRef.current = nextPiece;
+    setPiece(nextPiece);
+  }, []);
 
   const lockPieceAndContinue = useCallback((mergedBoard: number[][]) => {
     const { board: cleared, lines: removed } = clearLines(mergedBoard);
@@ -201,45 +238,60 @@ export function BlunnoTetris(): ReactElement {
 
     const next = createPiece();
     if (collides(cleared, next)) {
+      boardRef.current = cleared;
+      pieceRef.current = next;
+      runningRef.current = false;
+      pausedRef.current = false;
       setBoard(cleared);
+      setPiece(next);
       setPaused(false);
       setRunning(false);
       return;
     }
 
+    boardRef.current = cleared;
+    pieceRef.current = next;
     setBoard(cleared);
     setPiece(next);
   }, []);
 
   const stepDown = useCallback(() => {
-    if (!running || paused) return;
+    if (!runningRef.current || pausedRef.current) return;
 
-    if (!collides(board, piece, 0, 1)) {
-      setPiece((prev) => ({ ...prev, y: prev.y + 1 }));
+    const currentBoard = boardRef.current;
+    const currentPiece = pieceRef.current;
+
+    if (!collides(currentBoard, currentPiece, 0, 1)) {
+      const nextPiece = { ...currentPiece, y: currentPiece.y + 1 };
+      pieceRef.current = nextPiece;
+      setPiece(nextPiece);
       return;
     }
 
-    const merged = lockPiece(board, piece);
+    const merged = lockPiece(currentBoard, currentPiece);
     lockPieceAndContinue(merged);
-  }, [board, piece, running, paused, lockPieceAndContinue]);
+  }, [lockPieceAndContinue]);
 
   const hardDrop = useCallback(() => {
-    if (!running || paused) return;
-    let y = piece.y;
-    while (!collides(board, { ...piece, y }, 0, 1)) {
+    if (!runningRef.current || pausedRef.current) return;
+
+    const currentBoard = boardRef.current;
+    const currentPiece = pieceRef.current;
+    let y = currentPiece.y;
+    while (!collides(currentBoard, { ...currentPiece, y }, 0, 1)) {
       y += 1;
     }
-    const landed = { ...piece, y };
-    const merged = lockPiece(board, landed);
+
+    const landed = { ...currentPiece, y };
+    const merged = lockPiece(currentBoard, landed);
     lockPieceAndContinue(merged);
-  }, [board, piece, running, paused, lockPieceAndContinue]);
+  }, [lockPieceAndContinue]);
 
   useEffect(() => {
     if (!running || paused) return;
-    const tick = Math.max(80, 520 - (level - 1) * 35);
-    const id = window.setInterval(stepDown, tick);
+    const id = window.setInterval(stepDown, dropIntervalMs);
     return () => window.clearInterval(id);
-  }, [running, paused, level, stepDown]);
+  }, [running, paused, dropIntervalMs, stepDown]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {

@@ -1,98 +1,86 @@
-import { Howl, Howler } from 'howler';
+export type BlunnoSoundName = 'hover-soft' | 'inhale' | 'exhale' | 'success' | 'pop' | 'sos-start';
 
-export type BlunnoSoundName = 'hover-soft' | 'inhale' | 'exhale' | 'success' | 'pop';
-
-const BASE_OPTS = {
-  html5: true as const,
-  preload: true as const,
-};
-
-const SOUND_DEFS: Record<BlunnoSoundName, { src: string; volume: number; rate?: number }> = {
-  'hover-soft': { src: '/sounds/hover-soft.mp3', volume: 0.15, rate: 1.2 },
-  inhale: { src: '/sounds/inhale.mp3', volume: 0.4 },
-  exhale: { src: '/sounds/exhale.mp3', volume: 0.4 },
-  // Dedicated success.mp3 is optional; inhale is a safe fallback.
-  success: { src: '/sounds/inhale.mp3', volume: 0.4 },
-  // pop.mp3 may be absent in this project; use hover-soft as fallback pop cue.
-  pop: { src: '/sounds/hover-soft.mp3', volume: 0.2 },
+const SOUND_SRC: Partial<Record<BlunnoSoundName, string>> = {
+  pop: '/audio/pop.mp3',
 };
 
 class AudioService {
   private unlocked = false;
-  private unlockPromise: Promise<void> | null = null;
-  private sounds = new Map<BlunnoSoundName, Howl>();
 
-  private getHowl(name: BlunnoSoundName): Howl {
-    const cached = this.sounds.get(name);
-    if (cached) return cached;
-
-    const def = SOUND_DEFS[name];
-    const howl = new Howl({
-      src: [def.src],
-      volume: def.volume,
-      rate: def.rate ?? 1,
-      ...BASE_OPTS,
-      onloaderror: (_id, err) => {
-        console.warn(`[audio] failed loading ${def.src}:`, err);
-      },
-      onplayerror: (_id, err) => {
-        console.warn(`[audio] failed playing ${def.src}:`, err);
-      },
-    });
-    this.sounds.set(name, howl);
-    return howl;
-  }
+  private pool = new Map<BlunnoSoundName, HTMLAudioElement[]>();
 
   preloadAll(): void {
     if (typeof window === 'undefined') return;
-    (Object.keys(SOUND_DEFS) as BlunnoSoundName[]).forEach((name) => {
-      this.getHowl(name);
-    });
+
+    for (const [name, src] of Object.entries(SOUND_SRC) as [BlunnoSoundName, string][]) {
+      if (!this.pool.has(name)) {
+        this.pool.set(name, [this.createAudio(src)]);
+      }
+    }
   }
 
   async ensureUnlocked(): Promise<void> {
-    if (typeof window === 'undefined') return;
-    if (this.unlocked) return;
-    if (this.unlockPromise) return this.unlockPromise;
+    if (typeof window === 'undefined' || this.unlocked) return;
 
-    this.unlockPromise = (async () => {
-      try {
-        const ctx = Howler.ctx;
-        if (ctx && ctx.state === 'suspended') {
-          await ctx.resume();
-        }
-      } catch (e) {
-        console.warn('[audio] AudioContext resume failed:', e);
-      }
+    this.preloadAll();
 
-      // iOS fallback: play a silent howl inside user-gesture call path.
-      try {
-        const silent = new Howl({
-          src: ['data:audio/mp3;base64,SUQzAwAAAAAA'],
-          volume: 0,
-          html5: true,
-          preload: true,
-        });
-        silent.play();
-      } catch {
-        // no-op
-      }
-
+    const sample = this.borrow('pop');
+    if (!sample) {
       this.unlocked = true;
-      this.preloadAll();
-    })();
+      return;
+    }
 
     try {
-      await this.unlockPromise;
-    } finally {
-      this.unlockPromise = null;
+      sample.volume = 0.001;
+      await sample.play();
+      sample.pause();
+      sample.currentTime = 0;
+      sample.volume = 1;
+      this.unlocked = true;
+    } catch {
+      /* iOS may block until explicit user gesture */
     }
   }
 
   async play(name: BlunnoSoundName): Promise<void> {
     if (typeof window === 'undefined') return;
-    await this.ensureUnlocked();
-    this.getHowl(name).play();
+
+    const src = SOUND_SRC[name];
+    if (!src) return;
+
+    this.preloadAll();
+    const audio = this.borrow(name);
+    if (!audio) return;
+
+    try {
+      audio.currentTime = 0;
+      audio.volume = name === 'pop' ? 0.85 : 1;
+      await audio.play();
+    } catch {
+      /* ignore blocked playback */
+    }
+  }
+
+  private createAudio(src: string): HTMLAudioElement {
+    const audio = new Audio(src);
+    audio.preload = 'auto';
+    return audio;
+  }
+
+  private borrow(name: BlunnoSoundName): HTMLAudioElement | null {
+    const src = SOUND_SRC[name];
+    if (!src) return null;
+
+    const list = this.pool.get(name) ?? [];
+    const idle = list.find((item) => item.paused || item.ended);
+    const audio = idle ?? this.createAudio(src);
+
+    if (!list.includes(audio)) {
+      list.push(audio);
+      this.pool.set(name, list);
+    }
+
+    return audio;
   }
 }
 
