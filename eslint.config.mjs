@@ -14,6 +14,8 @@ const eslintConfig = defineConfig([
     "scripts/**",
     "playwright-report/**",
     "test-results/**",
+    "public/sw.js",
+    "public/sw.template.js",
   ]),
   {
     files: ["e2e/**/*.ts"],

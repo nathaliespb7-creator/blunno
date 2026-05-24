@@ -77,13 +77,50 @@ function tasksForDay(tasksMap: TasksMap, dayKey: string): Task[] {
   return tasksMap[dayKey] ?? cloneDefaultTasks();
 }
 
+function readPersistedTasksMap(): TasksMap | null {
+  if (typeof window === 'undefined') return null;
+
+  try {
+    const raw = window.localStorage.getItem(PLANNER_STORAGE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as unknown;
+    if (!parsed || typeof parsed !== 'object') return null;
+
+    const hydrated = Object.entries(parsed as Record<string, unknown>).reduce<TasksMap>((acc, [key, value]) => {
+      if (!Array.isArray(value)) return acc;
+      const tasks = value
+        .map((item) => {
+          if (!item || typeof item !== 'object') return null;
+          const candidate = item as Partial<Task>;
+          if (typeof candidate.id !== 'string' || typeof candidate.text !== 'string' || typeof candidate.completed !== 'boolean') {
+            return null;
+          }
+          return {
+            id: candidate.id,
+            text: candidate.text,
+            completed: candidate.completed,
+          } satisfies Task;
+        })
+        .filter((task): task is Task => Boolean(task));
+      if (tasks.length === 0) return acc;
+      acc[key] = tasks;
+      return acc;
+    }, {});
+
+    return Object.keys(hydrated).length > 0 ? hydrated : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function PlannerPage(): ReactElement {
   const router = useRouter();
   const [selectedKey, setSelectedKey] = useState<string>(getTodayKey());
   const [weekOffset, setWeekOffset] = useState<number>(0);
   const [tasksMap, setTasksMap] = useState<TasksMap>(() => {
     const today = getTodayKey();
-    return { [today]: [...DEFAULT_TASKS.map(t => ({ ...t }))] };
+    return { [today]: cloneDefaultTasks() };
   });
   const [newTaskText, setNewTaskText] = useState('');
   const [editing, setEditing] = useState<EditingState>(null);
@@ -106,40 +143,11 @@ export default function PlannerPage(): ReactElement {
   }, [editValue]);
 
   useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    try {
-      const raw = window.localStorage.getItem(PLANNER_STORAGE_KEY);
-      if (!raw) return;
-      const parsed = JSON.parse(raw) as unknown;
-      if (!parsed || typeof parsed !== 'object') return;
-
-      const hydrated = Object.entries(parsed as Record<string, unknown>).reduce<TasksMap>((acc, [key, value]) => {
-        if (!Array.isArray(value)) return acc;
-        const tasks = value
-          .map((item) => {
-            if (!item || typeof item !== 'object') return null;
-            const candidate = item as Partial<Task>;
-            if (typeof candidate.id !== 'string' || typeof candidate.text !== 'string' || typeof candidate.completed !== 'boolean') {
-              return null;
-            }
-            return {
-              id: candidate.id,
-              text: candidate.text,
-              completed: candidate.completed,
-            } satisfies Task;
-          })
-          .filter((task): task is Task => Boolean(task));
-        if (tasks.length === 0) return acc;
-        acc[key] = tasks;
-        return acc;
-      }, {});
-
-      if (Object.keys(hydrated).length > 0) {
-        setTasksMap(hydrated);
-      }
-    } catch {
-      /* Ignore malformed persisted state */
+    const persisted = readPersistedTasksMap();
+    if (persisted) {
+      // Hydrate planner tasks from localStorage after SSR; one-time client sync.
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- localStorage is unavailable during SSR
+      setTasksMap(persisted);
     }
   }, []);
 

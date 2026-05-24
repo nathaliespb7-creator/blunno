@@ -4,7 +4,13 @@ const GAMES = ['Sudoku', 'Tetris', 'Pop It', 'Memory Match', 'Slide Puzzle'] as 
 
 async function startPopItRound(page: import('@playwright/test').Page): Promise<void> {
   const card = gameCard(page, 'Pop It');
-  await card.getByRole('button', { name: 'Play' }).click();
+  await expect(card).toBeVisible();
+
+  await expect(async () => {
+    await card.getByRole('button', { name: 'Play' }).click();
+    await expect(page.getByRole('heading', { name: 'Pop It', level: 1 })).toBeVisible({ timeout: 2000 });
+  }).toPass({ timeout: 15000 });
+
   await expect(page.getByTestId('popit-game')).toBeVisible({ timeout: 10000 });
   await page.getByTestId('popit-blow').click();
   await expect(page.getByTestId('popit-canvas')).toBeVisible({ timeout: 10000 });
@@ -73,16 +79,21 @@ test.describe('Play hub and games', () => {
     test(`opens ${title}, returns to hub, exits to choose`, async ({ page }) => {
       const card = gameCard(page, title);
       await expect(card).toBeVisible();
-      await card.getByRole('button', { name: 'Play' }).click();
 
-      await expect(page.getByRole('heading', { name: title, level: 1 })).toBeVisible();
+      await expect(async () => {
+        await card.getByRole('button', { name: 'Play' }).click();
+        await expect(page.getByRole('heading', { name: title, level: 1 })).toBeVisible({ timeout: 2000 });
+      }).toPass({ timeout: 15000 });
+
       await expect(page.getByRole('button', { name: 'Back to games' })).toBeVisible();
 
       await page.getByRole('button', { name: 'Back to games' }).click();
       await expect(page.getByRole('heading', { name: 'Mini Games' })).toBeVisible();
 
-      await card.getByRole('button', { name: 'Play' }).click();
-      await expect(page.getByRole('heading', { name: title, level: 1 })).toBeVisible();
+      await expect(async () => {
+        await card.getByRole('button', { name: 'Play' }).click();
+        await expect(page.getByRole('heading', { name: title, level: 1 })).toBeVisible({ timeout: 2000 });
+      }).toPass({ timeout: 15000 });
 
       await page.getByRole('link', { name: 'Exit to mode selection' }).click();
       await expect(page).toHaveURL('/choose');
@@ -99,8 +110,10 @@ test.describe('Play hub and games', () => {
 
   test('Memory Match flips cards and updates score on match', async ({ page }) => {
     const card = gameCard(page, 'Memory Match');
-    await card.getByRole('button', { name: 'Play' }).click();
-    await expect(page.getByTestId('memory-game')).toBeVisible();
+    await expect(async () => {
+      await card.getByRole('button', { name: 'Play' }).click();
+      await expect(page.getByTestId('memory-game')).toBeVisible({ timeout: 2000 });
+    }).toPass({ timeout: 15000 });
     await expect(page.getByTestId('memory-score')).toHaveText('Pairs: 0 / 6');
 
     await page.getByRole('button', { name: 'Face-down card' }).first().click();

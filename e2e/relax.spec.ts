@@ -2,6 +2,14 @@ import { clickMood, clickStartNow, expect, gotoAndSettle, test } from './helpers
 
 const SOUNDS = ['Birch Wind', 'Ocean Waves', 'Rain Sounds', 'Meditation', 'Soft Storm'] as const;
 
+const AUDIO_FILES: Record<(typeof SOUNDS)[number], string> = {
+  'Birch Wind': '/audio/relax/birch-wind.mp3',
+  'Ocean Waves': '/audio/relax/ocean.mp3',
+  'Rain Sounds': '/audio/relax/rain.mp3',
+  Meditation: '/audio/relax/meditation.mp3',
+  'Soft Storm': '/audio/relax/soft-storm.mp3',
+};
+
 test.describe('Relax sound controls', () => {
   test.beforeEach(async ({ page }) => {
     await gotoAndSettle(page, '/');
@@ -9,6 +17,14 @@ test.describe('Relax sound controls', () => {
     await clickMood(page, 'RELAX');
     await expect(page).toHaveURL('/relax');
   });
+
+  for (const name of SOUNDS) {
+    test(`loads ${name} audio when played`, async ({ page }) => {
+      const audioRequest = page.waitForRequest((req) => req.url().includes(AUDIO_FILES[name]));
+      await page.getByRole('button', { name: `Play ${name}` }).click();
+      await audioRequest;
+    });
+  }
 
   for (const name of SOUNDS) {
     test(`play, pause and adjust volume for ${name}`, async ({ page }) => {
@@ -28,34 +44,4 @@ test.describe('Relax sound controls', () => {
       await expect(page.getByRole('button', { name: `Play ${name}` })).toBeVisible();
     });
   }
-
-  test('loads Soft Storm audio when played', async ({ page }) => {
-    const audioRequest = page.waitForRequest((req) => req.url().includes('/audio/relax/soft-storm.mp3'));
-    await page.getByRole('button', { name: 'Play Soft Storm' }).click();
-    await audioRequest;
-  });
-
-  test('loads Ocean Waves audio when played', async ({ page }) => {
-    const audioRequest = page.waitForRequest((req) => req.url().includes('/audio/relax/ocean.mp3'));
-    await page.getByRole('button', { name: 'Play Ocean Waves' }).click();
-    await audioRequest;
-  });
-
-  test('loads Meditation audio when played', async ({ page }) => {
-    const audioRequest = page.waitForRequest((req) => req.url().includes('/audio/relax/meditation.mp3'));
-    await page.getByRole('button', { name: 'Play Meditation' }).click();
-    await audioRequest;
-  });
-
-  test('loads Rain Sounds audio when played', async ({ page }) => {
-    const audioRequest = page.waitForRequest((req) => req.url().includes('/audio/relax/rain.mp3'));
-    await page.getByRole('button', { name: 'Play Rain Sounds' }).click();
-    await audioRequest;
-  });
-
-  test('loads Birch Wind audio when played', async ({ page }) => {
-    const audioRequest = page.waitForRequest((req) => req.url().includes('/audio/relax/birch-wind.mp3'));
-    await page.getByRole('button', { name: 'Play Birch Wind' }).click();
-    await audioRequest;
-  });
 });

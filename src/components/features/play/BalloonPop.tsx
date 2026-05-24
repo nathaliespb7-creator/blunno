@@ -208,8 +208,10 @@ export function BalloonPop(): ReactElement {
     setLiveBubbleCount(nextCount);
   }, []);
 
+  const tickInflateRef = useRef<() => void>(() => {});
+
   const tickInflate = useCallback(
-    (timestamp: number) => {
+    () => {
       if (!inflatingRef.current && !autoInflateRef.current) return;
 
       setInflateProgress((prev) => {
@@ -220,11 +222,15 @@ export function BalloonPop(): ReactElement {
       });
 
       if (inflatingRef.current || autoInflateRef.current) {
-        requestAnimationFrame(tickInflate);
+        requestAnimationFrame(tickInflateRef.current);
       }
     },
     [startPlaying],
   );
+
+  useEffect(() => {
+    tickInflateRef.current = tickInflate;
+  }, [tickInflate]);
 
   const startInflate = useCallback(
     (auto = false) => {

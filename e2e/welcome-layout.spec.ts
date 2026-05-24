@@ -16,7 +16,7 @@ for (const viewport of VIEWPORTS) {
       await gotoAndSettle(page, '/');
 
       const subtitle = page.getByText('Your pocket reset for study stress');
-      const startNow = page.getByRole('button', { name: 'Start Now' });
+      const startNow = page.getByRole('link', { name: 'Start Now' });
 
       await expect(subtitle).toBeVisible();
       await expect(startNow).toBeVisible();

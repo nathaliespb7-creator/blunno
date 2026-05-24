@@ -1,6 +1,8 @@
 import { readdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
+import { OFFLINE_SW_VERSION } from './offline-version.mjs';
+
 const ROUTES = ['/', '/choose', '/planner', '/play', '/relax', '/sos', '/offline'];
 const ICONS = [
   '/manifest.webmanifest',
@@ -59,7 +61,7 @@ async function walkPublicMedia(dir, urlPrefix = '') {
 const assets = await walkStaticFiles('.next/static');
 const media = [...new Set(await walkPublicMedia('public'))];
 const manifest = {
-  version: 7,
+  version: OFFLINE_SW_VERSION,
   generatedAt: new Date().toISOString(),
   routes: ROUTES,
   icons: ICONS,
