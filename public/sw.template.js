@@ -20,12 +20,23 @@ function extractPublicAssetUrls(html) {
   return [...new Set(matches.map((url) => url.replace(/\\+$/, '')))];
 }
 
+function isMediaAsset(pathname) {
+  return (
+    pathname.startsWith('/audio/') ||
+    pathname.startsWith('/sounds/') ||
+    /\/blunno-mascot.*\.(?:png|jpe?g|webp)$/i.test(pathname) ||
+    pathname === '/blunno.png' ||
+    /\.(?:mp3|wav|ogg)$/i.test(pathname)
+  );
+}
+
 function isStaticAsset(pathname) {
+  if (isMediaAsset(pathname)) return false;
+
   return (
     pathname.startsWith('/_next/static/') ||
-    pathname.startsWith('/audio/') ||
     pathname === '/manifest.webmanifest' ||
-    /\.(?:js|css|png|jpg|jpeg|webp|svg|ico|woff2?|webmanifest|mp3|wav|ogg)$/i.test(pathname)
+    /\.(?:js|css|png|jpg|jpeg|webp|svg|ico|woff2?|webmanifest)$/i.test(pathname)
   );
 }
 
@@ -136,6 +147,41 @@ async function handleAppRoute(request, pathname) {
   }
 }
 
+async function handleMediaAsset(request, pathname) {
+  const staticCache = await caches.open(STATIC_CACHE);
+  const originUrl = new URL(pathname, self.location.origin).href;
+  const cached =
+    (await caches.match(request)) ??
+    (await staticCache.match(pathname)) ??
+    (await staticCache.match(originUrl));
+
+  const revalidate = async () => {
+    try {
+      const response = await fetch(request);
+      if (isCacheableAssetResponse(response, pathname)) {
+        await staticCache.put(request, response.clone());
+      }
+    } catch {
+      /* offline or flaky network — cached copy remains valid */
+    }
+  };
+
+  if (cached) {
+    void revalidate();
+    return cached;
+  }
+
+  try {
+    const response = await fetch(request);
+    if (isCacheableAssetResponse(response, pathname)) {
+      await staticCache.put(request, response.clone());
+    }
+    return response;
+  } catch {
+    return Response.error();
+  }
+}
+
 async function handleStaticAsset(request, pathname) {
   const staticCache = await caches.open(STATIC_CACHE);
   const cached =
@@ -240,6 +286,11 @@ self.addEventListener('fetch', (event) => {
 
   if (APP_ROUTES.has(url.pathname)) {
     event.respondWith(handleAppRoute(request, url.pathname));
+    return;
+  }
+
+  if (isMediaAsset(url.pathname)) {
+    event.respondWith(handleMediaAsset(request, url.pathname));
     return;
   }
 

@@ -1,8 +1,8 @@
 import { audioService } from '@/services/audioService';
 
 /** @deprecated Audio disabled app-wide. Kept for call-site compatibility. */
-export function unlockAudioSession(): Promise<void> {
-  return audioService.ensureUnlocked();
+export async function unlockAudioSession(): Promise<void> {
+  await audioService.ensureUnlocked();
 }
 
 export function playNavigationPop(): void {

@@ -382,11 +382,18 @@ export function BalloonPop(): ReactElement {
     };
   }, [renderFrame]);
 
-  const unlockAudioOnce = useCallback(async () => {
-    if (audioUnlockedRef.current) return;
-    await audioService.ensureUnlocked();
-    audioUnlockedRef.current = true;
+  const ensureAudioReady = useCallback(async (): Promise<boolean> => {
+    if (audioUnlockedRef.current) return true;
+
+    const unlocked = await audioService.ensureUnlocked();
+    audioUnlockedRef.current = unlocked;
+    return unlocked;
   }, []);
+
+  const playPopSound = useCallback(async () => {
+    await ensureAudioReady();
+    await audioService.play('pop');
+  }, [ensureAudioReady]);
 
   const handleCanvasPointerDown = useCallback(
     (event: ReactPointerEvent<HTMLCanvasElement>) => {
@@ -406,14 +413,14 @@ export function BalloonPop(): ReactElement {
       target.phase = 'popping';
       target.phaseT = 0;
       setScore((prev) => prev + 1);
-      void audioService.play('pop');
+      void playPopSound();
     },
-    [phase],
+    [phase, playPopSound],
   );
 
   const handleBlowPointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
-    void unlockAudioOnce();
+    void ensureAudioReady();
     startInflate(false);
   };
 
@@ -426,7 +433,7 @@ export function BalloonPop(): ReactElement {
 
   const handleBlowClick = () => {
     if (phase === 'idle') {
-      void unlockAudioOnce();
+      void ensureAudioReady();
       startInflate(true);
     }
   };

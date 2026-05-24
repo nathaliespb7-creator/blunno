@@ -15,10 +15,6 @@ export function ServiceWorkerRegister(): ReactElement | null {
     }
 
     void (async () => {
-      if (!navigator.onLine) {
-        return;
-      }
-
       try {
         const registration = await navigator.serviceWorker.register(`/sw.js?v=${OFFLINE_SW_VERSION}`, {
           scope: '/',

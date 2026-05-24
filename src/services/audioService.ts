@@ -4,10 +4,21 @@ const SOUND_SRC: Partial<Record<BlunnoSoundName, string>> = {
   pop: '/audio/pop.mp3',
 };
 
+function logPlaybackIssue(name: BlunnoSoundName, error: unknown): void {
+  if (process.env.NODE_ENV !== 'development') return;
+
+  const message = error instanceof Error ? error.message : String(error);
+  console.warn(`[audioService] playback blocked for "${name}": ${message}`);
+}
+
 class AudioService {
   private unlocked = false;
 
   private pool = new Map<BlunnoSoundName, HTMLAudioElement[]>();
+
+  isUnlocked(): boolean {
+    return this.unlocked;
+  }
 
   preloadAll(): void {
     if (typeof window === 'undefined') return;
@@ -19,15 +30,16 @@ class AudioService {
     }
   }
 
-  async ensureUnlocked(): Promise<void> {
-    if (typeof window === 'undefined' || this.unlocked) return;
+  async ensureUnlocked(): Promise<boolean> {
+    if (typeof window === 'undefined') return false;
+    if (this.unlocked) return true;
 
     this.preloadAll();
 
     const sample = this.borrow('pop');
     if (!sample) {
       this.unlocked = true;
-      return;
+      return true;
     }
 
     try {
@@ -37,8 +49,10 @@ class AudioService {
       sample.currentTime = 0;
       sample.volume = 1;
       this.unlocked = true;
-    } catch {
-      /* iOS may block until explicit user gesture */
+      return true;
+    } catch (error) {
+      logPlaybackIssue('pop', error);
+      return false;
     }
   }
 
@@ -56,8 +70,8 @@ class AudioService {
       audio.currentTime = 0;
       audio.volume = name === 'pop' ? 0.85 : 1;
       await audio.play();
-    } catch {
-      /* ignore blocked playback */
+    } catch (error) {
+      logPlaybackIssue(name, error);
     }
   }
 
