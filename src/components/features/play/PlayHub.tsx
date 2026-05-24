@@ -13,7 +13,6 @@ import { GlassListCell, GlassListCellAction } from '@/components/shared/make-v81
 import { GradientTitle } from '@/components/shared/make-v81/GradientTitle';
 import { ModeScreenTopBar } from '@/components/shared/make-v81/ModeScreenTopBar';
 import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
-import { audioService } from '@/services/audioService';
 
 type GameKey = 'tetris' | 'sudoku' | 'balloon' | 'memory' | 'slide';
 
@@ -68,14 +67,6 @@ export function PlayHub(): ReactElement {
 
   const openGame = (game: GameKey): void => {
     setSelectedGame(game);
-    void (async () => {
-      try {
-        await audioService.ensureUnlocked();
-        await audioService.play('pop');
-      } catch {
-        /* navigation must not depend on sound */
-      }
-    })();
   };
 
   const backToGames = () => {

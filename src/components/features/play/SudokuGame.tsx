@@ -1,8 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
-
-import { audioService } from '@/services/audioService';
+import { useCallback, useMemo, useRef, useState, type ReactElement } from 'react';
 
 type Board = number[][];
 type Cell = { row: number; col: number } | null;
@@ -90,19 +88,17 @@ export function SudokuGame(): ReactElement {
   const conflicts = useMemo(() => getConflictSet(board), [board]);
   const solved = useMemo(() => isSolved(board), [board]);
 
-  const loadPuzzle = useCallback(async (nextIndex: number) => {
+  const loadPuzzle = useCallback((nextIndex: number) => {
     const parsed = parsePuzzle(PUZZLES[nextIndex]);
     setPuzzleIndex(nextIndex);
     setFixedBoard(parsed);
     setBoard(cloneBoard(parsed));
     setSelected(null);
-    await audioService.ensureUnlocked();
-    await audioService.play('pop');
   }, []);
 
   const newPuzzle = useCallback(() => {
     const next = (puzzleIndex + 1) % PUZZLES.length;
-    void loadPuzzle(next);
+    loadPuzzle(next);
   }, [loadPuzzle, puzzleIndex]);
 
   const setCellValue = useCallback(

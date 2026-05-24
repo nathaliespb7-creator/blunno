@@ -4,7 +4,6 @@ import { useCallback, useMemo, useState, type ReactElement } from 'react';
 
 import { PlayGameShell } from '@/components/features/play/PlayGameShell';
 import { cn } from '@/lib/utils';
-import { audioService } from '@/services/audioService';
 
 const COLS = 3;
 const SOLVED = [1, 2, 3, 4, 5, 6, 7, 8, 0] as const;
@@ -76,7 +75,6 @@ export function SlidePuzzleGame(): ReactElement {
       });
 
       if (didMove) {
-        void audioService.play('pop');
         setMoves((moveCount) => moveCount + 1);
       }
     },

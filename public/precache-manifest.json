@@ -1,6 +1,6 @@
 {
   "version": 14,
-  "generatedAt": "2026-05-24T20:05:27.345Z",
+  "generatedAt": "2026-05-24T20:14:40.533Z",
   "routes": [
     "/",
     "/choose",
@@ -49,9 +49,9 @@
     "/window.svg"
   ],
   "assets": [
-    "/_next/static/94QTm4RW6qU2pkP6WjZO7/_buildManifest.js",
-    "/_next/static/94QTm4RW6qU2pkP6WjZO7/_clientMiddlewareManifest.js",
-    "/_next/static/94QTm4RW6qU2pkP6WjZO7/_ssgManifest.js",
+    "/_next/static/cWGY5yuuChhsX8nXXsBON/_buildManifest.js",
+    "/_next/static/cWGY5yuuChhsX8nXXsBON/_clientMiddlewareManifest.js",
+    "/_next/static/cWGY5yuuChhsX8nXXsBON/_ssgManifest.js",
     "/_next/static/chunks/0-.prao78o5qc.js",
     "/_next/static/chunks/01xlw8hd842-c.js",
     "/_next/static/chunks/02qy8l0shpgjx.js",
@@ -69,10 +69,10 @@
     "/_next/static/chunks/0s7imfe25ozv0.js",
     "/_next/static/chunks/0s7w9ak5wf11h.js",
     "/_next/static/chunks/0tgz4w~kfzoae.js",
-    "/_next/static/chunks/0vc.0.va-14b5.js",
     "/_next/static/chunks/0ze4gu236oq96.js",
     "/_next/static/chunks/0zpuxgjnogbim.js",
     "/_next/static/chunks/11__c~2sh3daa.js",
+    "/_next/static/chunks/12f9hc-aymg0s.js",
     "/_next/static/chunks/16xjhw.9kg4o2.js",
     "/_next/static/chunks/turbopack-0fpjxj_mo6~dq.js",
     "/_next/static/media/0bbfe7d70ca362ab-s.p.0ee1tu67pvspi.woff2",

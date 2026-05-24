@@ -233,7 +233,6 @@ export function BlunnoTetris(): ReactElement {
     if (removed > 0) {
       setScore((s) => s + removed * 100);
       setLines((l) => l + removed);
-      void audioService.play('pop');
     }
 
     const next = createPiece();

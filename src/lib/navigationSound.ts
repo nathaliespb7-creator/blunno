@@ -6,7 +6,7 @@ export async function unlockAudioSession(): Promise<void> {
 }
 
 export function playNavigationPop(): void {
-  void audioService.play('pop');
+  /* Pop sound is reserved for Pop It bubble taps only */
 }
 
 export function playNavigationHoverSoft(): void {

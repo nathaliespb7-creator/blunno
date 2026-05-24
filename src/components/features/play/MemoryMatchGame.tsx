@@ -5,7 +5,6 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 import { MEMORY_PAIRS, TOTAL_PAIRS } from '@/components/features/play/memoryPairs';
 import { PlayGameShell } from '@/components/features/play/PlayGameShell';
 import { cn } from '@/lib/utils';
-import { audioService } from '@/services/audioService';
 
 type CardState = 'faceDown' | 'faceUp' | 'matched';
 
@@ -105,7 +104,6 @@ export function MemoryMatchGame(): ReactElement {
           if (!first || !second) return currentDeck;
 
           if (first.pairId === second.pairId) {
-            void audioService.play('pop');
             return currentDeck.map((card) =>
               card.id === firstId || card.id === secondId ? { ...card, state: 'matched' } : card
             );
