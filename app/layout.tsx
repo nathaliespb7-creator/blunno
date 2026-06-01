@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from 'next';
 
 import { AudioUnlock } from '@/components/shared/AudioUnlock';
 import { DevCacheReset } from '@/components/shared/DevCacheReset';
+import { ServiceWorkerRegister } from '@/components/shared/ServiceWorkerRegister';
 import { Notification } from '@/components/ui';
 
 const comfortaa = Comfortaa({
@@ -89,6 +90,7 @@ export default function RootLayout({
     >
       <body className="min-h-dvh w-full max-w-[100vw] overflow-x-hidden font-ui text-blunno-foreground antialiased">
         <AudioUnlock />
+        <ServiceWorkerRegister />
         <DevCacheReset />
         {children}
         <Notification />

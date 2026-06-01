@@ -19,12 +19,14 @@ export default function RelaxPage(): ReactElement {
   const [volumes, setVolumes] = useState<Record<RelaxSoundId, number>>(defaultRelaxVolumes);
 
   useEffect(() => {
+    relaxAudioService.warmup(RELAX_SOUNDS);
     return relaxAudioService.onStateChange(setActiveSound);
   }, []);
 
   const toggleSound = useCallback(
     (sound: RelaxSound) => {
-      if (activeSound === sound.id) {
+      const playingId = relaxAudioService.getActiveId();
+      if (playingId === sound.id) {
         relaxAudioService.stop();
         return;
       }
@@ -35,12 +37,12 @@ export default function RelaxPage(): ReactElement {
       relaxAudioService.setVolume(volumePercent / 100);
       relaxAudioService.play(sound.id, sound.audioSrc);
     },
-    [activeSound, volumes]
+    [volumes]
   );
 
   const updateVolume = (id: RelaxSoundId, value: number) => {
     setVolumes((prev) => ({ ...prev, [id]: value }));
-    if (activeSound === id) {
+    if (relaxAudioService.getActiveId() === id) {
       relaxAudioService.setVolume(value / 100);
     }
   };

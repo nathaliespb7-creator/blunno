@@ -20,12 +20,26 @@ function extractPublicAssetUrls(html) {
   return [...new Set(matches.map((url) => url.replace(/\\+$/, '')))];
 }
 
+function isRelaxMedia(pathname) {
+  return pathname.startsWith('/audio/relax/');
+}
+
 function isMediaAsset(pathname) {
   return (
     pathname.startsWith('/audio/') ||
     /\/blunno-mascot.*\.(?:png|jpe?g|webp)$/i.test(pathname) ||
     pathname === '/blunno.png' ||
     /\.(?:mp3|wav|ogg)$/i.test(pathname)
+  );
+}
+
+async function matchCachedMedia(staticCache, request, pathname) {
+  const originUrl = new URL(pathname, self.location.origin).href;
+  return (
+    (await caches.match(request)) ??
+    (await staticCache.match(request)) ??
+    (await staticCache.match(pathname)) ??
+    (await staticCache.match(originUrl))
   );
 }
 
@@ -148,13 +162,12 @@ async function handleAppRoute(request, pathname) {
 
 async function handleMediaAsset(request, pathname) {
   const staticCache = await caches.open(STATIC_CACHE);
-  const originUrl = new URL(pathname, self.location.origin).href;
-  const cached =
-    (await caches.match(request)) ??
-    (await staticCache.match(pathname)) ??
-    (await staticCache.match(originUrl));
+  const cached = await matchCachedMedia(staticCache, request, pathname);
+  const relax = isRelaxMedia(pathname);
+  const online = self.navigator.onLine;
 
   const revalidate = async () => {
+    if (relax && !online) return;
     try {
       const response = await fetch(request);
       if (isCacheableAssetResponse(response, pathname)) {
@@ -166,8 +179,23 @@ async function handleMediaAsset(request, pathname) {
   };
 
   if (cached) {
-    void revalidate();
+    if (!relax || online) {
+      void revalidate();
+    }
     return cached;
+  }
+
+  if (relax) {
+    try {
+      const response = await fetch(request);
+      if (isCacheableAssetResponse(response, pathname)) {
+        await staticCache.put(request, response.clone());
+      }
+      return response;
+    } catch {
+      const lateCached = await matchCachedMedia(staticCache, request, pathname);
+      return lateCached ?? Response.error();
+    }
   }
 
   try {
@@ -231,6 +259,18 @@ self.addEventListener('install', (event) => {
         }
       }
 
+      const relaxMedia =
+        manifest?.relaxMedia ??
+        (manifest?.media ?? []).filter((url) => isRelaxMedia(url));
+      const relaxResults = await Promise.allSettled(
+        relaxMedia.map((url) => cache.add(url))
+      );
+      relaxResults.forEach((result, index) => {
+        if (result.status === 'rejected') {
+          console.warn('[sw] relax precache failed:', relaxMedia[index], result.reason);
+        }
+      });
+
       const routeUrls = manifest?.routes ?? ['/', '/choose', '/planner', '/play', '/relax', '/sos', OFFLINE_URL];
       for (const url of routeUrls) {
         try {
@@ -240,7 +280,8 @@ self.addEventListener('install', (event) => {
         }
       }
 
-      for (const mediaUrl of manifest?.media ?? []) {
+      const otherMedia = (manifest?.media ?? []).filter((url) => !isRelaxMedia(url));
+      for (const mediaUrl of otherMedia) {
         try {
           await cache.add(mediaUrl);
         } catch {

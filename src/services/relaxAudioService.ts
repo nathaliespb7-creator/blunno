@@ -1,14 +1,21 @@
+import { warmRelaxMediaInCache } from '@/lib/relaxMediaWarmup';
+
 export type RelaxSoundId = 'birch-wind' | 'ocean' | 'rain' | 'meditation' | 'soft-storm';
 
+type WarmupSound = { id: RelaxSoundId; audioSrc?: string };
+
 class RelaxAudioService {
-  private audio: HTMLAudioElement | null = null;
+  private pool = new Map<RelaxSoundId, HTMLAudioElement>();
+  private activeAudio: HTMLAudioElement | null = null;
   private currentId: RelaxSoundId | null = null;
   private listeners = new Set<(id: RelaxSoundId | null) => void>();
   private volume = 1.0;
   /** Bumped on stop/play to ignore stale async play() resolutions (iOS rapid taps). */
   private playGeneration = 0;
-  /** Restore position when the same track is restarted after a race or quick toggle. */
-  private resumeTimeById = new Map<RelaxSoundId, number>();
+
+  getActiveId(): RelaxSoundId | null {
+    return this.currentId;
+  }
 
   onStateChange(cb: (id: RelaxSoundId | null) => void): () => void {
     this.listeners.add(cb);
@@ -16,44 +23,41 @@ class RelaxAudioService {
     return () => this.listeners.delete(cb);
   }
 
+  warmup(sounds: readonly WarmupSound[]): void {
+    if (typeof window === 'undefined') return;
+
+    const urls: string[] = [];
+    for (const sound of sounds) {
+      if (!sound.audioSrc) continue;
+      this.getOrCreate(sound.id, sound.audioSrc);
+      urls.push(sound.audioSrc);
+    }
+
+    void warmRelaxMediaInCache(urls);
+  }
+
   play(id: RelaxSoundId, src: string): void {
-    if (this.currentId === id && this.audio && !this.audio.paused && !this.audio.ended) {
-      this.audio.volume = this.volume;
+    if (this.currentId === id && this.activeAudio && !this.activeAudio.paused && !this.activeAudio.ended) {
+      this.activeAudio.volume = this.volume;
       return;
     }
 
     const generation = ++this.playGeneration;
-    this.detachAudio();
+    this.emit(id);
 
-    const a = new Audio(src);
-    a.loop = true;
-    a.volume = this.volume;
-    a.preload = 'auto';
+    const next = this.getOrCreate(id, src);
 
-    const resumeAt = this.resumeTimeById.get(id);
-    if (resumeAt !== undefined && resumeAt > 0) {
-      const applyResume = () => {
-        if (generation !== this.playGeneration || this.audio !== a) return;
-        try {
-          a.currentTime = resumeAt;
-        } catch {
-          /* duration unknown until metadata — ignore */
-        }
-      };
-      if (a.readyState >= 1) {
-        applyResume();
-      } else {
-        a.addEventListener('loadedmetadata', applyResume, { once: true });
-      }
+    if (this.activeAudio && this.activeAudio !== next) {
+      this.activeAudio.pause();
+      this.activeAudio.currentTime = 0;
     }
 
-    this.audio = a;
+    next.volume = this.volume;
+    next.currentTime = 0;
+    this.activeAudio = next;
 
     const onPlaying = () => {
-      if (generation !== this.playGeneration) {
-        this.disposeElement(a);
-        return;
-      }
+      if (generation !== this.playGeneration) return;
       this.currentId = id;
       this.emit(id);
     };
@@ -61,11 +65,14 @@ class RelaxAudioService {
     const onPlayFailed = (e: unknown) => {
       if (generation !== this.playGeneration) return;
       console.warn('[Relax] play blocked:', e);
-      this.detachAudio();
+      if (this.activeAudio === next) {
+        this.activeAudio = null;
+      }
+      this.currentId = null;
       this.emit(null);
     };
 
-    const promise = a.play();
+    const promise = next.play();
     if (promise !== undefined) {
       void promise.then(onPlaying).catch(onPlayFailed);
     } else {
@@ -74,37 +81,38 @@ class RelaxAudioService {
   }
 
   stop(): void {
-    if (this.currentId && this.audio) {
-      const t = this.audio.currentTime;
-      if (Number.isFinite(t) && t > 0) {
-        this.resumeTimeById.set(this.currentId, t);
-      }
-    }
     this.playGeneration += 1;
-    this.detachAudio();
+    if (this.activeAudio) {
+      this.activeAudio.pause();
+      this.activeAudio.currentTime = 0;
+    }
+    this.activeAudio = null;
     this.currentId = null;
     this.emit(null);
   }
 
   setVolume(v: number): void {
     this.volume = Math.max(0, Math.min(1, v));
-    if (this.audio) this.audio.volume = this.volume;
+    if (this.activeAudio) this.activeAudio.volume = this.volume;
   }
 
-  private detachAudio(): void {
-    if (!this.audio) return;
-    this.disposeElement(this.audio);
-    this.audio = null;
-  }
+  private getOrCreate(id: RelaxSoundId, src: string): HTMLAudioElement {
+    const absoluteSrc = new URL(src, window.location.origin).href;
+    let audio = this.pool.get(id);
 
-  private disposeElement(a: HTMLAudioElement): void {
-    a.pause();
-    a.removeAttribute('src');
-    try {
-      a.load();
-    } catch {
-      /* iOS may throw if already torn down */
+    if (!audio) {
+      audio = new Audio(absoluteSrc);
+      audio.loop = true;
+      audio.preload = 'auto';
+      this.pool.set(id, audio);
+      return audio;
     }
+
+    if (audio.src !== absoluteSrc) {
+      audio.src = absoluteSrc;
+    }
+
+    return audio;
   }
 
   private emit(id: RelaxSoundId | null): void {

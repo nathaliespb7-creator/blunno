@@ -59,18 +59,22 @@ async function walkPublicMedia(dir, urlPrefix = '') {
   return files;
 }
 
+const RELAX_AUDIO = /^\/audio\/relax\//;
+
 const assets = await walkStaticFiles('.next/static');
 const media = [...new Set(await walkPublicMedia('public'))];
+const relaxMedia = media.filter((url) => RELAX_AUDIO.test(url)).sort();
 const manifest = {
   version: OFFLINE_SW_VERSION,
   generatedAt: new Date().toISOString(),
   routes: ROUTES,
   icons: ICONS,
+  relaxMedia,
   media,
   assets,
 };
 
 await writeFile('public/precache-manifest.json', `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(
-  `precache manifest: ${assets.length} build assets, ${media.length} public media, ${ROUTES.length} routes`
+  `precache manifest: ${assets.length} build assets, ${media.length} public media (${relaxMedia.length} relax), ${ROUTES.length} routes`
 );

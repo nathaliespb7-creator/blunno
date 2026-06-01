@@ -1,6 +1,6 @@
 {
-  "version": 37,
-  "generatedAt": "2026-06-01T14:17:36.046Z",
+  "version": 38,
+  "generatedAt": "2026-06-01T15:09:18.345Z",
   "routes": [
     "/",
     "/choose",
@@ -17,6 +17,13 @@
     "/icon-512.png",
     "/apple-touch-icon-v10.png",
     "/icon-512-maskable.png"
+  ],
+  "relaxMedia": [
+    "/audio/relax/birch-wind.mp3",
+    "/audio/relax/meditation.mp3",
+    "/audio/relax/ocean.mp3",
+    "/audio/relax/rain.mp3",
+    "/audio/relax/soft-storm.mp3"
   ],
   "media": [
     "/apple-touch-icon-v10.png",
@@ -52,6 +59,9 @@
     "/window.svg"
   ],
   "assets": [
+    "/_next/static/G0aNAWzGN2iqhtruSUCoN/_buildManifest.js",
+    "/_next/static/G0aNAWzGN2iqhtruSUCoN/_clientMiddlewareManifest.js",
+    "/_next/static/G0aNAWzGN2iqhtruSUCoN/_ssgManifest.js",
     "/_next/static/chunks/0-.prao78o5qc.js",
     "/_next/static/chunks/01xlw8hd842-c.js",
     "/_next/static/chunks/02qy8l0shpgjx.js",
@@ -64,21 +74,18 @@
     "/_next/static/chunks/0dj2-gvfxvci4.js",
     "/_next/static/chunks/0focoi608jh0p.js",
     "/_next/static/chunks/0gl5kxq37x~mc.js",
-    "/_next/static/chunks/0is.ui-piqjd4.js",
     "/_next/static/chunks/0jzwrci7izjav.js",
     "/_next/static/chunks/0ptt0uhx51az-.js",
+    "/_next/static/chunks/0r1bqtpgy1.f1.js",
     "/_next/static/chunks/0ri7y8gol_5ah.js",
     "/_next/static/chunks/0s7w9ak5wf11h.js",
-    "/_next/static/chunks/0t9w.wkql.rl6.js",
+    "/_next/static/chunks/0srq7t95q04ic.js",
     "/_next/static/chunks/0tgz4w~kfzoae.js",
     "/_next/static/chunks/0xbrqa~e7ecgm.js",
     "/_next/static/chunks/0ze4gu236oq96.js",
     "/_next/static/chunks/13~focqonjb48.js",
     "/_next/static/chunks/186o_s.wq1ff4.js",
     "/_next/static/chunks/turbopack-08exqxb29h~69.js",
-    "/_next/static/e5-7jUW6v26qRU5NQFyeT/_buildManifest.js",
-    "/_next/static/e5-7jUW6v26qRU5NQFyeT/_clientMiddlewareManifest.js",
-    "/_next/static/e5-7jUW6v26qRU5NQFyeT/_ssgManifest.js",
     "/_next/static/media/0bbfe7d70ca362ab-s.p.0ee1tu67pvspi.woff2",
     "/_next/static/media/200eb4e70eea77b1-s.0p8s0487pbgt0.woff2",
     "/_next/static/media/2e55616d683de2eb-s.0ixa8_li2jdly.woff2",

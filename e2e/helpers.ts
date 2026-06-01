@@ -59,3 +59,19 @@ export async function clickMood(page: Page, moodLabel: string): Promise<void> {
 export function gameCard(page: Page, title: string) {
   return page.locator('.v81-glass-cell').filter({ has: page.getByRole('heading', { name: title, level: 3 }) });
 }
+
+/** Waits until a service worker controls the page (production `next start` only). */
+export async function waitForServiceWorker(page: Page): Promise<void> {
+  await page.waitForFunction(
+    () => typeof navigator !== 'undefined' && navigator.serviceWorker?.controller != null,
+    undefined,
+    { timeout: 30_000 }
+  );
+}
+
+/** Triggers SW install/precache by visiting key routes while online. */
+export async function precacheForOffline(page: Page): Promise<void> {
+  await waitForServiceWorker(page);
+  await gotoAndSettle(page, '/relax');
+  await page.waitForTimeout(500);
+}
