@@ -32,9 +32,6 @@ async function walkStaticFiles(dir, rel = '') {
   return files;
 }
 
-const RELAX_AUDIO = /^\/audio\/relax\//;
-const UI_SOUNDS = /^\/sounds\//;
-
 async function walkPublicMedia(dir, urlPrefix = '') {
   let entries;
   try {
@@ -63,9 +60,7 @@ async function walkPublicMedia(dir, urlPrefix = '') {
 }
 
 const assets = await walkStaticFiles('.next/static');
-const media = [...new Set(await walkPublicMedia('public'))].filter(
-  (url) => !RELAX_AUDIO.test(url)
-);
+const media = [...new Set(await walkPublicMedia('public'))];
 const manifest = {
   version: OFFLINE_SW_VERSION,
   generatedAt: new Date().toISOString(),
