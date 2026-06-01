@@ -381,9 +381,9 @@ export function BalloonPop(): ReactElement {
   const ensureAudioReady = useCallback(async (): Promise<boolean> => {
     if (audioUnlockedRef.current) return true;
 
-    const unlocked = await audioService.ensureUnlocked();
-    audioUnlockedRef.current = unlocked;
-    return unlocked;
+    await audioService.ensureUnlocked();
+    audioUnlockedRef.current = true;
+    return true;
   }, []);
 
   const playPopSound = useCallback(async () => {

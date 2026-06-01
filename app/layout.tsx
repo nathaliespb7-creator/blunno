@@ -1,11 +1,9 @@
 import './globals.css';
-import { Comfortaa, Inter, Plus_Jakarta_Sans, Poppins, Roboto, Sarabun, Tiro_Telugu } from 'next/font/google';
+import { Comfortaa, Inter, Poppins, Roboto, Sarabun, Tiro_Telugu } from 'next/font/google';
 import type { Metadata, Viewport } from 'next';
 
-import { AndroidNavBarColor } from '@/components/shared/AndroidNavBarColor';
+import { AudioUnlock } from '@/components/shared/AudioUnlock';
 import { DevCacheReset } from '@/components/shared/DevCacheReset';
-import { ServiceWorkerRegister } from '@/components/shared/ServiceWorkerRegister';
-import { ViewportDebugProbe } from '@/components/shared/ViewportDebugProbe';
 import { Notification } from '@/components/ui';
 
 const comfortaa = Comfortaa({
@@ -38,13 +36,6 @@ const tiroTelugu = Tiro_Telugu({
   weight: ['400'],
 });
 
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  variable: '--font-plus-jakarta',
-  display: 'swap',
-  weight: ['400'],
-});
-
 const roboto = Roboto({
   subsets: ['latin', 'cyrillic'],
   variable: '--font-roboto',
@@ -59,11 +50,10 @@ const inter = Inter({
   weight: ['400'],
 });
 
-/** Matches app shell bottom — avoids white nav-bar gap on legacy Android/Huawei */
-const appThemeColor = '#120f25';
+const shellBg = '#0B0B1A';
 
 export const viewport: Viewport = {
-  themeColor: appThemeColor,
+  themeColor: shellBg,
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
@@ -83,7 +73,7 @@ export const metadata: Metadata = {
       { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
       { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
-    apple: [{ url: '/apple-touch-icon-v10.png', sizes: '180x180', type: 'image/png' }],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
 };
 
@@ -95,13 +85,11 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${welcomeDisplay.variable} ${tiroTelugu.variable} ${plusJakartaSans.variable} ${comfortaa.variable} ${sarabun.variable} ${roboto.variable} ${inter.variable} min-h-dvh overflow-x-hidden`}
+      className={`${welcomeDisplay.variable} ${tiroTelugu.variable} ${comfortaa.variable} ${sarabun.variable} ${roboto.variable} ${inter.variable} min-h-dvh overflow-x-hidden bg-blunno-bg`}
     >
-      <body className="min-h-dvh w-full max-w-[100vw] overflow-x-hidden font-ui leading-normal text-blunno-foreground antialiased">
-        <AndroidNavBarColor />
-        {process.env.NODE_ENV === 'development' ? <ViewportDebugProbe /> : null}
+      <body className="min-h-dvh w-full max-w-[100vw] overflow-x-hidden font-ui text-blunno-foreground antialiased">
+        <AudioUnlock />
         <DevCacheReset />
-        <ServiceWorkerRegister />
         {children}
         <Notification />
       </body>
