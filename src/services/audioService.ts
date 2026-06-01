@@ -1,42 +1,36 @@
-export type BlunnoSoundName = 'hover-soft' | 'inhale' | 'exhale' | 'success' | 'pop' | 'sos-start';
+/** Pop It bubble pop — only game sound in Blunno (Relax uses relaxAudioService). */
+export type BlunnoSoundName = 'pop';
 
-const SOUND_SRC: Partial<Record<BlunnoSoundName, string>> = {
-  pop: '/audio/pop.mp3',
-};
+const POP_SRC = '/audio/pop.mp3';
 
-function logPlaybackIssue(name: BlunnoSoundName, error: unknown): void {
+function logPlaybackIssue(error: unknown): void {
   if (process.env.NODE_ENV !== 'development') return;
 
   const message = error instanceof Error ? error.message : String(error);
-  console.warn(`[audioService] playback blocked for "${name}": ${message}`);
+  console.warn(`[audioService] playback blocked for "pop": ${message}`);
 }
 
 class AudioService {
   private unlocked = false;
 
-  private pool = new Map<BlunnoSoundName, HTMLAudioElement[]>();
+  private pool: HTMLAudioElement[] = [];
 
   isUnlocked(): boolean {
     return this.unlocked;
   }
 
-  preloadAll(): void {
+  private preloadPop(): void {
     if (typeof window === 'undefined') return;
-
-    for (const [name, src] of Object.entries(SOUND_SRC) as [BlunnoSoundName, string][]) {
-      if (!this.pool.has(name)) {
-        this.pool.set(name, [this.createAudio(src)]);
-      }
-    }
+    if (this.pool.length > 0) return;
+    this.pool.push(this.createAudio(POP_SRC));
   }
 
   async ensureUnlocked(): Promise<boolean> {
     if (typeof window === 'undefined') return false;
     if (this.unlocked) return true;
 
-    this.preloadAll();
-
-    const sample = this.borrow('pop');
+    this.preloadPop();
+    const sample = this.borrowPop();
     if (!sample) {
       this.unlocked = true;
       return true;
@@ -51,27 +45,24 @@ class AudioService {
       this.unlocked = true;
       return true;
     } catch (error) {
-      logPlaybackIssue('pop', error);
+      logPlaybackIssue(error);
       return false;
     }
   }
 
   async play(name: BlunnoSoundName): Promise<void> {
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined' || name !== 'pop') return;
 
-    const src = SOUND_SRC[name];
-    if (!src) return;
-
-    this.preloadAll();
-    const audio = this.borrow(name);
+    this.preloadPop();
+    const audio = this.borrowPop();
     if (!audio) return;
 
     try {
       audio.currentTime = 0;
-      audio.volume = name === 'pop' ? 0.85 : 1;
+      audio.volume = 0.85;
       await audio.play();
     } catch (error) {
-      logPlaybackIssue(name, error);
+      logPlaybackIssue(error);
     }
   }
 
@@ -81,17 +72,12 @@ class AudioService {
     return audio;
   }
 
-  private borrow(name: BlunnoSoundName): HTMLAudioElement | null {
-    const src = SOUND_SRC[name];
-    if (!src) return null;
+  private borrowPop(): HTMLAudioElement | null {
+    const idle = this.pool.find((item) => item.paused || item.ended);
+    const audio = idle ?? this.createAudio(POP_SRC);
 
-    const list = this.pool.get(name) ?? [];
-    const idle = list.find((item) => item.paused || item.ended);
-    const audio = idle ?? this.createAudio(src);
-
-    if (!list.includes(audio)) {
-      list.push(audio);
-      this.pool.set(name, list);
+    if (!this.pool.includes(audio)) {
+      this.pool.push(audio);
     }
 
     return audio;

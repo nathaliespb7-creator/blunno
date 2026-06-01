@@ -23,7 +23,6 @@ function extractPublicAssetUrls(html) {
 function isMediaAsset(pathname) {
   return (
     pathname.startsWith('/audio/') ||
-    pathname.startsWith('/sounds/') ||
     /\/blunno-mascot.*\.(?:png|jpe?g|webp)$/i.test(pathname) ||
     pathname === '/blunno.png' ||
     /\.(?:mp3|wav|ogg)$/i.test(pathname)
@@ -220,7 +219,8 @@ self.addEventListener('install', (event) => {
         '/precache-manifest.json',
         '/icon-192.png',
         '/icon-512.png',
-        '/apple-touch-icon-v6.png',
+        '/apple-touch-icon-v10.png',
+        '/icon-512-maskable.png',
       ];
 
       for (const url of iconUrls) {

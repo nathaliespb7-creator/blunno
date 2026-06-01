@@ -1,92 +1,66 @@
-import type { RelaxSoundId } from '@/config/relaxSounds';
+export type RelaxSoundId = 'birch-wind' | 'ocean' | 'rain' | 'meditation' | 'soft-storm';
 
 class RelaxAudioService {
   private audio: HTMLAudioElement | null = null;
-
-  private context: AudioContext | null = null;
-
-  private gain: GainNode | null = null;
-
-  private source: MediaElementAudioSourceNode | null = null;
-
   private currentId: RelaxSoundId | null = null;
+  private listeners = new Set<(id: RelaxSoundId | null) => void>();
+  private volume = 1.0;
 
-  private ensureContext(): AudioContext {
-    if (!this.context) {
-      this.context = new AudioContext();
-    }
-    return this.context;
+  onStateChange(cb: (id: RelaxSoundId | null) => void): () => void {
+    this.listeners.add(cb);
+    cb(this.currentId);
+    return () => this.listeners.delete(cb);
   }
 
-  async play(id: RelaxSoundId, src: string, volumePercent: number): Promise<void> {
-    if (typeof window === 'undefined') return;
+  play(id: RelaxSoundId, src: string): void {
+    this.stop();
+    const a = new Audio(src);
+    a.loop = true;
+    a.volume = this.volume;
+    a.preload = 'auto';
+    this.audio = a;
 
-    if (this.currentId !== id || !this.audio) {
-      this.teardownPlayback();
-
-      const audio = new Audio(src);
-      audio.loop = true;
-      audio.preload = 'auto';
-
-      const ctx = this.ensureContext();
-      const source = ctx.createMediaElementSource(audio);
-      const gain = ctx.createGain();
-      source.connect(gain);
-      gain.connect(ctx.destination);
-
-      this.audio = audio;
-      this.source = source;
-      this.gain = gain;
-      this.currentId = id;
+    const p = a.play();
+    if (p !== undefined) {
+      p
+        .then(() => this.emit(id))
+        .catch((e) => {
+          console.warn('[Relax] play blocked:', e);
+          this.cleanup();
+          this.emit(null);
+        });
+    } else {
+      this.emit(id);
     }
-
-    this.applyVolume(volumePercent);
-
-    try {
-      if (this.context?.state === 'suspended') {
-        await this.context.resume();
-      }
-      await this.audio.play();
-    } catch {
-      /* Browser may block autoplay until user gesture — UI state still reflects selection */
-    }
-  }
-
-  setVolume(volumePercent: number): void {
-    this.applyVolume(volumePercent);
-  }
-
-  private applyVolume(volumePercent: number): void {
-    const normalized = Math.min(1, Math.max(0, volumePercent / 100));
-    if (this.gain) {
-      this.gain.gain.value = normalized;
-      return;
-    }
-    if (this.audio) {
-      this.audio.volume = normalized;
-    }
-  }
-
-  private teardownPlayback(): void {
-    if (this.audio) {
-      this.audio.pause();
-      this.audio.currentTime = 0;
-      this.audio.src = '';
-    }
-    this.source?.disconnect();
-    this.gain?.disconnect();
-    this.audio = null;
-    this.source = null;
-    this.gain = null;
-    this.currentId = null;
   }
 
   stop(): void {
-    this.teardownPlayback();
+    if (this.audio) {
+      this.audio.pause();
+      this.audio.src = '';
+      this.audio.load();
+      this.audio = null;
+    }
+    this.currentId = null;
+    this.emit(null);
   }
 
-  getCurrentId(): RelaxSoundId | null {
-    return this.currentId;
+  setVolume(v: number): void {
+    this.volume = Math.max(0, Math.min(1, v));
+    if (this.audio) this.audio.volume = this.volume;
+  }
+
+  private emit(id: RelaxSoundId | null): void {
+    this.currentId = id;
+    this.listeners.forEach((l) => l(id));
+  }
+
+  private cleanup(): void {
+    if (!this.audio) return;
+    this.audio.pause();
+    this.audio.src = '';
+    this.audio.load();
+    this.audio = null;
   }
 }
 

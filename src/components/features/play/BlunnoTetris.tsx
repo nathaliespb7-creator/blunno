@@ -2,8 +2,6 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 
-import { audioService } from '@/services/audioService';
-
 type Piece = {
   shape: number[][];
   x: number;
@@ -142,7 +140,6 @@ function clearLines(board: number[][]): { board: number[][]; lines: number } {
 }
 
 export function BlunnoTetris(): ReactElement {
-  const [isAudioUnlocked, setIsAudioUnlocked] = useState(false);
   const [board, setBoard] = useState<number[][]>(() => emptyBoard());
   const [piece, setPiece] = useState<Piece>(() => createPiece());
   const [running, setRunning] = useState(true);
@@ -176,12 +173,6 @@ export function BlunnoTetris(): ReactElement {
     () => Math.floor((500 / (level + 1)) * (DROP_MS_REFERENCE / DROP_MS_BASE)),
     [level]
   );
-
-  const unlockAudioOnce = useCallback((): void => {
-    if (isAudioUnlocked) return;
-    setIsAudioUnlocked(true);
-    void audioService.ensureUnlocked();
-  }, [isAudioUnlocked]);
 
   const reset = useCallback(() => {
     const nextBoard = emptyBoard();
@@ -348,7 +339,6 @@ export function BlunnoTetris(): ReactElement {
         'gap-2 overflow-x-hidden overflow-y-auto overscroll-y-contain rounded-[28px] p-2',
         'text-[color:var(--color-text-primary)] sm:gap-2.5 sm:p-3 [@media(max-height:700px)]:gap-1.5 [@media(max-height:700px)]:p-1.5',
       ].join(' ')}
-      onPointerDown={unlockAudioOnce}
     >
       <div className="flex min-h-0 min-w-0 flex-1 flex-row gap-2 [@media(max-height:700px)]:gap-1.5 sm:gap-3">
         <div className="flex min-h-0 min-w-0 flex-1 flex-col">

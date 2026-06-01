@@ -23,12 +23,21 @@ const DEFAULT_TUNING = {
   glowColor: '#00FFD1',
   blunnoSizePx: 120,
   blunnoOffsetYPx: -6,
-  sectionGapPx: 20,
+  sectionGapPx: 16,
+} as const;
+
+const COMPACT_TUNING = {
+  ...DEFAULT_TUNING,
+  ringDiameterPx: 248,
+  strokeWidthPx: 24,
+  blunnoSizePx: 108,
+  sectionGapPx: 12,
 } as const;
 
 export default function SosPage(): ReactElement {
   const router = useRouter();
   const [mode, setMode] = useState<SosMode>('guided');
+  const [compactViewport, setCompactViewport] = useState(false);
   const guided = useSosBreathEngine();
   const trace = useSosTraceEngine();
 
@@ -57,6 +66,14 @@ export default function SosPage(): ReactElement {
     meta.setAttribute('content', 'Guided or trace 3-2-3 breathing with Blunno');
   }, []);
 
+  useEffect(() => {
+    const mq = window.matchMedia('(max-height: 700px)');
+    const update = () => setCompactViewport(mq.matches);
+    update();
+    mq.addEventListener('change', update);
+    return () => mq.removeEventListener('change', update);
+  }, []);
+
   const handleModeChange = (next: SosMode) => {
     if (status !== 'idle') return;
     guided.reset();
@@ -77,29 +94,36 @@ export default function SosPage(): ReactElement {
     stop();
   };
 
-  const idleHint = isGuided
-    ? 'Tap the ring to begin · 3-2-3 breathing'
-    : 'Touch the ring and trace slowly · 3-2-3';
-
   const runningHint = isGuided
     ? 'Follow the ring and let Blunno guide your breath.'
     : 'Move your finger clockwise around the ring · breathe slowly.';
 
+  const displayPhaseLabel =
+    status === 'completed' ? 'Complete' : status === 'idle' ? 'Ready' : phaseLabel;
+
+  const baseTuning = compactViewport ? COMPACT_TUNING : DEFAULT_TUNING;
+  const ringTuning =
+    status === 'completed'
+      ? { ...baseTuning, ringDiameterPx: baseTuning.ringDiameterPx - 20, blunnoSizePx: 104 }
+      : baseTuning;
+
   return (
-    <ScreenFrame className="overflow-hidden">
+    <ScreenFrame className="v81-screen--sos overflow-hidden">
       {status === 'completed' && <SosCompletionStars />}
 
-      <div className="relative z-10 flex min-h-0 flex-1 flex-col">
-        <header className="shrink-0">
-          <div className="v81-top-bar">
+      <div className="v81-sos-layout relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden">
+        <header className="v81-sos-header shrink-0">
+          <div className="v81-top-bar v81-sos-top-bar">
             <GlassIconButton onClick={() => router.back()} icon={ChevronLeft} label="Back" />
             <GlassIconButton href="/choose" icon={Home} label="Exit to mode selection" />
           </div>
 
-          <div className="mb-3 text-center" data-testid="sos-header">
+          <div className="v81-sos-title text-center" data-testid="sos-header">
             <div className="flex items-center justify-center gap-2">
-              <span className="text-[17px] font-light italic tracking-wide text-[rgba(196,181,253,0.55)]">breathe with</span>
-              <GradientTitle as="h2" size="sm" className="!text-[32px] !tracking-[0.5px]">
+              <span className="text-[15px] font-light italic tracking-wide text-[rgba(196,181,253,0.55)]">
+                breathe with
+              </span>
+              <GradientTitle as="h2" size="sm" className="!text-[28px] !tracking-[0.5px]">
                 Blunno
               </GradientTitle>
             </div>
@@ -107,40 +131,38 @@ export default function SosPage(): ReactElement {
         </header>
 
         {status === 'idle' && (
-          <div className="mb-3 flex shrink-0 justify-center">
+          <div className="v81-sos-mode-toggle flex shrink-0 justify-center">
             <SosModeToggle mode={mode} onChange={handleModeChange} />
           </div>
         )}
 
         <div
           className={cn(
-            'flex min-h-0 flex-1 flex-col items-center touch-none select-none',
-            status === 'completed' ? 'justify-start pt-2 pb-4' : 'justify-center'
+            'v81-sos-content flex min-h-0 flex-1 flex-col items-center touch-none select-none',
+            status === 'completed' ? 'justify-start pt-1 pb-2' : 'justify-center'
           )}
           aria-label="SOS breathing exercise"
         >
           <div
-            className="mx-auto flex w-full max-w-sm flex-col items-center"
-            style={{ gap: status === 'completed' ? 16 : DEFAULT_TUNING.sectionGapPx }}
+            className="v81-sos-ring-stack mx-auto flex w-full max-w-sm flex-col items-center"
+            style={{ gap: status === 'completed' ? 14 : ringTuning.sectionGapPx }}
           >
-            <SosBreathRing
-              mode={mode}
-              status={status}
-              cycleProgress={cycleProgress}
-              tuning={
-                status === 'completed'
-                  ? { ...DEFAULT_TUNING, ringDiameterPx: 260, blunnoSizePx: 112 }
-                  : DEFAULT_TUNING
-              }
-              onStart={handleStart}
-              onTraceBegin={trace.beginPointer}
-              onTraceMove={trace.movePointer}
-              onTraceEnd={trace.endPointer}
-            />
+            <div className="v81-sos-ring-wrap">
+              <SosBreathRing
+                mode={mode}
+                status={status}
+                cycleProgress={cycleProgress}
+                tuning={ringTuning}
+                onStart={handleStart}
+                onTraceBegin={trace.beginPointer}
+                onTraceMove={trace.movePointer}
+                onTraceEnd={trace.endPointer}
+              />
+            </div>
 
             <div className="flex w-full shrink-0 flex-col items-center gap-1 px-1 text-center">
               <p className="text-sm font-medium text-white/80" aria-live="polite" data-testid="sos-phase-label">
-                {status === 'completed' ? 'Complete' : phaseLabel}
+                {displayPhaseLabel}
               </p>
 
               {isGuided && status === 'running' && (
@@ -155,19 +177,24 @@ export default function SosPage(): ReactElement {
                 </p>
               )}
 
-              <p className="text-sm font-semibold tracking-wide text-white/95">
-                Cycle {status === 'completed' ? SOS_TOTAL_CYCLES : cycleIndex} of {SOS_TOTAL_CYCLES}
-              </p>
+              {status !== 'idle' && (
+                <p className="text-sm font-semibold tracking-wide text-white/95">
+                  Cycle {status === 'completed' ? SOS_TOTAL_CYCLES : cycleIndex} of {SOS_TOTAL_CYCLES}
+                </p>
+              )}
 
               <div aria-live="polite" aria-atomic="true">
                 {feedback ? (
                   <p className="max-w-sm text-sm font-semibold leading-snug text-white/90">{feedback}</p>
                 ) : status === 'idle' ? (
-                  <p className="max-w-sm text-xs font-medium leading-snug text-white/60">{idleHint}</p>
+                  <p className="max-w-sm text-xs font-medium leading-snug text-white/60">3-2-3 breathing</p>
                 ) : status === 'running' ? (
                   <p className="max-w-sm text-xs font-medium leading-snug text-white/60">{runningHint}</p>
                 ) : status === 'completed' ? (
-                  <p className="max-w-sm text-sm font-semibold leading-snug text-white/90" data-testid="sos-completion-message">
+                  <p
+                    className="max-w-sm text-sm font-semibold leading-snug text-white/90"
+                    data-testid="sos-completion-message"
+                  >
                     You did it. Breathe easy.
                   </p>
                 ) : null}
@@ -176,7 +203,7 @@ export default function SosPage(): ReactElement {
           </div>
         </div>
 
-        <div className="mt-auto shrink-0 space-y-3 border-t border-white/5 bg-[#0C0A1A]/80 pt-4 backdrop-blur-md">
+        <div className="v81-sos-footer mt-auto shrink-0 space-y-3">
           {status === 'completed' ? (
             <>
               <GlassActionButton

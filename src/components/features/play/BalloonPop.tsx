@@ -351,10 +351,6 @@ export function BalloonPop(): ReactElement {
   );
 
   useEffect(() => {
-    audioService.preloadAll();
-  }, []);
-
-  useEffect(() => {
     if (phase !== 'playing') return undefined;
     const id = requestAnimationFrame(() => resizeCanvas());
     return () => cancelAnimationFrame(id);

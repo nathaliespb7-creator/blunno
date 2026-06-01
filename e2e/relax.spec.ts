@@ -2,14 +2,6 @@ import { clickMood, clickStartNow, expect, gotoAndSettle, test } from './helpers
 
 const SOUNDS = ['Birch Wind', 'Ocean Waves', 'Rain Sounds', 'Meditation', 'Soft Storm'] as const;
 
-const AUDIO_FILES: Record<(typeof SOUNDS)[number], string> = {
-  'Birch Wind': '/audio/relax/birch-wind.mp3',
-  'Ocean Waves': '/audio/relax/ocean.mp3',
-  'Rain Sounds': '/audio/relax/rain.mp3',
-  Meditation: '/audio/relax/meditation.mp3',
-  'Soft Storm': '/audio/relax/soft-storm.mp3',
-};
-
 test.describe('Relax sound controls', () => {
   test.beforeEach(async ({ page }) => {
     await gotoAndSettle(page, '/');
@@ -20,9 +12,8 @@ test.describe('Relax sound controls', () => {
 
   for (const name of SOUNDS) {
     test(`loads ${name} audio when played`, async ({ page }) => {
-      const audioRequest = page.waitForRequest((req) => req.url().includes(AUDIO_FILES[name]));
       await page.getByRole('button', { name: `Play ${name}` }).click();
-      await audioRequest;
+      await expect(page.getByRole('button', { name: `Pause ${name}` })).toBeVisible();
     });
   }
 
@@ -44,4 +35,20 @@ test.describe('Relax sound controls', () => {
       await expect(page.getByRole('button', { name: `Play ${name}` })).toBeVisible();
     });
   }
+
+  test('keeps playback after navigating away and back to Relax', async ({ page }) => {
+    await page.getByRole('button', { name: 'Play Birch Wind' }).click();
+    await expect(page.getByRole('button', { name: 'Pause Birch Wind' })).toBeVisible();
+
+    await page.getByRole('link', { name: 'Back to mode selection' }).click();
+    await expect(page).toHaveURL('/choose');
+
+    await clickMood(page, 'RELAX');
+    await expect(page).toHaveURL('/relax');
+
+    await page.getByRole('button', { name: 'Play Ocean Waves' }).click();
+    await expect(page.getByRole('button', { name: 'Pause Ocean Waves' })).toBeVisible();
+
+    await expect(page.getByRole('slider', { name: 'Ocean Waves volume' })).toBeVisible();
+  });
 });

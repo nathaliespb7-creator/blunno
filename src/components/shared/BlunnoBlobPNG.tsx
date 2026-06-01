@@ -1,9 +1,7 @@
 'use client';
 
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
-import { useEffect } from 'react';
 import { useBlunnoStore, type BlunnoState } from '@/store/blunnoStore';
-import { audioService } from '@/services/audioService';
 import { BLUNNO_MASCOT_PNG } from '@/lib/assets';
 
 const FILTER_PLANNER = 'drop-shadow(0 0 12px color-mix(in srgb, var(--color-core-planner) 55%, transparent))';
@@ -43,12 +41,6 @@ export const BlunnoBlobPNG = () => {
       },
     },
   };
-
-  useEffect(() => {
-    if (currentState === 'success') {
-      audioService.play('success');
-    }
-  }, [currentState]);
 
   return (
     <div className="relative flex items-center justify-center">

@@ -8,54 +8,40 @@ import {
   RELAX_SOUNDS,
   defaultRelaxVolumes,
   type RelaxSound,
-  type RelaxSoundId,
 } from '@/config/relaxSounds';
 import { GlassListCell, GlassListCellAction } from '@/components/shared/make-v81/GlassListCell';
 import { ModeScreenTopBar } from '@/components/shared/make-v81/ModeScreenTopBar';
 import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
-import { relaxAudioService } from '@/services/relaxAudioService';
+import { relaxAudioService, type RelaxSoundId } from '@/services/relaxAudioService';
 
 export default function RelaxPage(): ReactElement {
   const [activeSound, setActiveSound] = useState<RelaxSoundId | null>(null);
   const [volumes, setVolumes] = useState<Record<RelaxSoundId, number>>(defaultRelaxVolumes);
 
   useEffect(() => {
-    if (!activeSound) {
-      relaxAudioService.stop();
-      return;
-    }
-
-    const sound = RELAX_SOUNDS.find((item) => item.id === activeSound);
-    if (!sound?.audioSrc) {
-      relaxAudioService.stop();
-      return;
-    }
-
-    void relaxAudioService.play(
-      activeSound,
-      sound.audioSrc,
-      volumes[activeSound] ?? DEFAULT_RELAX_VOLUME
-    );
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- volume applied live via updateVolume
-  }, [activeSound]);
-
-  useEffect(() => () => relaxAudioService.stop(), []);
+    return relaxAudioService.onStateChange(setActiveSound);
+  }, []);
 
   const toggleSound = useCallback(
     (sound: RelaxSound) => {
       if (activeSound === sound.id) {
-        setActiveSound(null);
+        relaxAudioService.stop();
         return;
       }
-      setActiveSound(sound.id);
+
+      if (!sound.audioSrc) return;
+
+      const volumePercent = volumes[sound.id] ?? DEFAULT_RELAX_VOLUME;
+      relaxAudioService.setVolume(volumePercent / 100);
+      relaxAudioService.play(sound.id, sound.audioSrc);
     },
-    [activeSound]
+    [activeSound, volumes]
   );
 
   const updateVolume = (id: RelaxSoundId, value: number) => {
     setVolumes((prev) => ({ ...prev, [id]: value }));
     if (activeSound === id) {
-      relaxAudioService.setVolume(value);
+      relaxAudioService.setVolume(value / 100);
     }
   };
 

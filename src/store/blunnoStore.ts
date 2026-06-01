@@ -16,7 +16,6 @@ interface UIState {
   }>;
   themeMode: ThemeMode;
   animationPreference: AnimationPreference;
-  soundEnabled: boolean;
   hapticEnabled: boolean;
 }
 
@@ -41,7 +40,6 @@ interface BlunnoStore {
   removeNotification: (id: string) => void;
   setThemeMode: (mode: ThemeMode) => void;
   setAnimationPreference: (preference: AnimationPreference) => void;
-  toggleSound: () => void;
   toggleHaptic: () => void;
 }
 
@@ -57,7 +55,6 @@ export const useBlunnoStore = create<BlunnoStore>((set, get) => ({
     notifications: [],
     themeMode: 'dark',
     animationPreference: 'full',
-    soundEnabled: true,
     hapticEnabled: true,
   },
   
@@ -105,10 +102,6 @@ export const useBlunnoStore = create<BlunnoStore>((set, get) => ({
   
   setAnimationPreference: (preference) => set((state) => ({ 
     ui: { ...state.ui, animationPreference: preference } 
-  })),
-  
-  toggleSound: () => set((state) => ({ 
-    ui: { ...state.ui, soundEnabled: !state.ui.soundEnabled } 
   })),
   
   toggleHaptic: () => set((state) => ({ 

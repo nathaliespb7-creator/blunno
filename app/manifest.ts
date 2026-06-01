@@ -7,8 +7,9 @@ export default function manifest(): MetadataRoute.Manifest {
     description: 'Your gentle companion for anxiety and ADHD',
     start_url: '/',
     display: 'standalone',
-    background_color: '#153066',
-    theme_color: '#153066',
+    display_override: ['fullscreen', 'standalone', 'minimal-ui'],
+    background_color: '#120f25',
+    theme_color: '#120f25',
     orientation: 'portrait',
     icons: [
       {
@@ -24,7 +25,7 @@ export default function manifest(): MetadataRoute.Manifest {
         purpose: 'any',
       },
       {
-        src: '/icon-512.png',
+        src: '/icon-512-maskable.png',
         sizes: '512x512',
         type: 'image/png',
         purpose: 'maskable',

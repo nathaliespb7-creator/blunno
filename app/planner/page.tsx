@@ -9,7 +9,6 @@ import { GlassIconButton } from '@/components/shared/make-v81/GlassIconButton';
 import { GlassListCell } from '@/components/shared/make-v81/GlassListCell';
 import { GradientTitle } from '@/components/shared/make-v81/GradientTitle';
 import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
-import { playTaskCompleteInhale, unlockAudioSession } from '@/lib/navigationSound';
 import { cn } from '@/lib/utils';
 
 interface Task {
@@ -240,12 +239,7 @@ export default function PlannerPage(): ReactElement {
       const tasks = [...tasksForDay(prev, selectedKey)];
       const task = tasks[index];
       if (!task) return prev;
-      const willBecomeComplete = !task.completed;
       tasks[index] = { ...task, completed: !task.completed };
-      if (willBecomeComplete && typeof window !== 'undefined') {
-        void unlockAudioSession();
-        playTaskCompleteInhale();
-      }
       return { ...prev, [selectedKey]: tasks };
     });
   };
@@ -363,6 +357,7 @@ export default function PlannerPage(): ReactElement {
                     onBlur={saveEdit}
                     onKeyDown={onKeyDownEdit}
                     autoFocus
+                    maxLength={60}
                     className="min-w-0 flex-1 rounded-lg border border-white/15 bg-black/30 px-2 py-1.5 text-base text-white outline-none"
                     style={{ minHeight: '44px', fontSize: '16px' }}
                   />

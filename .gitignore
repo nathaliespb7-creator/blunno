@@ -21,6 +21,11 @@
 
 # production
 /build
+/dist
+
+# cache
+/.turbo
+/.cache
 
 # misc
 .DS_Store
@@ -28,6 +33,7 @@
 .cursor/
 
 # debug
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

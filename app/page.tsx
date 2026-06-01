@@ -4,7 +4,6 @@ import { useEffect, type ReactElement } from 'react';
 
 import { WelcomeCTA } from '@/components/features/welcome/WelcomeCTA';
 import { WelcomeMascot } from '@/components/features/welcome/WelcomeMascot';
-import { playNavigationHoverSoft, unlockAudioSession } from '@/lib/navigationSound';
 import { cn } from '@/lib/utils';
 
 export default function WelcomePage(): ReactElement {
@@ -14,17 +13,6 @@ export default function WelcomePage(): ReactElement {
       document.documentElement.classList.remove('welcome-route');
     };
   }, []);
-
-  const handleStartNow = () => {
-    void (async () => {
-      try {
-        await unlockAudioSession();
-        playNavigationHoverSoft();
-      } catch {
-        /* navigation must not depend on sound */
-      }
-    })();
-  };
 
   return (
     <main className={cn('welcome-screen', 'font-[family-name:var(--font-plus-jakarta)]')}>
@@ -71,7 +59,7 @@ export default function WelcomePage(): ReactElement {
         </div>
 
         <div className="welcome-cta-bar">
-          <WelcomeCTA href="/choose" className="w-full" onNavigate={handleStartNow} />
+          <WelcomeCTA href="/choose" className="w-full" />
         </div>
       </div>
     </main>

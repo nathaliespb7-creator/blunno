@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import type { ReactElement, ReactNode } from 'react';
 
 import { GlassCellDecor } from '@/components/shared/make-v81/GlassCellDecor';
@@ -46,9 +45,9 @@ export function GlassActionButton({
 
   if (href) {
     return (
-      <Link href={href} className={classes} style={style}>
+      <a href={href} className={classes} style={style}>
         {inner}
-      </Link>
+      </a>
     );
   }
 

@@ -19,9 +19,12 @@ export default defineConfig({
     viewport: { width: 393, height: 852 },
     isMobile: true,
     hasTouch: true,
+    launchOptions: {
+      args: ['--autoplay-policy=no-user-gesture-required'],
+    },
   },
   webServer: {
-    command: `npx next dev -p ${PORT}`,
+    command: `npx next start -p ${PORT}`,
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

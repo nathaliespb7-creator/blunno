@@ -1,9 +1,9 @@
 /* eslint-disable no-restricted-globals */
 /* Generated from sw.template.js by scripts/generate-sw.mjs — do not edit public/sw.js directly. */
 
-const STATIC_CACHE = 'blunno-static-v14';
-const RUNTIME_CACHE = 'blunno-runtime-v14';
-const OFFLINE_SW_VERSION = 14;
+const STATIC_CACHE = 'blunno-static-v36';
+const RUNTIME_CACHE = 'blunno-runtime-v36';
+const OFFLINE_SW_VERSION = 36;
 const OFFLINE_URL = '/offline';
 const MAX_RUNTIME_ENTRIES = 64;
 
@@ -23,7 +23,6 @@ function extractPublicAssetUrls(html) {
 function isMediaAsset(pathname) {
   return (
     pathname.startsWith('/audio/') ||
-    pathname.startsWith('/sounds/') ||
     /\/blunno-mascot.*\.(?:png|jpe?g|webp)$/i.test(pathname) ||
     pathname === '/blunno.png' ||
     /\.(?:mp3|wav|ogg)$/i.test(pathname)
@@ -220,7 +219,8 @@ self.addEventListener('install', (event) => {
         '/precache-manifest.json',
         '/icon-192.png',
         '/icon-512.png',
-        '/apple-touch-icon-v6.png',
+        '/apple-touch-icon-v10.png',
+        '/icon-512-maskable.png',
       ];
 
       for (const url of iconUrls) {

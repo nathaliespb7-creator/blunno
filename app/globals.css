@@ -7,10 +7,14 @@
 */
 
 :root {
+  --shell-top-inset: env(safe-area-inset-top, 0px);
+  --shell-bottom-inset: env(safe-area-inset-bottom, 0px);
   /* --- Five core colors (source of truth) --- */
   --color-core-bg: #0b0b1a;
   --app-shell-bg: #120f25;
-  --app-shell-gradient: linear-gradient(180deg, #0a0815 0%, #120f25 100%);
+  --app-shell-top: #0a0815;
+  --app-shell-gradient: linear-gradient(180deg, var(--app-shell-top) 0%, var(--app-shell-bg) 100%);
+  --app-theme-color: var(--app-shell-top);
   --app-bg-overscroll: var(--app-shell-bg);
   --color-core-sos: #905e8c;
   --color-core-planner: #83a9ad;
@@ -165,9 +169,13 @@
   --welcome-cta-bottom: 72px;
   --welcome-copy-cta-gap: 40px;
   --welcome-mascot-height-offset: 28rem;
+  /* Viewport height for mascot sizing only — not used on .welcome-frame (avoids dvh overflow). */
+  --welcome-viewport-height: 100vh;
+  --welcome-viewport-height: 100svh;
+  --welcome-viewport-height: 100dvh;
   /* CTA block: bottom padding + button height + copy gap + safe area */
   --welcome-cta-reserved: calc(
-    var(--welcome-cta-bottom) + 3.5rem + var(--welcome-copy-cta-gap) + env(safe-area-inset-bottom)
+    var(--welcome-cta-bottom) + 3.5rem + var(--welcome-copy-cta-gap) + env(safe-area-inset-bottom, 0px)
   );
   --welcome-neon-purple: #8b6bff;
   --welcome-hero-size-min: 1.25rem;
@@ -222,8 +230,8 @@
   --v81-purple-glow: rgba(123, 97, 255, 0.3);
   --v81-title-gradient: linear-gradient(135deg, #ffffff 0%, #c4b5fd 55%, #a78bfa 100%);
   --v81-sos-ring-gradient: linear-gradient(135deg, #00ffd1 0%, #ff00f5 100%);
-  --v81-safe-top: max(56px, calc(env(safe-area-inset-top) + 12px));
-  --v81-safe-bottom: max(40px, calc(env(safe-area-inset-bottom) + 24px));
+  --v81-safe-top: max(56px, calc(var(--shell-top-inset, 0px) + 12px));
+  --v81-safe-bottom: max(40px, calc(var(--shell-bottom-inset, 0px) + 24px));
 }
 
 @theme inline {
@@ -267,26 +275,75 @@
 }
 
 html {
-  background-color: var(--app-bg-overscroll);
+  color-scheme: dark only;
+  background-color: #120f25 !important;
+  height: 100%;
+  min-height: 100vh;
   min-height: 100dvh;
-  overflow-x: hidden;
-  overscroll-behavior-x: none;
+  overflow: hidden;
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
 }
 
 html.welcome-route {
-  background-color: var(--app-shell-bg);
+  background-color: #120f25 !important;
 }
 
 body {
   margin: 0;
+  height: 100%;
+  min-height: 100vh;
   min-height: 100dvh;
-  overflow-x: hidden;
-  overscroll-behavior-x: none;
+  overflow: hidden;
+  overscroll-behavior: none;
+  overscroll-behavior-y: none;
   touch-action: pan-y;
-  background-color: var(--app-bg-overscroll);
+  background-color: #120f25 !important;
   color: var(--color-text-primary);
   font-size: var(--text-base);
   line-height: var(--leading-normal);
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-color: #120f25;
+  pointer-events: none;
+}
+
+/* Legacy Huawei/WebView anti-gap fallback:
+   paint only — must never intercept taps. */
+body::after {
+  content: '';
+  position: fixed;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: -2;
+  pointer-events: none;
+  background-color: #120f25;
+}
+
+@media (display-mode: standalone) {
+  :root {
+    --shell-top-inset: max(env(safe-area-inset-top, 0px), 24px);
+    --shell-bottom-inset: max(env(safe-area-inset-bottom, 0px), 20px);
+  }
+}
+
+@media (max-width: 768px) {
+  .v81-screen {
+    min-height: 100svh;
+    min-height: 100dvh;
+  }
+
+  .welcome-screen {
+    min-height: 100svh;
+    min-height: 100dvh;
+  }
 }
 
 .text-blunno-title {
@@ -1053,9 +1110,14 @@ body {
   box-sizing: border-box;
   background-color: var(--app-shell-bg);
   background-image: var(--welcome-bg-gradient);
+  height: 100%;
+  height: 100svh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100svh;
   min-height: 100dvh;
   min-height: -webkit-fill-available;
-  padding-bottom: env(safe-area-inset-bottom);
+  overscroll-behavior: none;
 }
 
 .welcome-frame {
@@ -1064,21 +1126,16 @@ body {
   margin-inline: auto;
   width: 100%;
   max-width: 393px;
-  --welcome-viewport-height: 100vh;
-  --welcome-viewport-height: 100svh;
-  --welcome-viewport-height: 100dvh;
-  height: var(--welcome-viewport-height);
-  min-height: 100vh;
-  min-height: 100svh;
-  min-height: 100dvh;
-  max-height: 100dvh;
+  height: 100%;
+  min-height: 0;
+  max-height: 100%;
   flex-shrink: 0;
 }
 
 .welcome-content {
   position: absolute;
   inset-inline: 0;
-  top: calc(var(--welcome-content-top) + env(safe-area-inset-top));
+  top: var(--welcome-content-top);
   bottom: var(--welcome-cta-reserved);
   z-index: 10;
   display: flex;
@@ -1106,7 +1163,9 @@ body {
   flex-direction: column;
   align-items: center;
   padding-inline: 1.5rem;
-  padding-bottom: calc(var(--welcome-cta-bottom) + env(safe-area-inset-bottom));
+  padding-bottom: calc(
+    var(--welcome-cta-bottom) + max(env(safe-area-inset-bottom, 0px), 40px)
+  );
 }
 
 .welcome-title {
@@ -1189,8 +1248,8 @@ body {
   overflow: hidden;
   border-radius: 9999px;
   background: rgba(18, 12, 48, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   box-shadow:
     0 10px 40px -10px rgba(124, 90, 255, 0.45),
     inset 0 0 16px rgba(124, 90, 255, 0.12);
@@ -1262,7 +1321,7 @@ body {
 }
 
 .welcome-enter {
-  animation: slideUp 0.8s ease-out both;
+  animation: fadeIn 0.3s ease-out both;
 }
 
 .welcome-enter-delay-1 {
@@ -1443,11 +1502,9 @@ body {
 @keyframes v81FadeUp {
   from {
     opacity: 0;
-    transform: translateY(20px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -1458,14 +1515,19 @@ body {
   display: flex;
   box-sizing: border-box;
   width: 100%;
+  height: 100%;
+  height: 100svh;
+  height: 100dvh;
+  min-height: 100vh;
+  min-height: 100svh;
   min-height: 100dvh;
   min-height: -webkit-fill-available;
-  padding-bottom: env(safe-area-inset-bottom);
   overflow-x: hidden;
   overflow-y: hidden;
   background-color: var(--app-shell-bg);
   background-image: var(--app-shell-gradient);
   color: #fff;
+  overscroll-behavior: none;
 }
 
 .v81-screen-inner {
@@ -1634,12 +1696,12 @@ body {
   overflow: hidden;
   border-radius: 9999px;
   background: rgba(18, 12, 48, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   box-shadow:
     0 10px 40px -10px rgba(124, 90, 255, 0.45),
     inset 0 0 16px rgba(124, 90, 255, 0.12);
-  transition: transform 0.2s ease;
+  transition: transform 0.15s ease;
 }
 
 .v81-glass-icon-btn:active {
@@ -1680,13 +1742,13 @@ body {
   overflow: hidden;
   border-radius: 20px;
   background: rgba(18, 12, 48, 0.6);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
   box-shadow:
     0 10px 32px -10px color-mix(in srgb, var(--v81-cell-border, #8b6bff) 45%, transparent),
     inset 0 0 14px color-mix(in srgb, var(--v81-cell-border, #8b6bff) 14%, transparent);
-  animation: v81FadeUp 0.6s ease-out both;
-  transition: transform 0.2s ease;
+  animation: v81FadeUp 0.2s ease-out both;
+  transition: transform 0.15s ease;
   text-align: left;
   color: #fff;
   -webkit-tap-highlight-color: transparent;
@@ -2124,7 +2186,139 @@ button.v81-glass-cell:active {
 
 @media (max-height: 620px) {
   .v81-screen-inner {
-    padding-top: max(44px, env(safe-area-inset-top));
+    padding-top: max(44px, calc(var(--shell-top-inset, 0px) + 8px));
+  }
+}
+
+/* SOS — compact layout, single CTA footer (no dock card) */
+.v81-screen--sos .v81-sos-layout {
+  min-height: 0;
+}
+
+.v81-screen--sos .v81-sos-top-bar {
+  margin-bottom: 0.25rem;
+}
+
+.v81-screen--sos .v81-sos-title {
+  margin-bottom: 0.5rem;
+}
+
+.v81-screen--sos .v81-sos-mode-toggle {
+  margin-bottom: 0.5rem;
+}
+
+.v81-screen--sos .v81-sos-content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.v81-screen--sos .v81-sos-ring-wrap {
+  display: flex;
+  justify-content: center;
+}
+
+.v81-screen--sos .v81-sos-footer {
+  flex-shrink: 0;
+  padding-top: 0.75rem;
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+}
+
+.v81-screen--sos .v81-sos-footer .v81-glass-action-btn {
+  min-height: 52px;
+  font-size: 16px;
+  letter-spacing: 0.03em;
+  text-transform: none;
+}
+
+@media (max-height: 600px) {
+  .v81-screen--sos .v81-screen-inner {
+    padding-top: max(40px, calc(var(--shell-top-inset, 0px) + 6px));
+    padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .v81-screen--sos .v81-sos-header .mb-3,
+  .v81-screen--sos .v81-sos-title {
+    margin-bottom: 0.35rem;
+  }
+
+  .v81-screen--sos .v81-sos-mode-toggle {
+    margin-bottom: 0.35rem;
+  }
+
+  .v81-screen--sos .v81-sos-content {
+    justify-content: flex-start !important;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .v81-screen--sos .v81-sos-ring-stack {
+    gap: 10px !important;
+  }
+
+  .v81-screen--sos .v81-sos-footer {
+    padding-top: 0.5rem;
+    padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .v81-screen--sos .v81-sos-footer .v81-glass-action-btn {
+    min-height: 48px;
+    font-size: 15px;
+  }
+
+  /* Welcome — same short-viewport treatment for Start Now */
+  :root {
+    --welcome-content-top: 72px;
+    --welcome-copy-cta-gap: 20px;
+    --welcome-cta-bottom: 24px;
+    --welcome-mascot-height-offset: 17rem;
+  }
+
+  .welcome-content {
+    padding-top: 8px;
+  }
+
+  .welcome-copy {
+    margin-top: 0.25rem;
+  }
+
+  .welcome-mascot-root {
+    width: min(80vw, 240px, calc(var(--welcome-viewport-height) - var(--welcome-mascot-height-offset)));
+  }
+
+  .welcome-cta-bar {
+    padding-bottom: calc(var(--welcome-cta-bottom) + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width: 480px) {
+  .welcome-bg-blob-a,
+  .welcome-bg-blob-b {
+    animation: none;
+    will-change: auto;
+  }
+
+  .v81-ambient-glow-a,
+  .v81-ambient-glow-b,
+  .v81-ambient-glow-c {
+    animation: none;
+    filter: blur(24px);
+  }
+
+  .welcome-mascot-glow {
+    animation: none;
+  }
+
+  .v81-mood-tile,
+  .v81-glass-cell {
+    animation: none;
+    transition: transform 0.12s ease;
+  }
+
+  .v81-glass-icon-btn,
+  .welcome-cta {
+    transition: transform 0.12s ease;
   }
 }
 

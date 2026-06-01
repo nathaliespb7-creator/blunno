@@ -1,0 +1,32 @@
+# Blunno — keep indexing lean (source only, not binaries)
+
+# Build & deps
+.next/**
+node_modules/**
+dist/**
+build/**
+out/**
+.turbo/**
+.cache/**
+.vercel/**
+coverage/**
+
+# Test artifacts
+playwright-report/**
+test-results/**
+
+# Audio binaries (served from public/, not read by agent)
+public/audio/**/*.mp3
+public/audio/**/*.wav
+
+# Large static assets
+public/**/*.png
+public/**/*.webp
+public/**/*.jpg
+public/**/*.jpeg
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*

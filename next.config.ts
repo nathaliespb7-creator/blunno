@@ -6,6 +6,21 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(process.cwd()),
   },
+  productionBrowserSourceMaps: false,
+  onDemandEntries: {
+    maxInactiveAge: 25 * 1000,
+    pagesBufferLength: 2,
+  },
+  webpack: (config, { dev }) => {
+    if (dev) {
+      config.cache = {
+        type: 'filesystem',
+        buildDependencies: { config: [__filename] },
+      };
+      config.devtool = 'eval-cheap-module-source-map';
+    }
+    return config;
+  },
   experimental: {
     optimizePackageImports: ['framer-motion'],
   },
