@@ -4,7 +4,8 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: 'Blunno',
     short_name: 'Blunno',
-    description: 'Your gentle companion for anxiety and ADHD',
+    description:
+      'Free offline PWA for study stress. SOS breathing, focus sounds, and mini breaks for students.',
     start_url: '/',
     display: 'standalone',
     display_override: ['fullscreen', 'standalone', 'minimal-ui'],

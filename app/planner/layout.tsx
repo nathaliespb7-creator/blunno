@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 export const metadata: Metadata = {
   title: 'Planner - Blunno',
-  description: 'Gentle daily planner for ADHD',
+  description: 'Simple daily planner to organize study tasks and reduce overwhelm.',
 };
 
 export default function PlannerLayout({ children }: { children: ReactNode }): ReactNode {

@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
   title: 'Choose your mood - Blunno',
-  description: 'Select your mood: SOS, Planner, Play, or Relax',
+  description:
+    'Pick your study reset: SOS breathing for exam panic, planner, mini games, or focus sounds.',
 };
 
 export default function ChooseLayout({ children }: { children: React.ReactNode }) {

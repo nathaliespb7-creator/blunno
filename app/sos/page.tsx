@@ -56,14 +56,17 @@ export default function SosPage(): ReactElement {
   } = session;
 
   useEffect(() => {
-    document.title = 'SOS - Breathe with Blunno';
+    document.title = 'SOS — Breathe with Blunno | Study Stress Relief';
     let meta = document.querySelector('meta[name="description"]');
     if (!meta) {
       meta = document.createElement('meta');
       meta.setAttribute('name', 'description');
       document.head.appendChild(meta);
     }
-    meta.setAttribute('content', 'Guided or trace 3-2-3 breathing with Blunno');
+    meta.setAttribute(
+      'content',
+      'Free 3-minute SOS breathing for exam panic and study stress. Guided or trace mode with Blunno.',
+    );
   }, []);
 
   useEffect(() => {

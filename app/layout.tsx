@@ -61,9 +61,24 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: 'Blunno',
-  description: 'Your gentle companion for anxiety and ADHD',
+  title: 'Blunno — Your Pocket Reset for Study Stress | Free Offline PWA for Students',
+  description:
+    'Blunno helps students reset during study stress. Free offline PWA with SOS breathing, focus sounds, and mini breaks. No signup, works without internet. Built for students.',
+  keywords:
+    'study stress, exam anxiety, focus sounds, offline PWA, student mental health, ADHD focus, free study tool, white noise for studying, brown noise for focus, library ambience, coffee shop sounds, dorm room noise cancellation, how to calm down before exam, free study ambience, pocket reset, study break, SOS breathing, panic relief for students',
   applicationName: 'Blunno',
+  openGraph: {
+    title: 'Blunno — Pocket Reset for Study Stress',
+    description:
+      'Free 3-minute breathing for exam panic. Study sounds that work offline. Built for students.',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Blunno — Pocket Reset for Study Stress',
+    description:
+      'Free offline PWA for study stress relief. SOS breathing, focus sounds, no signup, works without internet.',
+  },
   appleWebApp: {
     capable: true,
     title: 'Blunno',

@@ -13,8 +13,7 @@ const SOUND_DEFS: Record<BlunnoSoundName, { src: string; volume: number; rate?: 
   exhale: { src: '/sounds/exhale.mp3', volume: 0.4 },
   // Dedicated success.mp3 is optional; inhale is a safe fallback.
   success: { src: '/sounds/inhale.mp3', volume: 0.4 },
-  // pop.mp3 may be absent in this project; use hover-soft as fallback pop cue.
-  pop: { src: '/sounds/hover-soft.mp3', volume: 0.2 },
+  pop: { src: '/audio/pop.mp3', volume: 0.35 },
 };
 
 class AudioService {

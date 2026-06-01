@@ -4,7 +4,7 @@ export const V81_MOODS: readonly MoodTileConfig[] = [
   {
     id: 'sos',
     label: 'SOS',
-    description: 'Immediate support for anxiety & stress',
+    description: 'Quick reset for exam panic and study stress',
     borderColor: '#E07A5F',
     borderGradient: 'linear-gradient(135deg, #E89A85 0%, #E07A5F 50%, #C86A50 100%)',
   },
