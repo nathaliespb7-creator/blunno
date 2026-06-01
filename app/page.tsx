@@ -2,9 +2,11 @@
 
 import { useEffect, type ReactElement } from 'react';
 
-import { WelcomeCTA } from '@/components/features/welcome/WelcomeCTA';
-import { WelcomeMascot } from '@/components/features/welcome/WelcomeMascot';
-import { cn } from '@/lib/utils';
+import { LandingFeatures } from '@/components/features/landing/LandingFeatures';
+import { LandingFinalCta } from '@/components/features/landing/LandingFinalCta';
+import { LandingFooter } from '@/components/features/landing/LandingFooter';
+import { LandingHero } from '@/components/features/landing/LandingHero';
+import { LandingPwaInstall } from '@/components/features/landing/LandingPwaInstall';
 
 export default function WelcomePage(): ReactElement {
   useEffect(() => {
@@ -15,52 +17,32 @@ export default function WelcomePage(): ReactElement {
   }, []);
 
   return (
-    <main className={cn('welcome-screen', 'font-[family-name:var(--font-plus-jakarta)]')}>
+    <main className="landing-page font-[family-name:var(--font-plus-jakarta)]">
       <div
-        className="pointer-events-none absolute rounded-full"
+        className="pointer-events-none fixed inset-0 z-0 opacity-35"
         style={{
-          top: '-10%',
-          left: '10%',
-          width: '80%',
-          height: '40%',
-          opacity: 0.35,
           background:
-            'radial-gradient(ellipse at center, rgba(93,63,224,0.15) 0%, transparent 70%)',
+            'radial-gradient(ellipse 80% 40% at 50% 0%, rgba(93,63,224,0.15) 0%, transparent 70%)',
           filter: 'blur(40px)',
         }}
         aria-hidden
       />
       <div
-        className="pointer-events-none absolute rounded-full"
+        className="pointer-events-none fixed inset-0 z-0 opacity-25"
         style={{
-          bottom: '0%',
-          right: '-20%',
-          width: '100%',
-          height: '50%',
-          opacity: 0.25,
           background:
-            'radial-gradient(ellipse at center, rgba(124,90,255,0.1) 0%, transparent 70%)',
+            'radial-gradient(ellipse 100% 50% at 100% 100%, rgba(124,90,255,0.1) 0%, transparent 70%)',
           filter: 'blur(50px)',
         }}
         aria-hidden
       />
 
-      <div className="welcome-frame">
-        <div className="welcome-content">
-          <WelcomeMascot />
-
-          <div className="welcome-copy mt-4 flex shrink-0 flex-col items-center space-y-3">
-            <h1 className="welcome-title">Blunno</h1>
-
-            <p className="welcome-subtitle">
-              Your pocket reset for study stress
-            </p>
-          </div>
-        </div>
-
-        <div className="welcome-cta-bar">
-          <WelcomeCTA href="/choose" className="w-full" />
-        </div>
+      <div className="landing-inner relative z-10">
+        <LandingHero />
+        <LandingFeatures />
+        <LandingPwaInstall />
+        <LandingFinalCta />
+        <LandingFooter />
       </div>
     </main>
   );

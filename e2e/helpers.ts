@@ -46,9 +46,16 @@ export async function gotoAndSettle(page: Page, path: string): Promise<void> {
   await page.waitForLoadState('networkidle').catch(() => undefined);
 }
 
-export async function clickStartNow(page: Page): Promise<void> {
-  await page.getByRole('link', { name: 'Start Now' }).click();
+export async function clickOpenBlunno(page: Page): Promise<void> {
+  const link = page.getByRole('link', { name: 'Open Blunno' });
+  await link.scrollIntoViewIfNeeded();
+  await link.click();
   await page.waitForURL(/\/choose\/?$/, { waitUntil: 'commit' });
+}
+
+/** @deprecated Use clickOpenBlunno — landing page CTA label changed */
+export async function clickStartNow(page: Page): Promise<void> {
+  await clickOpenBlunno(page);
 }
 
 export async function clickMood(page: Page, moodLabel: string): Promise<void> {
