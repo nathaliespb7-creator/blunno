@@ -1,7 +1,7 @@
 'use client';
 
 import { ChevronLeft, Copy, Grid3X3, Grip, Home, LayoutGrid, Play, Shapes } from 'lucide-react';
-import { useState, type ReactElement } from 'react';
+import { useState, useEffect, type ReactElement } from 'react';
 
 import { BalloonPop } from '@/components/features/play/BalloonPop';
 import { BlunnoTetris } from '@/components/features/play/BlunnoTetris';
@@ -65,12 +65,31 @@ const GAMES: GameCard[] = [
 export function PlayHub(): ReactElement {
   const [selectedGame, setSelectedGame] = useState<GameKey | null>(null);
 
+  // Sync state with browser history to handle system back gesture cleanly
+  useEffect(() => {
+    const handlePopState = (e: PopStateEvent) => {
+      if (e.state && e.state.game) {
+        setSelectedGame(e.state.game as GameKey);
+      } else {
+        setSelectedGame(null);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
   const openGame = (game: GameKey): void => {
     setSelectedGame(game);
+    // Push virtual state to history so back gesture closes the game instead of leaving /play
+    window.history.pushState({ game }, '');
   };
 
   const backToGames = () => {
-    setSelectedGame(null);
+    // Triggers popstate which sets selectedGame to null
+    window.history.back();
   };
 
   if (selectedGame !== null) {

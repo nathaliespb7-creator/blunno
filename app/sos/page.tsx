@@ -47,6 +47,7 @@ export default function SosPage(): ReactElement {
     status,
     cycleIndex,
     breathIndexInCycle,
+    phase,
     phaseLabel,
     secondsLeft,
     cycleProgress,
@@ -54,6 +55,23 @@ export default function SosPage(): ReactElement {
     reset,
     stop,
   } = session;
+
+  // Haptic feedback for breathing phase changes
+  useEffect(() => {
+    if (status !== 'running') return;
+    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+      navigator.vibrate(24);
+    }
+  }, [phase, status]);
+
+  // Haptic feedback for session completion
+  useEffect(() => {
+    if (status === 'completed') {
+      if (typeof navigator !== 'undefined' && navigator.vibrate) {
+        navigator.vibrate([40, 80, 40]);
+      }
+    }
+  }, [status]);
 
   useEffect(() => {
     document.title = 'SOS — Breathe with Blunno | Study Stress Relief';

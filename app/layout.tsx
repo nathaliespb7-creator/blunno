@@ -5,6 +5,7 @@ import Script from 'next/script';
 
 import { AudioUnlock } from '@/components/shared/AudioUnlock';
 import { DevCacheReset } from '@/components/shared/DevCacheReset';
+import { GlobalAudioIndicator } from '@/components/shared/GlobalAudioIndicator';
 import { ServiceWorkerRegister } from '@/components/shared/ServiceWorkerRegister';
 import { Notification } from '@/components/ui';
 
@@ -131,6 +132,7 @@ export default function RootLayout({
         <DevCacheReset />
         {children}
         <Notification />
+        <GlobalAudioIndicator />
       </body>
     </html>
   );

@@ -394,8 +394,8 @@ export default function PlannerPage(): ReactElement {
         })}
 
         {showLimitHint && (
-          <p className="text-center text-xs text-[var(--v81-theme-gold)]">
-            You can add up to {MAX_EXTRA} extra tasks (max {MAX_TOTAL} total)
+          <p className="text-center text-xs text-[var(--v81-theme-gold)] max-w-[280px] mx-auto leading-relaxed">
+            Blunno limits your day to {MAX_TOTAL} essential tasks to prevent study overwhelm. Focus on what truly matters.
           </p>
         )}
 
