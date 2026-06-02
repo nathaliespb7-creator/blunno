@@ -46,16 +46,28 @@ export async function gotoAndSettle(page: Page, path: string): Promise<void> {
   await page.waitForLoadState('networkidle').catch(() => undefined);
 }
 
-export async function clickOpenBlunno(page: Page): Promise<void> {
-  const link = page.getByRole('link', { name: 'Open Blunno' });
+export async function clickTryBlunno(page: Page): Promise<void> {
+  const link = page.getByRole('link', { name: 'Try Blunno' });
+  await link.scrollIntoViewIfNeeded();
+  await link.click();
+  await page.waitForURL(/\/app\/?$/, { waitUntil: 'commit' });
+}
+
+export async function clickStartNow(page: Page): Promise<void> {
+  const tryBlunno = page.getByRole('link', { name: 'Try Blunno' });
+  if (await tryBlunno.isVisible().catch(() => false)) {
+    await clickTryBlunno(page);
+  }
+
+  const link = page.getByRole('link', { name: 'Start Now' });
   await link.scrollIntoViewIfNeeded();
   await link.click();
   await page.waitForURL(/\/choose\/?$/, { waitUntil: 'commit' });
 }
 
-/** @deprecated Use clickOpenBlunno — landing page CTA label changed */
-export async function clickStartNow(page: Page): Promise<void> {
-  await clickOpenBlunno(page);
+/** @deprecated Use clickStartNow — enters app from landing then opens choose */
+export async function clickOpenBlunno(page: Page): Promise<void> {
+  await clickStartNow(page);
 }
 
 export async function clickMood(page: Page, moodLabel: string): Promise<void> {

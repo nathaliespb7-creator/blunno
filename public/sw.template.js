@@ -7,7 +7,7 @@ const OFFLINE_SW_VERSION = __OFFLINE_SW_VERSION__;
 const OFFLINE_URL = '/offline';
 const MAX_RUNTIME_ENTRIES = 64;
 
-const APP_ROUTES = new Set(['/', '/choose', '/planner', '/play', '/relax', '/sos', '/offline']);
+const APP_ROUTES = new Set(['/', '/app', '/choose', '/planner', '/play', '/relax', '/sos', '/offline']);
 
 function extractAssetUrls(html) {
   const matches = html.match(/\/_next\/static\/[^"'\s)]+/g) ?? [];

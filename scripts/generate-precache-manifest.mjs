@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { OFFLINE_SW_VERSION } from './offline-version.mjs';
 
-const ROUTES = ['/', '/choose', '/planner', '/play', '/relax', '/sos', '/offline'];
+const ROUTES = ['/', '/app', '/choose', '/planner', '/play', '/relax', '/sos', '/offline'];
 const ICONS = [
   '/manifest.webmanifest',
   '/precache-manifest.json',

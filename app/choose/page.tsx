@@ -26,9 +26,9 @@ export default function ChoosePage(): ReactElement {
     <ScreenFrame className="v81-screen--choose">
       <ModeScreenTopBar
         title="Choose Your Mood"
-        backHref="/"
+        backHref="/app"
         backLabel="Back"
-        homeHref="/"
+        homeHref="/app"
         homeLabel="Exit to welcome screen"
       />
 

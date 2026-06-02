@@ -6,7 +6,7 @@ export default function manifest(): MetadataRoute.Manifest {
     short_name: 'Blunno',
     description:
       'Free offline PWA for study stress. SOS breathing, focus sounds, and mini breaks for students.',
-    start_url: '/',
+    start_url: '/app',
     display: 'standalone',
     display_override: ['fullscreen', 'standalone', 'minimal-ui'],
     background_color: '#120f25',
