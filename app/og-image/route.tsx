@@ -76,18 +76,48 @@ export async function GET() {
             textAlign: 'center',
           }}
         >
-          <img
-            src="/blunno-mascot-v2.png"
-            alt="Blunno mascot"
-            width={210}
-            height={210}
+          <div
             style={{
-              objectFit: 'contain',
-              filter:
-                'drop-shadow(0 0 30px rgba(145,126,255,0.7)) drop-shadow(0 0 56px rgba(201,191,255,0.4))',
+              width: 210,
+              height: 210,
+              borderRadius: 9999,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               marginBottom: 26,
+              background:
+                'radial-gradient(circle at 35% 30%, rgba(229,223,246,0.92) 0%, rgba(201,191,255,0.85) 40%, rgba(145,126,255,0.78) 78%, rgba(115,88,230,0.82) 100%)',
+              boxShadow:
+                '0 0 30px rgba(145,126,255,0.7), 0 0 56px rgba(201,191,255,0.35), inset -20px -14px 40px rgba(70,45,160,0.35)',
             }}
-          />
+          >
+            <div
+              style={{
+                width: 82,
+                height: 42,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <div
+                style={{
+                  width: 18,
+                  height: 18,
+                  borderRadius: 9999,
+                  background: '#201736',
+                }}
+              />
+              <div
+                style={{
+                  width: 18,
+                  height: 18,
+                  borderRadius: 9999,
+                  background: '#201736',
+                }}
+              />
+            </div>
+          </div>
 
           <div
             style={{
