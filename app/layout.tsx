@@ -70,6 +70,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://blunno.app'),
   title: 'Blunno — Your Pocket Reset for Study Stress | Free Offline PWA for Students',
   description:
     'Blunno helps students reset during study stress. Free offline PWA with SOS breathing, focus sounds, and mini breaks. No signup, works without internet. Built for students.',
@@ -81,12 +82,14 @@ export const metadata: Metadata = {
     description:
       'Free 3-minute breathing for exam panic. Study sounds that work offline. Built for students.',
     type: 'website',
+    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Blunno — Pocket Reset for Study Stress',
     description:
       'Free offline PWA for study stress relief. SOS breathing, focus sounds, no signup, works without internet.',
+    images: ['/og-image.png'],
   },
   appleWebApp: {
     capable: true,
