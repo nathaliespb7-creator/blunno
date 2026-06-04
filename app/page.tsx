@@ -35,7 +35,7 @@ export default function MarketingLandingPage() {
           </p>
 
           <div className="w-full max-w-[220px] sm:max-w-[260px] md:max-w-[280px] mt-6 md:mt-8">
-            <WelcomeCTA href="/app" label="Try Blunno" />
+            <WelcomeCTA href="/app" label="Try Blunno" analyticsEvent="try_blunno" />
           </div>
 
           {/* Elegant minimalist typographic block describing features */}
@@ -58,6 +58,10 @@ export default function MarketingLandingPage() {
             className="hover:text-[#00FFFF] transition-colors"
           >
             Send feedback
+          </a>
+          {' · '}
+          <a href="/privacy" className="hover:text-[#00FFFF] transition-colors">
+            Privacy
           </a>
           {' · © 2026'}
         </p>

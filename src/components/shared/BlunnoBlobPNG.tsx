@@ -2,7 +2,7 @@
 
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import { useBlunnoStore, type BlunnoState } from '@/store/blunnoStore';
-import { BLUNNO_MASCOT_PNG } from '@/lib/assets';
+import { BLUNNO_MASCOT_PNG, BLUNNO_MASCOT_WEBP } from '@/lib/assets';
 
 const FILTER_PLANNER = 'drop-shadow(0 0 12px color-mix(in srgb, var(--color-core-planner) 55%, transparent))';
 const FILTER_PLAY = 'drop-shadow(0 0 20px color-mix(in srgb, var(--color-core-play) 50%, transparent))';
@@ -60,17 +60,26 @@ export const BlunnoBlobPNG = () => {
             'color-mix(in srgb, var(--color-core-play) 22%, var(--color-core-bg) 78%)',
         }}
       />
-      <motion.img
-        src={BLUNNO_MASCOT_PNG}
-        alt="Blunno"
-        width={192}
-        height={192}
+      <motion.div
         variants={variants}
         animate={currentState as BlunnoState}
         whileHover={reduceMotion ? undefined : { scale: 1.02 }}
         transition={{ type: 'spring', stiffness: 400, damping: 17 }}
-        className="relative h-48 w-48 object-contain"
-      />
+        className="relative h-48 w-48"
+      >
+        <picture>
+          <source srcSet={BLUNNO_MASCOT_WEBP} type="image/webp" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={BLUNNO_MASCOT_PNG}
+            alt="Blunno"
+            width={192}
+            height={192}
+            className="relative h-48 w-48 object-contain"
+            draggable={false}
+          />
+        </picture>
+      </motion.div>
     </div>
   );
 };

@@ -29,6 +29,7 @@ function isMediaAsset(pathname) {
     pathname.startsWith('/audio/') ||
     /\/blunno-mascot.*\.(?:png|jpe?g|webp)$/i.test(pathname) ||
     pathname === '/blunno.png' ||
+    pathname === '/blunno.webp' ||
     /\.(?:mp3|wav|ogg)$/i.test(pathname)
   );
 }

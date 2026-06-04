@@ -1,20 +1,28 @@
 import { warmRelaxMediaInCache } from '@/lib/relaxMediaWarmup';
 
+import { DEFAULT_RELAX_VOLUME } from '@/config/relaxSounds';
+
 export type RelaxSoundId = 'birch-wind' | 'ocean' | 'rain' | 'meditation' | 'soft-storm';
 
 type WarmupSound = { id: RelaxSoundId; audioSrc?: string };
 
+const DEFAULT_VOLUME = DEFAULT_RELAX_VOLUME / 100;
+
 class RelaxAudioService {
   private pool = new Map<RelaxSoundId, HTMLAudioElement>();
+  private soundVolumes = new Map<RelaxSoundId, number>();
   private activeAudio: HTMLAudioElement | null = null;
   private currentId: RelaxSoundId | null = null;
   private listeners = new Set<(id: RelaxSoundId | null) => void>();
-  private volume = 1.0;
   /** Bumped on stop/play to ignore stale async play() resolutions (iOS rapid taps). */
   private playGeneration = 0;
 
   getActiveId(): RelaxSoundId | null {
     return this.currentId;
+  }
+
+  getVolumePercent(id: RelaxSoundId): number {
+    return Math.round(this.getVolume(id) * 100);
   }
 
   onStateChange(cb: (id: RelaxSoundId | null) => void): () => void {
@@ -37,27 +45,35 @@ class RelaxAudioService {
   }
 
   play(id: RelaxSoundId, src: string): void {
-    if (this.currentId === id && this.activeAudio && !this.activeAudio.paused && !this.activeAudio.ended) {
-      this.activeAudio.volume = this.volume;
+    const next = this.getOrCreate(id, src);
+    const volume = this.getVolume(id);
+
+    if (
+      this.currentId === id &&
+      this.activeAudio === next &&
+      !next.paused &&
+      !next.ended
+    ) {
+      next.volume = volume;
       return;
     }
 
     const generation = ++this.playGeneration;
-    this.emit(id);
-
-    const next = this.getOrCreate(id, src);
 
     if (this.activeAudio && this.activeAudio !== next) {
       this.activeAudio.pause();
       this.activeAudio.currentTime = 0;
     }
 
-    next.volume = this.volume;
+    next.volume = volume;
     next.currentTime = 0;
     this.activeAudio = next;
+    this.currentId = id;
+    this.emit(id);
 
     const onPlaying = () => {
       if (generation !== this.playGeneration) return;
+      next.volume = this.getVolume(id);
       this.currentId = id;
       this.emit(id);
     };
@@ -91,9 +107,19 @@ class RelaxAudioService {
     this.emit(null);
   }
 
-  setVolume(v: number): void {
-    this.volume = Math.max(0, Math.min(1, v));
-    if (this.activeAudio) this.activeAudio.volume = this.volume;
+  /** Set volume for a specific sound (0–1). Always updates the pooled element when present. */
+  setVolume(id: RelaxSoundId, v: number): void {
+    const clamped = Math.max(0, Math.min(1, v));
+    this.soundVolumes.set(id, clamped);
+
+    const audio = this.pool.get(id);
+    if (audio) {
+      audio.volume = clamped;
+    }
+  }
+
+  private getVolume(id: RelaxSoundId): number {
+    return this.soundVolumes.get(id) ?? DEFAULT_VOLUME;
   }
 
   private getOrCreate(id: RelaxSoundId, src: string): HTMLAudioElement {
@@ -104,6 +130,7 @@ class RelaxAudioService {
       audio = new Audio(absoluteSrc);
       audio.loop = true;
       audio.preload = 'auto';
+      audio.volume = this.getVolume(id);
       this.pool.set(id, audio);
       return audio;
     }
@@ -112,6 +139,7 @@ class RelaxAudioService {
       audio.src = absoluteSrc;
     }
 
+    audio.volume = this.getVolume(id);
     return audio;
   }
 

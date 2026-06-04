@@ -13,6 +13,19 @@ const ICONS = [
   '/icon-512-maskable.png',
 ];
 
+/** Skip legacy / duplicate assets from offline precache (still served at runtime). */
+const PRECACHE_MEDIA_DENY = [
+  /^\/screenshots-home-375\.png$/i,
+  /^\/apple-touch-icon-v[3-9]\.png$/i,
+  /^\/blunno-mascot-v2\.png$/i,
+  /^\/blunno\.png$/i,
+  /^\/blunno-mascot-make-v23\.png$/i,
+];
+
+function shouldPrecacheMedia(url) {
+  return !PRECACHE_MEDIA_DENY.some((pattern) => pattern.test(url));
+}
+
 async function walkStaticFiles(dir, rel = '') {
   const entries = await readdir(dir, { withFileTypes: true });
   const files = [];
@@ -52,7 +65,10 @@ async function walkPublicMedia(dir, urlPrefix = '') {
     }
 
     if (/\.(?:png|jpe?g|webp|svg|mp3|wav|ogg)$/i.test(entry.name)) {
-      files.push(urlPath.startsWith('/') ? urlPath : `/${urlPath}`);
+      const normalized = urlPath.startsWith('/') ? urlPath : `/${urlPath}`;
+      if (shouldPrecacheMedia(normalized)) {
+        files.push(normalized);
+      }
     }
   }
 

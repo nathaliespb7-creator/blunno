@@ -59,7 +59,7 @@ export default function WelcomePage(): ReactElement {
         </div>
 
         <div className="welcome-cta-bar">
-          <WelcomeCTA href="/choose" label="Start Now" />
+          <WelcomeCTA href="/choose" label="Start Now" analyticsEvent="start_now" />
         </div>
       </div>
     </main>

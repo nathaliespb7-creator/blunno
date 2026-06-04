@@ -6,6 +6,7 @@ import { ModeScreenTopBar } from '@/components/shared/make-v81/ModeScreenTopBar'
 import { MoodTile } from '@/components/shared/make-v81/MoodTile';
 import { MOOD_HREFS, V81_MOODS } from '@/components/shared/make-v81/moods';
 import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
+import { trackEvent } from '@/lib/analytics';
 
 export default function ChoosePage(): ReactElement {
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function ChoosePage(): ReactElement {
               mood={mood}
               href={MOOD_HREFS[mood.id] ?? '/choose'}
               delayIndex={index}
+              onNavigate={() => trackEvent('mood_select', { mood_id: mood.id })}
             />
           ))}
         </nav>

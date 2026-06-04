@@ -12,6 +12,7 @@ import {
 import { GlassListCell, GlassListCellAction } from '@/components/shared/make-v81/GlassListCell';
 import { ModeScreenTopBar } from '@/components/shared/make-v81/ModeScreenTopBar';
 import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
+import { trackEvent } from '@/lib/analytics';
 import { relaxAudioService, type RelaxSoundId } from '@/services/relaxAudioService';
 
 export default function RelaxPage(): ReactElement {
@@ -27,6 +28,7 @@ export default function RelaxPage(): ReactElement {
     (sound: RelaxSound) => {
       const playingId = relaxAudioService.getActiveId();
       if (playingId === sound.id) {
+        trackEvent('relax_pause', { sound_id: sound.id, sound_name: sound.name });
         relaxAudioService.stop();
         return;
       }
@@ -34,17 +36,16 @@ export default function RelaxPage(): ReactElement {
       if (!sound.audioSrc) return;
 
       const volumePercent = volumes[sound.id] ?? DEFAULT_RELAX_VOLUME;
-      relaxAudioService.setVolume(volumePercent / 100);
+      relaxAudioService.setVolume(sound.id, volumePercent / 100);
       relaxAudioService.play(sound.id, sound.audioSrc);
+      trackEvent('relax_play', { sound_id: sound.id, sound_name: sound.name });
     },
     [volumes]
   );
 
   const updateVolume = (id: RelaxSoundId, value: number) => {
     setVolumes((prev) => ({ ...prev, [id]: value }));
-    if (relaxAudioService.getActiveId() === id) {
-      relaxAudioService.setVolume(value / 100);
-    }
+    relaxAudioService.setVolume(id, value / 100);
   };
 
   return (
@@ -96,6 +97,7 @@ export default function RelaxPage(): ReactElement {
                         max={100}
                         value={volume}
                         onInput={(e) => updateVolume(sound.id, Number(e.currentTarget.value))}
+                        onChange={(e) => updateVolume(sound.id, Number(e.currentTarget.value))}
                         className="v81-relax-volume-input"
                         aria-label={`${sound.name} volume`}
                       />

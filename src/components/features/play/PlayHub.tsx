@@ -13,6 +13,7 @@ import { GlassListCell, GlassListCellAction } from '@/components/shared/make-v81
 import { GradientTitle } from '@/components/shared/make-v81/GradientTitle';
 import { ModeScreenTopBar } from '@/components/shared/make-v81/ModeScreenTopBar';
 import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
+import { trackEvent } from '@/lib/analytics';
 
 type GameKey = 'tetris' | 'sudoku' | 'balloon' | 'memory' | 'slide';
 
@@ -82,6 +83,7 @@ export function PlayHub(): ReactElement {
   }, []);
 
   const openGame = (game: GameKey): void => {
+    trackEvent('play_game_open', { game_id: game });
     setSelectedGame(game);
     // Push virtual state to history so back gesture closes the game instead of leaving /play
     window.history.pushState({ game }, '');

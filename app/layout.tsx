@@ -4,10 +4,12 @@ import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 
 import { AudioUnlock } from '@/components/shared/AudioUnlock';
+import { CookieConsent } from '@/components/shared/CookieConsent';
 import { DevCacheReset } from '@/components/shared/DevCacheReset';
 import { GlobalAudioIndicator } from '@/components/shared/GlobalAudioIndicator';
 import { ServiceWorkerRegister } from '@/components/shared/ServiceWorkerRegister';
 import { Notification } from '@/components/ui';
+import { GA_MEASUREMENT_ID } from '@/lib/analytics';
 
 const comfortaa = Comfortaa({
   subsets: ['latin', 'cyrillic'],
@@ -62,6 +64,21 @@ const inter = Inter({
 
 const shellBg = '#0B0B1A';
 
+const softwareApplicationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'Blunno',
+  applicationCategory: 'HealthApplication',
+  operatingSystem: 'iOS, Android, Web',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+  description:
+    'Free offline PWA for students: calm exam panic with SOS breathing, focus with study sounds, take mini breaks.',
+};
+
 export const viewport: Viewport = {
   themeColor: shellBg,
   width: 'device-width',
@@ -71,37 +88,50 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://blunno.app'),
-  title: 'Blunno — Your Pocket Reset for Study Stress | Free Offline PWA for Students',
+  title: {
+    default: 'Blunno – Pocket reset for study stress',
+    template: '%s – Blunno',
+  },
   description:
-    'Blunno helps students reset during study stress. Free offline PWA with SOS breathing, focus sounds, and mini breaks. No signup, works without internet. Built for students.',
+    'Free offline PWA for students: calm exam panic with SOS breathing, focus with study sounds, take mini breaks. No signup required.',
   keywords:
-    'study stress, exam anxiety, focus sounds, offline PWA, student mental health, ADHD focus, free study tool, white noise for studying, brown noise for focus, library ambience, coffee shop sounds, dorm room noise cancellation, how to calm down before exam, free study ambience, pocket reset, study break, SOS breathing, panic relief for students',
-  applicationName: 'Blunno',
+    'student stress, exam panic, adhd focus, study sounds, mental health, breathing exercise, offline pwa',
+  authors: [{ name: 'Blunno Team' }],
+  creator: 'Blunno',
+  publisher: 'Blunno',
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  alternates: {
+    canonical: 'https://blunno.app',
+  },
   openGraph: {
-    title: 'Blunno — Pocket Reset for Study Stress',
+    title: 'Blunno – Pocket reset for study stress',
     description:
-      'Free 3-minute breathing for exam panic. Study sounds that work offline. Built for students.',
+      'Free offline PWA for students. Calm exam panic, focus with sounds, take mini breaks.',
+    url: 'https://blunno.app',
+    siteName: 'Blunno',
+    locale: 'en_US',
     type: 'website',
     images: [{ url: '/og-image.png', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Blunno — Pocket Reset for Study Stress',
-    description:
-      'Free offline PWA for study stress relief. SOS breathing, focus sounds, no signup, works without internet.',
+    title: 'Blunno – Pocket reset for study stress',
+    description: 'Free offline PWA for students',
     images: ['/og-image.png'],
   },
-  appleWebApp: {
-    capable: true,
-    title: 'Blunno',
-    statusBarStyle: 'black-translucent',
-  },
   icons: {
-    icon: [
-      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
-    ],
-    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+    icon: '/icon-192.png',
+    apple: '/apple-touch-icon.png',
   },
 };
 
@@ -122,17 +152,26 @@ export default function RootLayout({
         {children}
         <Notification />
         <GlobalAudioIndicator />
+        <CookieConsent />
         <Script
           strategy="afterInteractive"
-          src="https://www.googletagmanager.com/gtag/js?id=G-QH796CJ4ZX"
+          src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
         />
         <Script id="ga-init" strategy="afterInteractive">
           {`
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
+            gtag('consent', 'default', {
+              analytics_storage: 'denied',
+              ad_storage: 'denied',
+              wait_for_update: 500
+            });
             gtag('js', new Date());
-            gtag('config', 'G-QH796CJ4ZX');
+            gtag('config', '${GA_MEASUREMENT_ID}', { anonymize_ip: true });
           `}
+        </Script>
+        <Script id="software-application-jsonld" type="application/ld+json">
+          {JSON.stringify(softwareApplicationJsonLd)}
         </Script>
       </body>
     </html>

@@ -3,7 +3,7 @@
 import { motion, useReducedMotion, type TargetAndTransition } from 'framer-motion';
 import Image from 'next/image';
 import { useBlunnoStore, type BlunnoState, type BreathPhase } from '@/store/blunnoStore';
-import { BLUNNO_MASCOT_PNG } from '@/lib/assets';
+import { BLUNNO_MASCOT_WEBP } from '@/lib/assets';
 import { cn } from '@/lib/utils';
 
 type BlunnoBlobProps = {
@@ -88,7 +88,7 @@ export const BlunnoBlob = ({ className }: BlunnoBlobProps) => {
         transition={{ type: 'spring', stiffness: 400, damping: 17 }}
       >
         <Image
-          src={BLUNNO_MASCOT_PNG}
+          src={BLUNNO_MASCOT_WEBP}
           alt="Blunno"
           width={350}
           height={350}

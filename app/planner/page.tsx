@@ -9,6 +9,7 @@ import { GlassIconButton } from '@/components/shared/make-v81/GlassIconButton';
 import { GlassListCell } from '@/components/shared/make-v81/GlassListCell';
 import { GradientTitle } from '@/components/shared/make-v81/GradientTitle';
 import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
+import { trackEvent } from '@/lib/analytics';
 import { cn } from '@/lib/utils';
 
 interface Task {
@@ -230,17 +231,24 @@ export default function PlannerPage(): ReactElement {
       return;
     }
 
+    trackEvent('planner_task_add');
     setNewTaskText('');
     newTaskInputRef.current?.blur();
   };
 
   const toggleCompleted = (index: number) => {
-    setTasksMap(prev => {
-      const tasks = [...tasksForDay(prev, selectedKey)];
-      const task = tasks[index];
-      if (!task) return prev;
-      tasks[index] = { ...task, completed: !task.completed };
-      return { ...prev, [selectedKey]: tasks };
+    const tasks = tasksForDay(tasksMap, selectedKey);
+    const task = tasks[index];
+    if (!task) return;
+    const completed = !task.completed;
+    trackEvent('planner_task_toggle', { completed });
+
+    setTasksMap((prev) => {
+      const dayTasks = [...tasksForDay(prev, selectedKey)];
+      const current = dayTasks[index];
+      if (!current) return prev;
+      dayTasks[index] = { ...current, completed };
+      return { ...prev, [selectedKey]: dayTasks };
     });
   };
 

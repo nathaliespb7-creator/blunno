@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type ReactElement } from 'react';
+import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { ChevronLeft, Home } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
@@ -14,6 +14,7 @@ import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
 import { useSosBreathEngine } from '@/hooks/useSosBreathEngine';
 import { useSosTraceEngine } from '@/hooks/useSosTraceEngine';
 import { SOS_BREATHS_PER_RING, SOS_TOTAL_CYCLES, type SosMode } from '@/lib/sosBreathing';
+import { trackEvent } from '@/lib/analytics';
 import { cn } from '@/lib/utils';
 
 const DEFAULT_TUNING = {
@@ -40,6 +41,7 @@ export default function SosPage(): ReactElement {
   const [compactViewport, setCompactViewport] = useState(false);
   const guided = useSosBreathEngine();
   const trace = useSosTraceEngine();
+  const traceStartTracked = useRef(false);
 
   const isGuided = mode === 'guided';
   const session = isGuided ? guided : trace;
@@ -70,22 +72,19 @@ export default function SosPage(): ReactElement {
       if (typeof navigator !== 'undefined' && navigator.vibrate) {
         navigator.vibrate([40, 80, 40]);
       }
+      trackEvent('sos_session_complete', { mode });
     }
-  }, [status]);
+  }, [status, mode]);
 
   useEffect(() => {
-    document.title = 'SOS — Breathe with Blunno | Study Stress Relief';
-    let meta = document.querySelector('meta[name="description"]');
-    if (!meta) {
-      meta = document.createElement('meta');
-      meta.setAttribute('name', 'description');
-      document.head.appendChild(meta);
+    if (!isGuided && status === 'running' && !traceStartTracked.current) {
+      traceStartTracked.current = true;
+      trackEvent('sos_session_start', { mode: 'trace' });
     }
-    meta.setAttribute(
-      'content',
-      'Free 3-minute SOS breathing for exam panic and study stress. Guided or trace mode with Blunno.',
-    );
-  }, []);
+    if (status === 'idle') {
+      traceStartTracked.current = false;
+    }
+  }, [status, isGuided]);
 
   useEffect(() => {
     const mq = window.matchMedia('(max-height: 700px)');
@@ -103,7 +102,10 @@ export default function SosPage(): ReactElement {
   };
 
   const handleStart = () => {
-    if (isGuided) void guided.start();
+    if (isGuided) {
+      trackEvent('sos_session_start', { mode: 'guided' });
+      void guided.start();
+    }
   };
 
   const handleReset = () => {
@@ -112,6 +114,9 @@ export default function SosPage(): ReactElement {
   };
 
   const handleStop = () => {
+    if (status === 'running') {
+      trackEvent('sos_session_stop', { mode });
+    }
     stop();
   };
 
