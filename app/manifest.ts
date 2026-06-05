@@ -2,6 +2,7 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
+    id: 'blunno-app',
     name: 'Blunno – Pocket Reset for Study Stress',
     short_name: 'Blunno',
     description:
@@ -15,50 +16,6 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: 'en',
     dir: 'ltr',
     categories: ['health', 'education', 'productivity', 'lifestyle'],
-    screenshots: [
-      {
-        src: '/screenshots/welcome.png',
-        sizes: '1170x2532',
-        type: 'image/png',
-        form_factor: 'narrow',
-        label: 'Welcome screen with mascot',
-      },
-      {
-        src: '/screenshots/choose.png',
-        sizes: '1170x2532',
-        type: 'image/png',
-        form_factor: 'narrow',
-        label: 'Choose your mood',
-      },
-      {
-        src: '/screenshots/sos.png',
-        sizes: '1170x2532',
-        type: 'image/png',
-        form_factor: 'narrow',
-        label: 'SOS breathing exercise',
-      },
-      {
-        src: '/screenshots/planner.png',
-        sizes: '1170x2532',
-        type: 'image/png',
-        form_factor: 'narrow',
-        label: 'Daily mindful planner',
-      },
-      {
-        src: '/screenshots/play.png',
-        sizes: '1170x2532',
-        type: 'image/png',
-        form_factor: 'narrow',
-        label: 'Mini games for breaks',
-      },
-      {
-        src: '/screenshots/relax.png',
-        sizes: '1170x2532',
-        type: 'image/png',
-        form_factor: 'narrow',
-        label: 'Relax with calming sounds',
-      },
-    ],
     icons: [
       {
         src: '/icon-192.png',
