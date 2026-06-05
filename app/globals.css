@@ -12,7 +12,7 @@
   /* --- Five core colors (source of truth) --- */
   --color-core-bg: #0b0b1a;
   --app-shell-bg: #120f25;
-  --app-shell-top: #0a0815;
+  --app-shell-top: #120f25;
   --app-shell-gradient: linear-gradient(180deg, var(--app-shell-top) 0%, var(--app-shell-bg) 100%);
   --app-theme-color: var(--app-shell-top);
   --app-bg-overscroll: var(--app-shell-bg);
