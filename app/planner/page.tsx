@@ -19,15 +19,18 @@ interface Task {
   completed: boolean;
 }
 
-const DEFAULT_TASKS: Task[] = [
-  { id: '1', text: 'Take a short walk', completed: false },
-  { id: '2', text: 'Drink water', completed: false },
-  { id: '3', text: 'Breathe deeply', completed: false },
-  { id: '4', text: 'Stretch', completed: false },
-  { id: '5', text: 'Write one good thing', completed: false },
-];
 const MAX_EXTRA = 3;
-const MAX_TOTAL = DEFAULT_TASKS.length + MAX_EXTRA; // 8
+const MAX_TOTAL = 5 + MAX_EXTRA; // 8
+
+function getDefaultTasks(t: (key: string, fallback?: string) => string): Task[] {
+  return [
+    { id: '1', text: t('planner.taskWalk', 'Take a short walk'), completed: false },
+    { id: '2', text: t('planner.taskWater', 'Drink water'), completed: false },
+    { id: '3', text: t('planner.taskBreathe', 'Breathe deeply'), completed: false },
+    { id: '4', text: t('planner.taskStretch', 'Stretch'), completed: false },
+    { id: '5', text: t('planner.taskGrateful', 'Write one good thing'), completed: false },
+  ];
+}
 
 type TasksMap = Record<string, Task[]>;
 type EditingState = { day: string; taskId: string } | null;
@@ -70,12 +73,8 @@ function formatMonthTitle(week: Date[], locale: string): string {
   return ref.toLocaleString(locale, { month: 'long', year: 'numeric' });
 }
 
-function cloneDefaultTasks(): Task[] {
-  return DEFAULT_TASKS.map((t) => ({ ...t }));
-}
-
-function tasksForDay(tasksMap: TasksMap, dayKey: string): Task[] {
-  return tasksMap[dayKey] ?? cloneDefaultTasks();
+function tasksForDay(tasksMap: TasksMap, dayKey: string, t: (k: string, f?: string) => string): Task[] {
+  return tasksMap[dayKey] ?? getDefaultTasks(t).map((tk) => ({ ...tk }));
 }
 
 function readPersistedTasksMap(): TasksMap | null {
@@ -123,7 +122,7 @@ export default function PlannerPage(): ReactElement {
   const [weekOffset, setWeekOffset] = useState<number>(0);
   const [tasksMap, setTasksMap] = useState<TasksMap>(() => {
     const today = getTodayKey();
-    return { [today]: cloneDefaultTasks() };
+    return { [today]: getDefaultTasks(t).map((tk) => ({ ...tk })) };
   });
   const [newTaskText, setNewTaskText] = useState('');
   const [editing, setEditing] = useState<EditingState>(null);
@@ -133,7 +132,7 @@ export default function PlannerPage(): ReactElement {
   const editValueRef = useRef(editValue);
   const newTaskInputRef = useRef<HTMLInputElement>(null);
 
-  const currentTasks = tasksForDay(tasksMap, selectedKey);
+  const currentTasks = tasksForDay(tasksMap, selectedKey, t);
   const weekDays = getWeekDays(getTodayKey(), weekOffset);
   const todayKey = getTodayKey();
 
@@ -165,7 +164,7 @@ export default function PlannerPage(): ReactElement {
     if (!nextText) return;
 
     setTasksMap((prev) => {
-      const tasks = [...tasksForDay(prev, state.day)];
+      const tasks = [...tasksForDay(prev, state.day, t)];
       const index = tasks.findIndex((task) => task.id === state.taskId);
       if (index < 0) return prev;
       tasks[index] = { ...tasks[index], text: nextText };
@@ -213,7 +212,7 @@ export default function PlannerPage(): ReactElement {
 
     let added = false;
     setTasksMap((prev) => {
-      const tasks = tasksForDay(prev, selectedKey);
+      const tasks = tasksForDay(prev, selectedKey, t);
       if (tasks.length >= MAX_TOTAL) return prev;
 
       added = true;
@@ -240,14 +239,14 @@ export default function PlannerPage(): ReactElement {
   };
 
   const toggleCompleted = (index: number) => {
-    const tasks = tasksForDay(tasksMap, selectedKey);
+    const tasks = tasksForDay(tasksMap, selectedKey, t);
     const task = tasks[index];
     if (!task) return;
     const completed = !task.completed;
     trackEvent('planner_task_toggle', { completed });
 
     setTasksMap((prev) => {
-      const dayTasks = [...tasksForDay(prev, selectedKey)];
+      const dayTasks = [...tasksForDay(prev, selectedKey, t)];
       const current = dayTasks[index];
       if (!current) return prev;
       dayTasks[index] = { ...current, completed };
