@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
 import type { Locale } from './types';
 
 const STORAGE_KEY = 'blunno_lang';
@@ -28,21 +28,17 @@ export function useLocale() {
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>('en');
-
-  useEffect(() => {
-    setLocaleState(detectLocale());
-  }, []);
+  const [locale, setLocaleState] = useState<Locale>(() => detectLocale());
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
     try { localStorage.setItem(STORAGE_KEY, l); } catch {}
-    document.documentElement.lang = l;
   }, []);
 
-  useEffect(() => {
+  // Update html lang attribute (safe direct DOM mutation for lang)
+  if (typeof document !== 'undefined') {
     document.documentElement.lang = locale;
-  }, [locale]);
+  }
 
   return (
     <I18nContext.Provider value={{ locale, setLocale }}>

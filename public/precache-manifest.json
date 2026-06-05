@@ -1,6 +1,6 @@
 {
   "version": 38,
-  "generatedAt": "2026-06-05T22:53:55.459Z",
+  "generatedAt": "2026-06-05T23:02:08.386Z",
   "routes": [
     "/",
     "/app",
@@ -59,11 +59,8 @@
     "/window.svg"
   ],
   "assets": [
-    "/_next/static/b-DT1fjUB6t89-r68miBN/_buildManifest.js",
-    "/_next/static/b-DT1fjUB6t89-r68miBN/_clientMiddlewareManifest.js",
-    "/_next/static/b-DT1fjUB6t89-r68miBN/_ssgManifest.js",
-    "/_next/static/chunks/0-wvizft~kc_e.js",
     "/_next/static/chunks/01xlw8hd842-c.js",
+    "/_next/static/chunks/02m5tz-qj.zrw.js",
     "/_next/static/chunks/03~yq9q893hmn.js",
     "/_next/static/chunks/05d9f~fdamcqn.css",
     "/_next/static/chunks/0_cnfzllyoukg.js",
@@ -128,6 +125,9 @@
     "/_next/static/media/fad568eea626db0e-s.04s-lri-1fnua.woff2",
     "/_next/static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2",
     "/_next/static/media/fe9c9076d1cdc5cf-s.0i0199ss2.t9a.woff2",
-    "/_next/static/media/icon.0z.jvmbiw6d5b.png"
+    "/_next/static/media/icon.0z.jvmbiw6d5b.png",
+    "/_next/static/vTOFoHpU1RUyaEZNcD_4d/_buildManifest.js",
+    "/_next/static/vTOFoHpU1RUyaEZNcD_4d/_clientMiddlewareManifest.js",
+    "/_next/static/vTOFoHpU1RUyaEZNcD_4d/_ssgManifest.js"
   ]
 }
