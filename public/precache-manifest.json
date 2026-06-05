@@ -1,6 +1,6 @@
 {
   "version": 38,
-  "generatedAt": "2026-06-05T19:31:05.876Z",
+  "generatedAt": "2026-06-05T19:50:10.683Z",
   "routes": [
     "/",
     "/app",
@@ -52,9 +52,6 @@
     "/window.svg"
   ],
   "assets": [
-    "/_next/static/-QXwrCvJlP1PzaRTQDj-8/_buildManifest.js",
-    "/_next/static/-QXwrCvJlP1PzaRTQDj-8/_clientMiddlewareManifest.js",
-    "/_next/static/-QXwrCvJlP1PzaRTQDj-8/_ssgManifest.js",
     "/_next/static/chunks/0.4wrb7e1yofn.js",
     "/_next/static/chunks/0.ejo_gu9p_zm.js",
     "/_next/static/chunks/00ck4zvm7f9y9.js",
@@ -68,8 +65,8 @@
     "/_next/static/chunks/0ekbslkbn3u9p.js",
     "/_next/static/chunks/0fi3.n.mxhet_.js",
     "/_next/static/chunks/0f~fxajm.6dh4.js",
-    "/_next/static/chunks/0j4c4iszosl8k.css",
     "/_next/static/chunks/0l66l9v-2p1ed.js",
+    "/_next/static/chunks/0lia0wq~xu.xg.css",
     "/_next/static/chunks/0lwsa8bhug~nw.js",
     "/_next/static/chunks/0mf8~vfw-~~_4.js",
     "/_next/static/chunks/0og6b8fwrn64v.js",
@@ -80,6 +77,9 @@
     "/_next/static/chunks/16ner59.03y5c.css",
     "/_next/static/chunks/17.ee14xcswqs.js",
     "/_next/static/chunks/turbopack-0-4puhzwhfg-c.js",
+    "/_next/static/k_VBbEnbrtD67nyW2ssqC/_buildManifest.js",
+    "/_next/static/k_VBbEnbrtD67nyW2ssqC/_clientMiddlewareManifest.js",
+    "/_next/static/k_VBbEnbrtD67nyW2ssqC/_ssgManifest.js",
     "/_next/static/media/0b1dc8ddaa74ba49-s.04o39dzmj.ey..woff2",
     "/_next/static/media/0bbfe7d70ca362ab-s.0ee1tu67pvspi.woff2",
     "/_next/static/media/1a099d89ee94ee96-s.0_qb~~5cn13jl.woff2",
