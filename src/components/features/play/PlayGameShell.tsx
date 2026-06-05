@@ -2,6 +2,8 @@
 
 import type { ReactElement, ReactNode } from 'react';
 
+import { useTranslation } from '@/i18n/useTranslation';
+
 type PlayGameShellProps = {
   testId: string;
   scoreLabel: ReactNode;
@@ -23,6 +25,8 @@ export function PlayGameShell({
   onRestart,
   children,
 }: PlayGameShellProps): ReactElement {
+  const { t } = useTranslation();
+
   return (
     <div className="play-game-shell" data-testid={testId}>
       <div className="play-game-shell__score" data-testid={scoreTestId}>
@@ -35,7 +39,7 @@ export function PlayGameShell({
       {showRestart && onRestart && (
         <div className="play-game-shell__actions">
           <button type="button" onClick={onRestart} className="play-game-restart-btn blunno-focus-visible">
-            Restart
+            {t('play.restart')}
           </button>
         </div>
       )}

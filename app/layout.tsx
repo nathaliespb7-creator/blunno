@@ -9,6 +9,7 @@ import { DevCacheReset } from '@/components/shared/DevCacheReset';
 import { GlobalAudioIndicator } from '@/components/shared/GlobalAudioIndicator';
 import { ServiceWorkerRegister } from '@/components/shared/ServiceWorkerRegister';
 import { Notification } from '@/components/ui';
+import { I18nProvider } from '@/i18n/I18nProvider';
 import { GA_MEASUREMENT_ID } from '@/lib/analytics';
 
 /** Figma Welcome: заголовок (замена Toppan Bunkyu Midashi Gothic) */
@@ -42,14 +43,14 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 const roboto = Roboto({
-  subsets: ['latin'],
+  subsets: ['latin', 'cyrillic'],
   variable: '--font-roboto',
   display: 'swap',
   weight: ['400', '700'],
 });
 
 const inter = Inter({
-  subsets: ['latin'],
+  subsets: ['latin', 'cyrillic'],
   variable: '--font-inter',
   display: 'swap',
   weight: ['400'],
@@ -139,6 +140,7 @@ export default function RootLayout({
       className={`${welcomeDisplay.variable} ${tiroTelugu.variable} ${plusJakartaSans.variable} ${sarabun.variable} ${roboto.variable} ${inter.variable} min-h-dvh overflow-x-hidden bg-blunno-bg`}
     >
       <body className="min-h-dvh w-full max-w-[100vw] overflow-x-hidden font-ui text-blunno-foreground antialiased">
+        <I18nProvider>
         <AudioUnlock />
         <ServiceWorkerRegister />
         <DevCacheReset />
@@ -147,6 +149,7 @@ export default function RootLayout({
         <Notification />
         <GlobalAudioIndicator />
         <CookieConsent />
+        </I18nProvider>
         <Script
           strategy="afterInteractive"
           src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}

@@ -10,6 +10,7 @@ import { GlassListCell } from '@/components/shared/make-v81/GlassListCell';
 import { GradientTitle } from '@/components/shared/make-v81/GradientTitle';
 import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
 import { trackEvent } from '@/lib/analytics';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 interface Task {
@@ -64,9 +65,9 @@ function getWeekNumber(date: Date): number {
   return Math.ceil(((d.getTime() - yearStart.getTime()) / 86400000 + 1) / 7);
 }
 
-function formatMonthTitle(week: Date[]): string {
+function formatMonthTitle(week: Date[], locale: string): string {
   const ref = week[3] ?? week[0];
-  return ref.toLocaleString('en-US', { month: 'long', year: 'numeric' });
+  return ref.toLocaleString(locale, { month: 'long', year: 'numeric' });
 }
 
 function cloneDefaultTasks(): Task[] {
@@ -116,6 +117,8 @@ function readPersistedTasksMap(): TasksMap | null {
 
 export default function PlannerPage(): ReactElement {
   const router = useRouter();
+  const { t, locale } = useTranslation();
+  const dateLocale = locale === 'ru' ? 'ru-RU' : 'en-US';
   const [selectedKey, setSelectedKey] = useState<string>(getTodayKey());
   const [weekOffset, setWeekOffset] = useState<number>(0);
   const [tasksMap, setTasksMap] = useState<TasksMap>(() => {
@@ -273,17 +276,17 @@ export default function PlannerPage(): ReactElement {
   return (
     <ScreenFrame className="v81-screen--planner">
       <div className="v81-top-bar">
-        <GlassIconButton onClick={() => router.back()} icon={ChevronLeft} label="Back" />
-        <GradientTitle size="lg">{formatMonthTitle(weekDays)}</GradientTitle>
-        <GlassIconButton href="/choose" icon={Home} label="Exit to mode selection" />
+        <GlassIconButton onClick={() => router.back()} icon={ChevronLeft} label={t('nav.back')} />
+        <GradientTitle size="lg">{formatMonthTitle(weekDays, dateLocale)}</GradientTitle>
+        <GlassIconButton href="/choose" icon={Home} label={t('nav.exit')} />
       </div>
 
       <div className="mb-3 flex items-center justify-between px-1">
-        <button type="button" onClick={goPrevWeek} className="blunno-focus-visible text-white/30 hover:text-white/60" aria-label="Previous week">
+        <button type="button" onClick={goPrevWeek} className="blunno-focus-visible text-white/30 hover:text-white/60" aria-label={t('nav.prevWeek')}>
           <ChevronLeft className="h-4 w-4" strokeWidth={2} />
         </button>
-        <span className="text-xs uppercase tracking-widest text-white/40">Week {getWeekNumber(weekDays[0])}</span>
-        <button type="button" onClick={goNextWeek} className="blunno-focus-visible text-white/30 hover:text-white/60" aria-label="Next week">
+        <span className="text-xs uppercase tracking-widest text-white/40">{t('nav.week')} {getWeekNumber(weekDays[0])}</span>
+        <button type="button" onClick={goNextWeek} className="blunno-focus-visible text-white/30 hover:text-white/60" aria-label={t('nav.nextWeek')}>
           <ChevronRight className="h-4 w-4" strokeWidth={2} />
         </button>
       </div>
@@ -323,7 +326,7 @@ export default function PlannerPage(): ReactElement {
                 }
               />
               <span className="relative z-10 text-[10px] uppercase tracking-wide" style={{ color: isSelected ? (isWeekend ? 'rgba(255,220,120,0.95)' : 'rgba(196,181,253,0.9)') : isWeekend ? 'rgba(255,200,80,0.55)' : 'rgba(255,255,255,0.55)' }}>
-                {date.toLocaleString('en-US', { weekday: 'short' })}
+                {date.toLocaleString(dateLocale, { weekday: 'short' })}
               </span>
               <span className="relative z-10 text-lg" style={{ fontWeight: isSelected ? 700 : 400, color: isSelected ? (isWeekend ? '#FFE5A0' : '#FFFFFF') : isWeekend ? 'rgba(255,200,80,0.65)' : 'rgba(255,255,255,0.55)' }}>
                 {date.getDate()}
@@ -341,9 +344,9 @@ export default function PlannerPage(): ReactElement {
       <div className="mb-2 flex shrink-0 items-center justify-between">
         <div className="flex items-center gap-2">
           <Sparkles className="h-[14px] w-[14px] text-[rgba(196,181,253,0.6)]" strokeWidth={1.5} />
-          <span className="text-[13px] uppercase tracking-wide text-[rgba(196,181,253,0.55)]">Today&apos;s plan</span>
+          <span className="text-[13px] uppercase tracking-wide text-[rgba(196,181,253,0.55)]">{t('planner.today')}</span>
         </div>
-        <span className="text-xs text-white/40">{currentTasks.length} tasks</span>
+        <span className="text-xs text-white/40">{currentTasks.length} {t('planner.tasks')}</span>
       </div>
 
       <div className="v81-scroll-area mb-3 v81-glass-cell-list">
@@ -380,7 +383,7 @@ export default function PlannerPage(): ReactElement {
                 )}
               </div>
               <div className="relative z-10 ml-3 flex shrink-0 items-center gap-2">
-                <button type="button" onClick={() => startEdit(task.id, task.text)} className="blunno-focus-visible flex h-8 w-8 items-center justify-center rounded-full bg-black/30" aria-label={`Edit ${task.text}`}>
+                <button type="button" onClick={() => startEdit(task.id, task.text)} className="blunno-focus-visible flex h-8 w-8 items-center justify-center rounded-full bg-black/30" aria-label={t('planner.edit')}>
                   <Pencil className="h-[13px] w-[13px]" style={{ color: accent }} strokeWidth={2} />
                 </button>
                 <button
@@ -392,7 +395,7 @@ export default function PlannerPage(): ReactElement {
                     borderColor: accent,
                     boxShadow: task.completed ? `0 0 12px ${accent}` : 'none',
                   }}
-                  aria-label={task.completed ? `Mark incomplete: ${task.text}` : `Mark complete: ${task.text}`}
+                  aria-label={task.completed ? t('planner.uncomplete') : t('planner.complete')}
                 >
                   {task.completed && <Check className="h-4 w-4 text-[#120F25]" strokeWidth={3} />}
                 </button>
@@ -403,7 +406,7 @@ export default function PlannerPage(): ReactElement {
 
         {showLimitHint && (
           <p className="text-center text-xs text-[var(--v81-theme-gold)] max-w-[280px] mx-auto leading-relaxed">
-            Blunno limits your day to {MAX_TOTAL} essential tasks to prevent study overwhelm. Focus on what truly matters.
+            {t('planner.limitHint', { max: MAX_TOTAL })}
           </p>
         )}
 
@@ -441,7 +444,7 @@ export default function PlannerPage(): ReactElement {
                   addTask();
                 }
               }}
-              placeholder={isAtLimit ? `Max ${MAX_TOTAL} tasks reached` : 'Add a new task...'}
+              placeholder={isAtLimit ? t('planner.maxTasks', { max: MAX_TOTAL }) : t('planner.addTask')}
               className="v81-planner-composer-inline-input blunno-focus-visible"
               maxLength={60}
               disabled={isAtLimit}

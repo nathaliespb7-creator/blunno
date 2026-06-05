@@ -9,6 +9,7 @@ import {
   defaultRelaxVolumes,
   type RelaxSound,
 } from '@/config/relaxSounds';
+import { useTranslation } from '@/i18n/useTranslation';
 import { GlassListCell, GlassListCellAction } from '@/components/shared/make-v81/GlassListCell';
 import { ModeScreenTopBar } from '@/components/shared/make-v81/ModeScreenTopBar';
 import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
@@ -16,6 +17,7 @@ import { trackEvent } from '@/lib/analytics';
 import { relaxAudioService, type RelaxSoundId } from '@/services/relaxAudioService';
 
 export default function RelaxPage(): ReactElement {
+  const { t } = useTranslation();
   const [activeSound, setActiveSound] = useState<RelaxSoundId | null>(null);
   const [volumes, setVolumes] = useState<Record<RelaxSoundId, number>>(defaultRelaxVolumes);
 
@@ -51,14 +53,14 @@ export default function RelaxPage(): ReactElement {
   return (
     <ScreenFrame glowVariant="relax" className="v81-screen--relax">
       <ModeScreenTopBar
-        title="Relax"
+        title={t('relax.title')}
         backHref="/choose"
-        backLabel="Back to mode selection"
+        backLabel={t('nav.exit')}
         homeHref="/choose"
-        homeLabel="Exit to mode selection"
+        homeLabel={t('nav.exit')}
       />
 
-      <p className="v81-relax-intro">Choose your calming sound</p>
+      <p className="v81-relax-intro">{t('relax.intro')}</p>
 
       <div className="v81-scroll-area v81-glass-cell-list v81-glass-cell-list--centered pb-4" data-testid="relax-sound-list">
         {RELAX_SOUNDS.map((sound, index) => {
@@ -66,14 +68,17 @@ export default function RelaxPage(): ReactElement {
           const volume = volumes[sound.id];
           const Icon = sound.icon;
           const hasAudio = Boolean(sound.audioSrc);
+          const soundKey = sound.id === 'birch-wind' ? 'birchWind' : sound.id === 'soft-storm' ? 'softStorm' : sound.id;
+          const soundName = t(`relax.${soundKey}` as any);
+          const soundDesc = t(`relax.${soundKey}.desc` as any);
 
           return (
             <GlassListCell
               key={sound.id}
               as="div"
               accentColor={sound.color}
-              title={sound.name}
-              subtitle={hasAudio ? sound.description : `${sound.description} · coming soon`}
+              title={soundName}
+              subtitle={hasAudio ? soundDesc : `${soundDesc} · ${t('relax.comingSoon')}`}
               subtitleVariant="description"
               icon={Icon}
               animationDelay={`${0.05 + index * 0.05}s`}
@@ -89,7 +94,7 @@ export default function RelaxPage(): ReactElement {
                       value={volume}
                       onInput={(e) => updateVolume(sound.id, Number(e.currentTarget.value))}
                       onChange={(e) => updateVolume(sound.id, Number(e.currentTarget.value))}
-                      aria-label={`${sound.name} volume`}
+                      aria-label={`${soundName} ${t('relax.volume')}`}
                       style={{ accentColor: sound.color }}
                     />
                     <span className="min-w-[36px] shrink-0 text-right text-[13px] font-semibold text-white/60">
@@ -101,7 +106,7 @@ export default function RelaxPage(): ReactElement {
               trailing={
                 <GlassListCellAction
                   icon={isActive ? Pause : Play}
-                  label={isActive ? `Pause ${sound.name}` : `Play ${sound.name}`}
+                  label={isActive ? `${t('relax.pause')} ${soundName}` : `${t('relax.play')} ${soundName}`}
                   onClick={() => toggleSound(sound)}
                   accentColor={sound.color}
                   active={isActive}

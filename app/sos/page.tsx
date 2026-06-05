@@ -13,6 +13,7 @@ import { GradientTitle } from '@/components/shared/make-v81/GradientTitle';
 import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
 import { useSosBreathEngine } from '@/hooks/useSosBreathEngine';
 import { useSosTraceEngine } from '@/hooks/useSosTraceEngine';
+import { useTranslation } from '@/i18n/useTranslation';
 import { SOS_BREATHS_PER_RING, SOS_TOTAL_CYCLES, type SosMode } from '@/lib/sosBreathing';
 import { trackEvent } from '@/lib/analytics';
 import { cn } from '@/lib/utils';
@@ -37,6 +38,7 @@ const COMPACT_TUNING = {
 
 export default function SosPage(): ReactElement {
   const router = useRouter();
+  const { t } = useTranslation();
   const [mode, setMode] = useState<SosMode>('guided');
   const [compactViewport, setCompactViewport] = useState(false);
   const guided = useSosBreathEngine();
@@ -121,11 +123,11 @@ export default function SosPage(): ReactElement {
   };
 
   const runningHint = isGuided
-    ? 'Follow the ring and let Blunno guide your breath.'
-    : 'Move your finger clockwise around the ring · breathe slowly.';
+    ? t('sos.hint')
+    : t('sos.hintTrace');
 
   const displayPhaseLabel =
-    status === 'completed' ? 'Complete' : status === 'idle' ? 'Ready' : phaseLabel;
+    status === 'completed' ? t('sos.complete') : status === 'idle' ? t('sos.ready') : phaseLabel;
 
   const baseTuning = compactViewport ? COMPACT_TUNING : DEFAULT_TUNING;
   const ringTuning =
@@ -140,14 +142,14 @@ export default function SosPage(): ReactElement {
       <div className="v81-sos-layout relative z-10 flex min-h-0 flex-1 flex-col overflow-x-hidden">
         <header className="v81-sos-header shrink-0">
           <div className="v81-top-bar v81-sos-top-bar">
-            <GlassIconButton onClick={() => router.back()} icon={ChevronLeft} label="Back" />
-            <GlassIconButton href="/choose" icon={Home} label="Exit to mode selection" />
+            <GlassIconButton onClick={() => router.back()} icon={ChevronLeft} label={t('nav.back')} />
+            <GlassIconButton href="/choose" icon={Home} label={t('nav.exit')} />
           </div>
 
           <div className="v81-sos-title text-center" data-testid="sos-header">
             <div className="flex items-center justify-center gap-2">
               <span className="text-[15px] font-light italic tracking-wide text-[rgba(196,181,253,0.55)]">
-                breathe with
+                {t('sos.breatheWith')}
               </span>
               <GradientTitle as="h2" size="sm" className="!text-[28px] !tracking-[0.5px]">
                 Blunno
@@ -199,13 +201,13 @@ export default function SosPage(): ReactElement {
 
               {status === 'running' && (
                 <p className="text-xs font-medium tracking-wide text-white/55">
-                  Breath {breathIndexInCycle} of {SOS_BREATHS_PER_RING}
+                  {t('sos.breathOf', { current: breathIndexInCycle, total: SOS_BREATHS_PER_RING })}
                 </p>
               )}
 
               {status !== 'idle' && (
                 <p className="text-sm font-semibold tracking-wide text-white/95">
-                  Cycle {status === 'completed' ? SOS_TOTAL_CYCLES : cycleIndex} of {SOS_TOTAL_CYCLES}
+                  {t('sos.cycleOf', { current: status === 'completed' ? SOS_TOTAL_CYCLES : cycleIndex, total: SOS_TOTAL_CYCLES })}
                 </p>
               )}
 
@@ -213,7 +215,7 @@ export default function SosPage(): ReactElement {
                 {feedback ? (
                   <p className="max-w-sm text-sm font-semibold leading-snug text-white/90">{feedback}</p>
                 ) : status === 'idle' ? (
-                  <p className="max-w-sm text-xs font-medium leading-snug text-white/60">3-2-3 breathing</p>
+                  <p className="max-w-sm text-xs font-medium leading-snug text-white/60">{t('sos.breath321')}</p>
                 ) : status === 'running' ? (
                   <p className="max-w-sm text-xs font-medium leading-snug text-white/60">{runningHint}</p>
                 ) : status === 'completed' ? (
@@ -221,7 +223,7 @@ export default function SosPage(): ReactElement {
                     className="max-w-sm text-sm font-semibold leading-snug text-white/90"
                     data-testid="sos-completion-message"
                   >
-                    You did it. Breathe easy.
+                    {t('sos.completed')}
                   </p>
                 ) : null}
               </div>
@@ -238,7 +240,7 @@ export default function SosPage(): ReactElement {
                 borderGradient="linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.05) 100%)"
                 textColor="#FFF"
               >
-                Complete
+                {t('sos.complete')}
               </GlassActionButton>
               <GlassActionButton
                 onClick={handleReset}
@@ -246,7 +248,7 @@ export default function SosPage(): ReactElement {
                 borderGradient="linear-gradient(135deg, #5BB5B5 0%, #45A1A1 50%, #357373 100%)"
                 textColor="#6EDAE4"
               >
-                Stay
+                {t('sos.stay')}
               </GlassActionButton>
             </>
           ) : status === 'running' ? (
@@ -256,7 +258,7 @@ export default function SosPage(): ReactElement {
               borderGradient="linear-gradient(135deg, #5BB5B5 0%, #45A1A1 50%, #357373 100%)"
               textColor="#6EDAE4"
             >
-              Stop
+              {t('sos.stop')}
             </GlassActionButton>
           ) : isGuided ? (
             <GlassActionButton
@@ -265,7 +267,7 @@ export default function SosPage(): ReactElement {
               borderGradient="linear-gradient(135deg, #5BB5B5 0%, #45A1A1 50%, #357373 100%)"
               textColor="#6EDAE4"
             >
-              Start breathing
+              {t('sos.start')}
             </GlassActionButton>
           ) : null}
         </div>

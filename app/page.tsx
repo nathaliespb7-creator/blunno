@@ -3,8 +3,11 @@
 import { useEffect } from 'react';
 
 import { WelcomeCTA } from '@/components/features/welcome/WelcomeCTA';
+import { useTranslation } from '@/i18n/useTranslation';
 
 export default function MarketingLandingPage() {
+  const { t } = useTranslation();
+
   useEffect(() => {
     document.documentElement.classList.add('landing-route');
     return () => {
@@ -27,41 +30,41 @@ export default function MarketingLandingPage() {
           </h1>
 
           <p className="text-cyan-400 text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide">
-            Your pocket reset for study stress
+            {t('landing.title')}
           </p>
 
           <p className="text-[11px] sm:text-xs md:text-sm text-white/60 mt-1 md:mt-2 uppercase tracking-[0.15em]">
-            Free · Offline · No signup
+            {t('landing.tagline')}
           </p>
 
           <div className="w-full max-w-[220px] sm:max-w-[260px] md:max-w-[280px] mt-6 md:mt-8">
-            <WelcomeCTA href="/app" label="Try Blunno" analyticsEvent="try_blunno" />
+            <WelcomeCTA href="/app" label={t('landing.cta')} analyticsEvent="try_blunno" />
           </div>
 
           {/* Elegant minimalist typographic block describing features */}
           <div className="mt-10 md:mt-14 flex flex-col items-center space-y-2 text-center px-4">
             <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-cyan-400/60 font-semibold">
-              Inside the app
+              {t('landing.inside')}
             </p>
             <p className="text-xs sm:text-sm md:text-base text-white/60 font-medium max-w-md text-balance leading-relaxed">
-              SOS breathing for exam panic · Focus sounds for deep study · Mindful planner for daily tasks · Mini breaks to reset your mind
+              {t('landing.features')}
             </p>
           </div>
         </div>
       </div>
 
       <footer className="relative z-10 mt-auto pt-4 text-center text-[9px] md:text-[11px] text-white/50 border-t border-white/10 w-full max-w-md">
-        <p>Blunno — pocket reset for study stress</p>
+        <p>{t('landing.footer')}</p>
         <p className="mt-0.5">
           <a
             href="mailto:hello@blunno.app"
             className="hover:text-cyan-400 transition-colors"
           >
-            Send feedback
+            {t('landing.feedback')}
           </a>
           {' · '}
           <a href="/privacy" className="hover:text-cyan-400 transition-colors">
-            Privacy
+            {t('landing.privacy')}
           </a>
           {' · © 2026'}
         </p>

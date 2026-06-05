@@ -3,9 +3,9 @@ export const SOS_SCALE_MAX = 1.15;
 
 /** One mini breath: inhale 3s, hold 2s, exhale 3s. */
 export const SOS_PHASES = [
-  { id: 'inhale' as const, label: 'Inhale', seconds: 3 },
-  { id: 'hold' as const, label: 'Hold', seconds: 2 },
-  { id: 'exhale' as const, label: 'Exhale', seconds: 3 },
+  { id: 'inhale' as const, label: 'sos.inhale', seconds: 3 },
+  { id: 'hold' as const, label: 'sos.hold', seconds: 2 },
+  { id: 'exhale' as const, label: 'sos.exhale', seconds: 3 },
 ] as const;
 
 export const SOS_BREATHS_PER_RING = 2;

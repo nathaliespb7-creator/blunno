@@ -6,9 +6,11 @@ import { ModeScreenTopBar } from '@/components/shared/make-v81/ModeScreenTopBar'
 import { MoodTile } from '@/components/shared/make-v81/MoodTile';
 import { MOOD_HREFS, V81_MOODS } from '@/components/shared/make-v81/moods';
 import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
+import { useTranslation } from '@/i18n/useTranslation';
 import { trackEvent } from '@/lib/analytics';
 
 export default function ChoosePage(): ReactElement {
+  const { t } = useTranslation();
   useEffect(() => {
     if (!navigator.onLine) return;
 
@@ -26,17 +28,17 @@ export default function ChoosePage(): ReactElement {
   return (
     <ScreenFrame className="v81-screen--choose">
       <ModeScreenTopBar
-        title="Choose Your Mood"
+        title={t('choose.title')}
         backHref="/app"
-        backLabel="Back"
+        backLabel={t('nav.back')}
         homeHref="/app"
-        homeLabel="Exit to welcome screen"
+        homeLabel={t('nav.exit')}
       />
 
       <div className="flex min-h-0 flex-1 flex-col items-center">
         <nav
           className="v81-glass-cell-list v81-glass-cell-list--centered w-full max-w-[340px]"
-          aria-label="Choose your mood"
+          aria-label={t('choose.title')}
         >
           {V81_MOODS.map((mood, index) => (
             <MoodTile

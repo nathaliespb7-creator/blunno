@@ -3,6 +3,7 @@
 import type { ReactElement } from 'react';
 
 import { RouteErrorFallback } from '@/components/shared/RouteErrorFallback';
+import { useTranslation } from '@/i18n/useTranslation';
 
 type ErrorProps = {
   error: Error & { digest?: string };
@@ -10,10 +11,12 @@ type ErrorProps = {
 };
 
 export default function SosError({ reset }: ErrorProps): ReactElement {
+  const { t } = useTranslation();
+
   return (
     <RouteErrorFallback
-      title="SOS mode hit a snag"
-      message="Something went wrong during the breathing session. You can try again or return to Choose."
+      title={t('error.sosTitle')}
+      message={t('error.sosMessage')}
       reset={reset}
     />
   );

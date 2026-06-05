@@ -4,9 +4,11 @@ import { useEffect, type ReactElement } from 'react';
 
 import { WelcomeCTA } from '@/components/features/welcome/WelcomeCTA';
 import { WelcomeMascot } from '@/components/features/welcome/WelcomeMascot';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 export default function WelcomePage(): ReactElement {
+  const { t } = useTranslation();
   useEffect(() => {
     document.documentElement.classList.add('welcome-route');
     return () => {
@@ -53,13 +55,13 @@ export default function WelcomePage(): ReactElement {
             <h1 className="welcome-title">Blunno</h1>
 
             <p className="welcome-subtitle">
-              Your pocket reset for study stress
+              {t('landing.title')}
             </p>
           </div>
         </div>
 
         <div className="welcome-cta-bar">
-          <WelcomeCTA href="/choose" label="Start Now" analyticsEvent="start_now" />
+          <WelcomeCTA href="/choose" label={t('nav.start')} analyticsEvent="start_now" />
         </div>
       </div>
     </main>

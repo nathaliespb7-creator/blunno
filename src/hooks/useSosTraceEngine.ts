@@ -1,7 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   SOS_BREATHS_PER_RING,
   SOS_PHASES,
@@ -24,25 +25,21 @@ export type SosTraceEngineState = {
   feedback: string;
 };
 
-function cycleFeedbackMessage(completedCycle: number): string {
-  if (completedCycle === 1) return 'Nice! Cycle 1 of 3';
-  if (completedCycle === 2) return 'Great! Cycle 2 of 3';
-  return 'Last round! You’ve got this.';
-}
-
-const initialState: SosTraceEngineState = {
-  status: 'idle',
-  cycleIndex: 1,
-  breathIndexInCycle: 1,
-  phase: 'inhale',
-  phaseLabel: 'Inhale',
-  secondsLeft: 0,
-  phaseProgress: 0,
-  cycleProgress: 0,
-  feedback: '',
-};
-
 export function useSosTraceEngine() {
+  const { t } = useTranslation();
+
+  const initialState: SosTraceEngineState = useMemo(() => ({
+    status: 'idle' as SosBreathStatus,
+    cycleIndex: 1,
+    breathIndexInCycle: 1,
+    phase: 'inhale' as SosBreathPhaseId,
+    phaseLabel: t('sos.inhale'),
+    secondsLeft: 0,
+    phaseProgress: 0,
+    cycleProgress: 0,
+    feedback: '',
+  }), [t]);
+
   const [state, setState] = useState<SosTraceEngineState>(initialState);
   const totalProgressRef = useRef(0);
   const lastSampleRef = useRef<number | null>(null);
@@ -53,6 +50,12 @@ export function useSosTraceEngine() {
   useEffect(() => {
     statusRef.current = state.status;
   }, [state.status]);
+
+  function cycleFeedbackMessage(completedCycle: number): string {
+    if (completedCycle === 1) return t('sos.feedbackCycle1');
+    if (completedCycle === 2) return t('sos.feedbackCycle2');
+    return t('sos.feedbackCycle3');
+  }
 
   const applyTotalProgress = useCallback((total: number) => {
     const completedCycles = Math.floor(total);
@@ -65,7 +68,7 @@ export function useSosTraceEngine() {
         cycleIndex: SOS_TOTAL_CYCLES,
         breathIndexInCycle: SOS_BREATHS_PER_RING,
         phase: 'exhale',
-        phaseLabel: 'Complete',
+        phaseLabel: t('sos.complete'),
         secondsLeft: 0,
         phaseProgress: 1,
         cycleProgress: 1,
@@ -88,13 +91,13 @@ export function useSosTraceEngine() {
       cycleIndex: completedCycles + 1,
       breathIndexInCycle,
       phase,
-      phaseLabel: SOS_PHASES[phaseIndex].label,
+      phaseLabel: t(SOS_PHASES[phaseIndex].label),
       secondsLeft: 0,
       phaseProgress,
       cycleProgress,
       feedback,
     });
-  }, []);
+  }, [t]);
 
   const beginPointer = useCallback(
     (clientX: number, clientY: number, rect: DOMRect) => {

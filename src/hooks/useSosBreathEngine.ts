@@ -1,7 +1,8 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
+import { useTranslation } from '@/i18n/useTranslation';
 import {
   SOS_CYCLE_MS,
   SOS_PHASES,
@@ -26,25 +27,21 @@ export type SosBreathEngineState = {
   feedback: string;
 };
 
-function cycleFeedbackMessage(completedCycle: number): string {
-  if (completedCycle === 1) return 'Nice! Cycle 1 of 3';
-  if (completedCycle === 2) return 'Great! Cycle 2 of 3';
-  return "Last round! You've got this.";
-}
-
-const initialState: SosBreathEngineState = {
-  status: 'idle',
-  cycleIndex: 1,
-  breathIndexInCycle: 1,
-  phase: 'inhale',
-  phaseLabel: 'Inhale',
-  secondsLeft: SOS_PHASES[0].seconds,
-  phaseProgress: 0,
-  cycleProgress: 0,
-  feedback: '',
-};
-
 export function useSosBreathEngine() {
+  const { t } = useTranslation();
+
+  const initialState: SosBreathEngineState = useMemo(() => ({
+    status: 'idle' as SosBreathStatus,
+    cycleIndex: 1,
+    breathIndexInCycle: 1,
+    phase: 'inhale' as SosBreathPhaseId,
+    phaseLabel: t('sos.inhale'),
+    secondsLeft: SOS_PHASES[0].seconds,
+    phaseProgress: 0,
+    cycleProgress: 0,
+    feedback: '',
+  }), [t]);
+
   const [state, setState] = useState<SosBreathEngineState>(initialState);
   const rafRef = useRef<number | null>(null);
   const startedAtRef = useRef<number | null>(null);
@@ -56,6 +53,12 @@ export function useSosBreathEngine() {
       rafRef.current = null;
     }
   }, []);
+
+  function cycleFeedbackMessage(completedCycle: number): string {
+    if (completedCycle === 1) return t('sos.feedbackCycle1');
+    if (completedCycle === 2) return t('sos.feedbackCycle2');
+    return t('sos.feedbackCycle3');
+  }
 
   const tick = useCallback(function tickFrame() {
     const startedAt = startedAtRef.current;
@@ -72,7 +75,7 @@ export function useSosBreathEngine() {
         cycleIndex: SOS_TOTAL_CYCLES,
         breathIndexInCycle: 2,
         phase: 'exhale',
-        phaseLabel: 'Complete',
+        phaseLabel: t('sos.complete'),
         secondsLeft: 0,
         phaseProgress: 1,
         cycleProgress: 1,
@@ -94,7 +97,7 @@ export function useSosBreathEngine() {
       status: 'running',
       cycleIndex: completedCycles + 1,
       phase,
-      phaseLabel: SOS_PHASES[phaseIndex].label,
+      phaseLabel: t(SOS_PHASES[phaseIndex].label),
       secondsLeft,
       phaseProgress,
       cycleProgress: ringProgressFromElapsed(cycleElapsed),
@@ -103,7 +106,7 @@ export function useSosBreathEngine() {
     });
 
     rafRef.current = requestAnimationFrame(tickFrame);
-  }, [cancelLoop]);
+  }, [cancelLoop, t]);
 
   const start = useCallback(async () => {
     cancelLoop();
@@ -114,14 +117,14 @@ export function useSosBreathEngine() {
       status: 'running',
     });
     rafRef.current = requestAnimationFrame(tick);
-  }, [cancelLoop, tick]);
+  }, [cancelLoop, tick, initialState]);
 
   const reset = useCallback(() => {
     cancelLoop();
     startedAtRef.current = null;
     lastCompletedCyclesRef.current = 0;
     setState(initialState);
-  }, [cancelLoop]);
+  }, [cancelLoop, initialState]);
 
   const stop = useCallback(() => {
     reset();

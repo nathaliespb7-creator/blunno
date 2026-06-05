@@ -1,7 +1,7 @@
 'use client';
 
 import { ChevronLeft, Copy, Grid3X3, Grip, Home, LayoutGrid, Play, Shapes } from 'lucide-react';
-import { useState, useEffect, type ReactElement } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react';
 
 import { BalloonPop } from '@/components/features/play/BalloonPop';
 import { BlunnoTetris } from '@/components/features/play/BlunnoTetris';
@@ -13,14 +13,13 @@ import { GlassListCell, GlassListCellAction } from '@/components/shared/make-v81
 import { GradientTitle } from '@/components/shared/make-v81/GradientTitle';
 import { ModeScreenTopBar } from '@/components/shared/make-v81/ModeScreenTopBar';
 import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
+import { useTranslation } from '@/i18n/useTranslation';
 import { trackEvent } from '@/lib/analytics';
 
 type GameKey = 'tetris' | 'sudoku' | 'balloon' | 'memory' | 'slide';
 
 type GameCard = {
   id: GameKey;
-  title: string;
-  subtitle: string;
   themeColor: string;
   icon: typeof Grid3X3;
 };
@@ -28,42 +27,33 @@ type GameCard = {
 const GAMES: GameCard[] = [
   {
     id: 'sudoku',
-    title: 'Sudoku',
-    subtitle: 'Logic & Focus',
     themeColor: '#7BA89A',
     icon: Grid3X3,
   },
   {
     id: 'tetris',
-    title: 'Tetris',
-    subtitle: 'Spatial Flow',
     themeColor: '#9D84B7',
     icon: Shapes,
   },
   {
     id: 'balloon',
-    title: 'Pop It',
-    subtitle: 'Tactile Relief',
     themeColor: '#E07A5F',
     icon: Grip,
   },
   {
     id: 'memory',
-    title: 'Memory Match',
-    subtitle: 'Memory & Calm',
     themeColor: '#8BA3C7',
     icon: Copy,
   },
   {
     id: 'slide',
-    title: 'Slide Puzzle',
-    subtitle: 'Order & Clarity',
     themeColor: '#D4A373',
     icon: LayoutGrid,
   },
 ];
 
 export function PlayHub(): ReactElement {
+  const { t } = useTranslation();
   const [selectedGame, setSelectedGame] = useState<GameKey | null>(null);
 
   // Sync state with browser history to handle system back gesture cleanly
@@ -96,13 +86,14 @@ export function PlayHub(): ReactElement {
 
   if (selectedGame !== null) {
     const isPopIt = selectedGame === 'balloon';
+    const gameTitle = t(`play.${selectedGame}` as any);
 
     return (
       <ScreenFrame className={isPopIt ? 'v81-screen--play-game v81-screen--play-game-popit' : '!overflow-y-auto'}>
         <div className="v81-top-bar">
-          <GlassIconButton icon={ChevronLeft} label="Back to games" onClick={backToGames} />
-          <GradientTitle size="md">{GAMES.find((g) => g.id === selectedGame)?.title ?? 'Game'}</GradientTitle>
-          <GlassIconButton href="/choose" icon={Home} label="Exit to mode selection" />
+          <GlassIconButton icon={ChevronLeft} label={t('play.backToGames')} onClick={backToGames} />
+          <GradientTitle size="md">{gameTitle}</GradientTitle>
+          <GlassIconButton href="/choose" icon={Home} label={t('nav.exit')} />
         </div>
         <div
           className={
@@ -124,14 +115,14 @@ export function PlayHub(): ReactElement {
   return (
       <ScreenFrame className="v81-screen--play">
       <ModeScreenTopBar
-        title="Mini Games"
+        title={t('play.title')}
         backHref="/choose"
-        backLabel="Back"
+        backLabel={t('nav.back')}
         homeHref="/choose"
-        homeLabel="Exit to mode selection"
+        homeLabel={t('nav.exit')}
       />
 
-      <p className="v81-play-intro">Take a moment to unwind with a quick session.</p>
+      <p className="v81-play-intro">{t('play.subtitle')}</p>
 
       <div className="v81-glass-cell-list v81-glass-cell-list--centered" data-testid="play-game-grid">
         {GAMES.map((game, index) => (
@@ -139,8 +130,8 @@ export function PlayHub(): ReactElement {
             key={game.id}
             as="div"
             accentColor={game.themeColor}
-            title={game.title}
-            subtitle={game.subtitle}
+            title={t(`play.${game.id}` as any)}
+            subtitle={t(`play.${game.id}.desc` as any)}
             subtitleVariant="category"
             titleAs="h3"
             icon={game.icon}
@@ -148,7 +139,7 @@ export function PlayHub(): ReactElement {
             trailing={
               <GlassListCellAction
                 icon={Play}
-                label="Play"
+                label={t('play.actionPlay')}
                 onClick={() => openGame(game.id)}
                 accentColor={game.themeColor}
                 filled

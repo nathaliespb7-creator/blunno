@@ -2,6 +2,7 @@
 
 import type { ReactElement } from 'react';
 
+import { useTranslation } from '@/i18n/useTranslation';
 import type { SosMode } from '@/lib/sosBreathing';
 import { cn } from '@/lib/utils';
 
@@ -10,17 +11,18 @@ type SosModeToggleProps = {
   onChange: (mode: SosMode) => void;
 };
 
-const OPTIONS: { id: SosMode; label: string }[] = [
-  { id: 'guided', label: 'Guided' },
-  { id: 'trace', label: 'Trace' },
+const OPTIONS: { id: SosMode; labelKey: string }[] = [
+  { id: 'guided', labelKey: 'sos.guided' },
+  { id: 'trace', labelKey: 'sos.trace' },
 ];
 
 export function SosModeToggle({ mode, onChange }: SosModeToggleProps): ReactElement {
+  const { t } = useTranslation();
   return (
     <div
       className="flex w-full max-w-[240px] rounded-full border border-white/10 bg-white/[0.04] p-1"
       role="tablist"
-      aria-label="Breathing mode"
+      aria-label={t('sos.breathingMode')}
       data-testid="sos-mode-toggle"
     >
       {OPTIONS.map((option) => {
@@ -40,7 +42,7 @@ export function SosModeToggle({ mode, onChange }: SosModeToggleProps): ReactElem
             )}
             onClick={() => onChange(option.id)}
           >
-            {option.label}
+            {t(option.labelKey)}
           </button>
         );
       })}
