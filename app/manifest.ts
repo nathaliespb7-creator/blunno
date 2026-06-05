@@ -15,7 +15,6 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: 'en',
     dir: 'ltr',
     categories: ['health', 'education', 'productivity', 'lifestyle'],
-    iarc_rating_id: 'e58c1748-6b3a-4c3e-b8e2-0a8a1c0a5d3e',
     screenshots: [
       {
         src: '/screenshots/welcome.png',
