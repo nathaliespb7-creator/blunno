@@ -8,6 +8,7 @@ export default function manifest(): MetadataRoute.Manifest {
     description:
       'Free offline PWA for study stress. SOS breathing exercises, focus sounds, mindful planner, and mini breaks for students. No signup required.',
     start_url: '/app',
+    scope: '/',
     display: 'standalone',
     display_override: ['fullscreen', 'standalone', 'minimal-ui'],
     background_color: '#120f25',

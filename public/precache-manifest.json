@@ -1,6 +1,6 @@
 {
   "version": 38,
-  "generatedAt": "2026-06-05T21:15:39.748Z",
+  "generatedAt": "2026-06-05T21:18:19.339Z",
   "routes": [
     "/",
     "/app",
@@ -58,6 +58,9 @@
     "/window.svg"
   ],
   "assets": [
+    "/_next/static/RO3S7jCuebjxtJihU_VU5/_buildManifest.js",
+    "/_next/static/RO3S7jCuebjxtJihU_VU5/_clientMiddlewareManifest.js",
+    "/_next/static/RO3S7jCuebjxtJihU_VU5/_ssgManifest.js",
     "/_next/static/chunks/0.4wrb7e1yofn.js",
     "/_next/static/chunks/0.ejo_gu9p_zm.js",
     "/_next/static/chunks/009a4rf2xfk9l.js",
@@ -122,9 +125,6 @@
     "/_next/static/media/fad568eea626db0e-s.04s-lri-1fnua.woff2",
     "/_next/static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2",
     "/_next/static/media/fe9c9076d1cdc5cf-s.0i0199ss2.t9a.woff2",
-    "/_next/static/media/icon.0z.jvmbiw6d5b.png",
-    "/_next/static/uHY5PTivvdKxorRxpi9T-/_buildManifest.js",
-    "/_next/static/uHY5PTivvdKxorRxpi9T-/_clientMiddlewareManifest.js",
-    "/_next/static/uHY5PTivvdKxorRxpi9T-/_ssgManifest.js"
+    "/_next/static/media/icon.0z.jvmbiw6d5b.png"
   ]
 }
