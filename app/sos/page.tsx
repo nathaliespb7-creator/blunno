@@ -87,7 +87,7 @@ export default function SosPage(): ReactElement {
   }, [status, isGuided]);
 
   useEffect(() => {
-    const mq = window.matchMedia('(max-height: 700px)');
+    const mq = window.matchMedia('(max-height: 740px)');
     const update = () => setCompactViewport(mq.matches);
     update();
     mq.addEventListener('change', update);
@@ -137,7 +137,7 @@ export default function SosPage(): ReactElement {
     <ScreenFrame className="v81-screen--sos overflow-hidden">
       {status === 'completed' && <SosCompletionStars />}
 
-      <div className="v81-sos-layout relative z-10 flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="v81-sos-layout relative z-10 flex min-h-0 flex-1 flex-col overflow-x-hidden">
         <header className="v81-sos-header shrink-0">
           <div className="v81-top-bar v81-sos-top-bar">
             <GlassIconButton onClick={() => router.back()} icon={ChevronLeft} label="Back" />

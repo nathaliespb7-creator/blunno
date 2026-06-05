@@ -2347,7 +2347,8 @@ button.v81-glass-cell:active {
   height: 44px;
   margin: 0;
   cursor: pointer;
-  opacity: 0;
+  /* Use near-zero opacity instead of 0 to prevent iOS from dropping touch events */
+  opacity: 0.001;
   -webkit-appearance: none;
   appearance: none;
   background: transparent;

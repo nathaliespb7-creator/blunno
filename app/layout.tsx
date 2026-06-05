@@ -55,7 +55,7 @@ const inter = Inter({
   weight: ['400'],
 });
 
-const shellBg = '#0B0B1A';
+const shellBg = '#0a0815';
 
 const softwareApplicationJsonLd = {
   '@context': 'https://schema.org',
