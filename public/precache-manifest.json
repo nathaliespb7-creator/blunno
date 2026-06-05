@@ -1,6 +1,6 @@
 {
   "version": 38,
-  "generatedAt": "2026-06-05T21:26:25.603Z",
+  "generatedAt": "2026-06-05T21:32:29.440Z",
   "routes": [
     "/",
     "/app",
@@ -41,6 +41,7 @@
     "/icon-192.png",
     "/icon-512-maskable.png",
     "/icon-512.png",
+    "/icons/512x512-monochrome.png",
     "/images/play/balloon-popit.png",
     "/images/play/balloon-preview.png",
     "/images/play/snake-preview.png",
@@ -123,8 +124,8 @@
     "/_next/static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2",
     "/_next/static/media/fe9c9076d1cdc5cf-s.0i0199ss2.t9a.woff2",
     "/_next/static/media/icon.0z.jvmbiw6d5b.png",
-    "/_next/static/p62xzDQYd6MUOtN_6kuSW/_buildManifest.js",
-    "/_next/static/p62xzDQYd6MUOtN_6kuSW/_clientMiddlewareManifest.js",
-    "/_next/static/p62xzDQYd6MUOtN_6kuSW/_ssgManifest.js"
+    "/_next/static/qBTXisL5BgRo6ivBFk5bW/_buildManifest.js",
+    "/_next/static/qBTXisL5BgRo6ivBFk5bW/_clientMiddlewareManifest.js",
+    "/_next/static/qBTXisL5BgRo6ivBFk5bW/_ssgManifest.js"
   ]
 }
