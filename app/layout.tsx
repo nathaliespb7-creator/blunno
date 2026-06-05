@@ -20,7 +20,7 @@ const welcomeDisplay = Poppins({
 });
 
 const sarabun = Sarabun({
-  subsets: ['latin', 'thai'],
+  subsets: ['latin'],
   variable: '--font-sarabun',
   display: 'swap',
   weight: ['400', '700', '800'],
@@ -42,7 +42,7 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 const roboto = Roboto({
-  subsets: ['latin', 'cyrillic'],
+  subsets: ['latin'],
   variable: '--font-roboto',
   display: 'swap',
   weight: ['400', '700'],
