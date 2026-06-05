@@ -1,6 +1,6 @@
 {
   "version": 38,
-  "generatedAt": "2026-06-05T19:20:54.694Z",
+  "generatedAt": "2026-06-05T19:26:58.717Z",
   "routes": [
     "/",
     "/app",
@@ -52,10 +52,14 @@
     "/window.svg"
   ],
   "assets": [
+    "/_next/static/D5eZgRDL7C7WCg7iO6V0y/_buildManifest.js",
+    "/_next/static/D5eZgRDL7C7WCg7iO6V0y/_clientMiddlewareManifest.js",
+    "/_next/static/D5eZgRDL7C7WCg7iO6V0y/_ssgManifest.js",
     "/_next/static/chunks/0.4wrb7e1yofn.js",
     "/_next/static/chunks/0.ejo_gu9p_zm.js",
     "/_next/static/chunks/00ck4zvm7f9y9.js",
     "/_next/static/chunks/01xlw8hd842-c.js",
+    "/_next/static/chunks/033ri-b~e_v6w.js",
     "/_next/static/chunks/03~yq9q893hmn.js",
     "/_next/static/chunks/045hbqf_foz~9.css",
     "/_next/static/chunks/05v-~twg_f1n8.js",
@@ -73,13 +77,9 @@
     "/_next/static/chunks/0ptt0uhx51az-.js",
     "/_next/static/chunks/0tgz4w~kfzoae.js",
     "/_next/static/chunks/10mre2dppkj.s.js",
-    "/_next/static/chunks/12yikeezps.sl.js",
     "/_next/static/chunks/16ner59.03y5c.css",
     "/_next/static/chunks/17.ee14xcswqs.js",
     "/_next/static/chunks/turbopack-0-4puhzwhfg-c.js",
-    "/_next/static/eoFsTqpID9ClO3SG9xnHB/_buildManifest.js",
-    "/_next/static/eoFsTqpID9ClO3SG9xnHB/_clientMiddlewareManifest.js",
-    "/_next/static/eoFsTqpID9ClO3SG9xnHB/_ssgManifest.js",
     "/_next/static/media/0b1dc8ddaa74ba49-s.04o39dzmj.ey..woff2",
     "/_next/static/media/0bbfe7d70ca362ab-s.0ee1tu67pvspi.woff2",
     "/_next/static/media/1a099d89ee94ee96-s.0_qb~~5cn13jl.woff2",
