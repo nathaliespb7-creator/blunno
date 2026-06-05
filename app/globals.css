@@ -2505,15 +2505,52 @@ button.v81-glass-cell:active {
   }
 
   .v81-screen--sos .v81-sos-footer {
-    padding-top: 0.5rem;
-    padding-bottom: max(8px, env(safe-area-inset-bottom, 0px));
+    padding-top: 0.4rem;
+    padding-bottom: max(6px, env(safe-area-inset-bottom, 0px));
   }
 
   .v81-screen--sos .v81-sos-footer .v81-glass-action-btn {
     min-height: 48px;
-    font-size: 15px;
+  }
+}
+
+@media (max-height: 520px) {
+  .v81-screen--sos .v81-screen-inner {
+    padding-top: max(20px, calc(var(--shell-top-inset, 0px) + 2px));
+    padding-bottom: max(4px, env(safe-area-inset-bottom, 0px));
   }
 
+  .v81-screen--sos .v81-sos-header .mb-3,
+  .v81-screen--sos .v81-sos-title {
+    margin-bottom: 0.15rem;
+  }
+
+  .v81-screen--sos .v81-sos-mode-toggle {
+    margin-bottom: 0.15rem;
+  }
+
+  .v81-screen--sos .v81-sos-content {
+    justify-content: flex-start !important;
+    padding-top: 0.1rem;
+    padding-bottom: 0.1rem;
+  }
+
+  .v81-screen--sos .v81-sos-ring-stack {
+    gap: 6px !important;
+  }
+
+  .v81-screen--sos .v81-sos-footer {
+    padding-top: 0.25rem;
+    padding-bottom: max(4px, env(safe-area-inset-bottom, 0px));
+  }
+
+  .v81-screen--sos .v81-sos-footer .v81-glass-action-btn {
+    min-height: 44px;
+    font-size: 14px;
+  }
+}
+
+@media (max-height: 520px) {
   /* Welcome — same short-viewport treatment for Start Now */
   :root {
     --welcome-content-top: 72px;
