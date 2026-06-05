@@ -342,7 +342,12 @@ body::after {
 @media (display-mode: standalone) {
   :root {
     --shell-top-inset: max(env(safe-area-inset-top, 0px), 24px);
-    --shell-bottom-inset: max(env(safe-area-inset-bottom, 0px), 20px);
+    --shell-bottom-inset: max(env(safe-area-inset-bottom, 0px), 8px);
+  }
+
+  /* SOS — extra compact in standalone PWA (Android nav bar steals height) */
+  .v81-screen--sos .v81-sos-footer {
+    padding-bottom: max(6px, env(safe-area-inset-bottom, 0px)) !important;
   }
 }
 
