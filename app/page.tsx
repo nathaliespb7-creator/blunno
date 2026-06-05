@@ -13,7 +13,7 @@ export default function MarketingLandingPage() {
   }, []);
 
   return (
-    <div className="relative h-screen h-[100dvh] overflow-hidden font-sans flex flex-col items-center justify-between px-4 py-6 sm:py-8 md:py-12" style={{ backgroundColor: '#120f25' }}>
+    <div className="relative h-screen h-[100dvh] overflow-hidden overflow-y-auto font-sans flex flex-col items-center justify-between px-4 py-6 sm:py-8 md:py-12" style={{ backgroundColor: '#120f25', minHeight: '100vh', minHeight: '-webkit-fill-available' }}>
       <div className="v81-ambient-glow-a" aria-hidden />
       <div className="v81-ambient-glow-b" aria-hidden />
 
