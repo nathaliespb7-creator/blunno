@@ -1,6 +1,6 @@
 {
   "version": 38,
-  "generatedAt": "2026-06-05T21:03:08.758Z",
+  "generatedAt": "2026-06-05T21:15:39.748Z",
   "routes": [
     "/",
     "/app",
@@ -45,6 +45,12 @@
     "/images/play/balloon-preview.png",
     "/images/play/snake-preview.png",
     "/next.svg",
+    "/screenshots/choose.jpg",
+    "/screenshots/planner.jpg",
+    "/screenshots/play.jpg",
+    "/screenshots/relax.jpg",
+    "/screenshots/sos.jpg",
+    "/screenshots/welcome.jpg",
     "/sounds/exhale.mp3",
     "/sounds/hover-soft.mp3",
     "/sounds/inhale.mp3",
@@ -117,8 +123,8 @@
     "/_next/static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2",
     "/_next/static/media/fe9c9076d1cdc5cf-s.0i0199ss2.t9a.woff2",
     "/_next/static/media/icon.0z.jvmbiw6d5b.png",
-    "/_next/static/ttfgoYvfwvzJs8p3oR26Z/_buildManifest.js",
-    "/_next/static/ttfgoYvfwvzJs8p3oR26Z/_clientMiddlewareManifest.js",
-    "/_next/static/ttfgoYvfwvzJs8p3oR26Z/_ssgManifest.js"
+    "/_next/static/uHY5PTivvdKxorRxpi9T-/_buildManifest.js",
+    "/_next/static/uHY5PTivvdKxorRxpi9T-/_clientMiddlewareManifest.js",
+    "/_next/static/uHY5PTivvdKxorRxpi9T-/_ssgManifest.js"
   ]
 }

@@ -16,6 +16,50 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: 'en',
     dir: 'ltr',
     categories: ['health', 'education', 'productivity', 'lifestyle'],
+    screenshots: [
+      {
+        src: '/screenshots/welcome.jpg',
+        sizes: '1170x2532',
+        type: 'image/jpeg',
+        form_factor: 'narrow',
+        label: 'Welcome screen with mascot',
+      },
+      {
+        src: '/screenshots/choose.jpg',
+        sizes: '1170x2532',
+        type: 'image/jpeg',
+        form_factor: 'narrow',
+        label: 'Choose your mood',
+      },
+      {
+        src: '/screenshots/sos.jpg',
+        sizes: '1170x2532',
+        type: 'image/jpeg',
+        form_factor: 'narrow',
+        label: 'SOS breathing exercise',
+      },
+      {
+        src: '/screenshots/planner.jpg',
+        sizes: '1170x2532',
+        type: 'image/jpeg',
+        form_factor: 'narrow',
+        label: 'Daily mindful planner',
+      },
+      {
+        src: '/screenshots/play.jpg',
+        sizes: '1170x2532',
+        type: 'image/jpeg',
+        form_factor: 'narrow',
+        label: 'Mini games for breaks',
+      },
+      {
+        src: '/screenshots/relax.jpg',
+        sizes: '1170x2532',
+        type: 'image/jpeg',
+        form_factor: 'narrow',
+        label: 'Relax with calming sounds',
+      },
+    ],
     icons: [
       {
         src: '/icon-192.png',
