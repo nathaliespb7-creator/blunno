@@ -13,7 +13,7 @@ export default function MarketingLandingPage() {
   }, []);
 
   return (
-    <div className="relative h-screen h-[100dvh] overflow-hidden bg-[#05050A] font-sans flex flex-col items-center justify-between px-4 py-6 sm:py-8 md:py-12">
+    <div className="relative h-screen h-[100dvh] overflow-hidden bg-blunno-bg font-sans flex flex-col items-center justify-between px-4 py-6 sm:py-8 md:py-12">
       <div className="v81-ambient-glow-a" aria-hidden />
       <div className="v81-ambient-glow-b" aria-hidden />
 
@@ -26,11 +26,11 @@ export default function MarketingLandingPage() {
             Blunno
           </h1>
 
-          <p className="text-[#00FFFF] text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide">
+          <p className="text-cyan-400 text-sm sm:text-base md:text-lg lg:text-xl font-medium tracking-wide">
             Your pocket reset for study stress
           </p>
 
-          <p className="text-[11px] sm:text-xs md:text-sm text-[#9CA3AF] mt-1 md:mt-2 uppercase tracking-[0.15em]">
+          <p className="text-[11px] sm:text-xs md:text-sm text-white/60 mt-1 md:mt-2 uppercase tracking-[0.15em]">
             Free · Offline · No signup
           </p>
 
@@ -40,27 +40,27 @@ export default function MarketingLandingPage() {
 
           {/* Elegant minimalist typographic block describing features */}
           <div className="mt-10 md:mt-14 flex flex-col items-center space-y-2 text-center px-4">
-            <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-[#00FFFF]/60 font-semibold">
+            <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-cyan-400/60 font-semibold">
               Inside the app
             </p>
-            <p className="text-xs sm:text-sm md:text-base text-[#9CA3AF] font-medium max-w-md text-balance leading-relaxed">
+            <p className="text-xs sm:text-sm md:text-base text-white/60 font-medium max-w-md text-balance leading-relaxed">
               SOS breathing for exam panic · Focus sounds for deep study · Mindful planner for daily tasks · Mini breaks to reset your mind
             </p>
           </div>
         </div>
       </div>
 
-      <footer className="relative z-10 mt-auto pt-4 text-center text-[9px] md:text-[11px] text-[#6B7280] border-t border-white/10 w-full max-w-md">
+      <footer className="relative z-10 mt-auto pt-4 text-center text-[9px] md:text-[11px] text-white/50 border-t border-white/10 w-full max-w-md">
         <p>Blunno — pocket reset for study stress</p>
         <p className="mt-0.5">
           <a
             href="mailto:hello@blunno.app"
-            className="hover:text-[#00FFFF] transition-colors"
+            className="hover:text-cyan-400 transition-colors"
           >
             Send feedback
           </a>
           {' · '}
-          <a href="/privacy" className="hover:text-[#00FFFF] transition-colors">
+          <a href="/privacy" className="hover:text-cyan-400 transition-colors">
             Privacy
           </a>
           {' · © 2026'}

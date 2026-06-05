@@ -55,7 +55,7 @@ const inter = Inter({
   weight: ['400'],
 });
 
-const shellBg = '#0a0815';
+const shellBg = '#120f25';
 
 const softwareApplicationJsonLd = {
   '@context': 'https://schema.org',
@@ -142,6 +142,7 @@ export default function RootLayout({
         <AudioUnlock />
         <ServiceWorkerRegister />
         <DevCacheReset />
+        <link rel="preload" as="image" href="/blunno-mascot-make-v23.webp" type="image/webp" />
         {children}
         <Notification />
         <GlobalAudioIndicator />

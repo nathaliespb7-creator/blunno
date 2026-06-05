@@ -285,20 +285,7 @@ html {
   overscroll-behavior-y: none;
 }
 
-html.welcome-route,
-html.landing-route {
-  background-color: #05050a !important;
-  overflow: auto;
-  overscroll-behavior: auto;
-}
 
-html.landing-route body {
-  overflow: auto;
-  overscroll-behavior: auto;
-  height: auto;
-  min-height: 100vh;
-  min-height: 100dvh;
-}
 
 @keyframes landingFloat {
   0%,
@@ -2319,7 +2306,7 @@ button.v81-glass-cell:active {
   flex: 1;
   height: 44px;
   align-items: center;
-  touch-action: none;
+  touch-action: pan-x;
 }
 
 .v81-relax-volume-rail {
@@ -2349,7 +2336,8 @@ button.v81-glass-cell:active {
   height: 44px;
   margin: 0;
   cursor: pointer;
-  opacity: 0.001;
+  opacity: 0;
+  -webkit-tap-highlight-color: transparent;
   -webkit-appearance: none;
   appearance: none;
   background: transparent;
