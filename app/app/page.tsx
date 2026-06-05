@@ -1,11 +1,9 @@
 'use client';
 
 import { useEffect, type ReactElement } from 'react';
-import { ArrowLeft, Home } from 'lucide-react';
 
 import { WelcomeCTA } from '@/components/features/welcome/WelcomeCTA';
 import { WelcomeMascot } from '@/components/features/welcome/WelcomeMascot';
-import { GlassIconButton } from '@/components/shared/make-v81/GlassIconButton';
 import { cn } from '@/lib/utils';
 
 export default function WelcomePage(): ReactElement {
@@ -18,11 +16,6 @@ export default function WelcomePage(): ReactElement {
 
   return (
     <main className={cn('welcome-screen', 'font-[family-name:var(--font-plus-jakarta)]')}>
-      {/* Navigation bar */}
-      <div className="v81-top-bar absolute left-0 right-0 top-0 z-20 flex items-center justify-between px-4" style={{ paddingTop: 'max(12px, env(safe-area-inset-top, 0px))' }}>
-        <GlassIconButton href="/" icon={ArrowLeft} label="Back to home" />
-        <GlassIconButton href="/" icon={Home} label="Home" />
-      </div>
       <div
         className="pointer-events-none absolute rounded-full"
         style={{
