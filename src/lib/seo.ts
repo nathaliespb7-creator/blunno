@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const SITE_URL = 'https://blunno.app';
 
 const OG_IMAGE = {
-  url: '/og-image.png',
+  url: '/og-image',
   width: 1200,
   height: 630,
 } as const;
@@ -54,7 +54,7 @@ export function routeMetadata({
       card: 'summary_large_image',
       title: resolvedOgTitle,
       description,
-      images: [OG_IMAGE.url],
+      images: [`${SITE_URL}/og-image`],
     },
   };
 }

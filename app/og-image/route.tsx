@@ -12,33 +12,47 @@ const FEATURES = [
   { label: 'Mini Breaks', color: '#6a3cae' },
 ] as const;
 
-async function loadMascotDataUrl(): Promise<string> {
-  const mascotPath = join(process.cwd(), 'public', 'blunno-mascot-make-v23.png');
-  const mascotBuffer = await readFile(mascotPath);
-  return `data:image/png;base64,${mascotBuffer.toString('base64')}`;
+async function loadMascotDataUrl(): Promise<string | null> {
+  try {
+    const mascotPath = join(process.cwd(), 'public', 'blunno-mascot-make-v23.png');
+    const mascotBuffer = await readFile(mascotPath);
+    return `data:image/png;base64,${mascotBuffer.toString('base64')}`;
+  } catch {
+    console.warn('[og-image] Mascot image not found, rendering without it');
+    return null;
+  }
 }
 
-async function loadFont(weight: 500 | 700): Promise<ArrayBuffer> {
+async function loadFont(weight: 500 | 700): Promise<ArrayBuffer | null> {
   const url =
     weight === 700
       ? 'https://fonts.gstatic.com/s/plusjakartasans/v12/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_TknNSg.ttf'
       : 'https://fonts.gstatic.com/s/plusjakartasans/v12/LDIbaomQNQcsA88c7O9yZ4KMCoOg4IA6-91aHEjcWuA_m07NSg.ttf';
 
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error(`Failed to load Plus Jakarta Sans (${weight})`);
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to load Plus Jakarta Sans (${weight})`);
+    }
+    return response.arrayBuffer();
+  } catch (e) {
+    console.warn(`[og-image] Failed to load Plus Jakarta Sans ${weight}:`, e);
+    return null;
   }
-
-  return response.arrayBuffer();
 }
 
-async function loadTiroTelugu(): Promise<ArrayBuffer> {
+async function loadTiroTelugu(): Promise<ArrayBuffer | null> {
   const url = 'https://fonts.gstatic.com/l/font?kit=aFTQ7PxlZWk2EPiSymjXdKSNWqi-MjYgzA&skey=c5928e8e3da1a200&v=v7';
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error('Failed to load Tiro Telugu');
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error('Failed to load Tiro Telugu');
+    }
+    return response.arrayBuffer();
+  } catch (e) {
+    console.warn('[og-image] Failed to load Tiro Telugu:', e);
+    return null;
   }
-  return response.arrayBuffer();
 }
 
 export async function GET() {
@@ -48,6 +62,11 @@ export async function GET() {
     loadFont(700),
     loadTiroTelugu(),
   ]);
+
+  const fonts: Array<{ name: string; data: ArrayBuffer; weight: 500 | 700 | 400; style: 'normal' }> = [];
+  if (fontMedium) fonts.push({ name: 'Plus Jakarta Sans' as const, data: fontMedium, weight: 500 as const, style: 'normal' as const });
+  if (fontBold) fonts.push({ name: 'Plus Jakarta Sans' as const, data: fontBold, weight: 700 as const, style: 'normal' as const });
+  if (fontTiro) fonts.push({ name: 'Tiro Telugu' as const, data: fontTiro, weight: 400 as const, style: 'normal' as const });
 
   return new ImageResponse(
     (
@@ -64,7 +83,7 @@ export async function GET() {
           background:
             'linear-gradient(135deg, #0b0b1a 0%, #131121 48%, #1a1530 100%)',
           color: '#e5dff6',
-          fontFamily: 'Plus Jakarta Sans',
+          fontFamily: fontMedium ? 'Plus Jakarta Sans' : 'sans-serif',
         }}
       >
         {/* Ambient glow behind mascot column */}
@@ -112,7 +131,7 @@ export async function GET() {
             display: 'flex',
             flexDirection: 'column',
             justifyContent: 'center',
-            width: '58%',
+            width: mascotSrc ? '58%' : '100%',
             paddingTop: 72,
             paddingBottom: 72,
             paddingLeft: 80,
@@ -151,7 +170,7 @@ export async function GET() {
               fontSize: 96,
               lineHeight: 1.1,
               fontWeight: 400,
-              fontFamily: 'Tiro Telugu',
+              fontFamily: fontTiro ? 'Tiro Telugu' : 'sans-serif',
               color: '#e5dff6',
             }}
           >
@@ -225,84 +244,67 @@ export async function GET() {
         </div>
 
         {/* Right: mascot */}
-        <div
-          style={{
-            position: 'relative',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            width: '42%',
-            paddingRight: 56,
-          }}
-        >
+        {mascotSrc && (
           <div
             style={{
               position: 'relative',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              width: 380,
-              height: 380,
+              width: '42%',
+              paddingRight: 56,
             }}
           >
             <div
               style={{
-                position: 'absolute',
-                width: 340,
-                height: 340,
-                borderRadius: 9999,
-                background:
-                  'radial-gradient(circle, rgba(124,90,255,0.45) 0%, rgba(124,90,255,0.18) 38%, rgba(124,90,255,0) 72%)',
-              }}
-            />
-            <div
-              style={{
-                position: 'absolute',
-                width: 280,
-                height: 280,
-                borderRadius: 9999,
-                background:
-                  'radial-gradient(circle, rgba(201,191,255,0.35) 0%, rgba(201,191,255,0.12) 50%, rgba(201,191,255,0) 75%)',
-              }}
-            />
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={mascotSrc}
-              alt=""
-              width={320}
-              height={320}
-              style={{
                 position: 'relative',
-                objectFit: 'contain',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: 380,
+                height: 380,
               }}
-            />
+            >
+              <div
+                style={{
+                  position: 'absolute',
+                  width: 340,
+                  height: 340,
+                  borderRadius: 9999,
+                  background:
+                    'radial-gradient(circle, rgba(124,90,255,0.45) 0%, rgba(124,90,255,0.18) 38%, rgba(124,90,255,0) 72%)',
+                }}
+              />
+              <div
+                style={{
+                  position: 'absolute',
+                  width: 280,
+                  height: 280,
+                  borderRadius: 9999,
+                  background:
+                    'radial-gradient(circle, rgba(201,191,255,0.35) 0%, rgba(201,191,255,0.12) 50%, rgba(201,191,255,0) 75%)',
+                }}
+              />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={mascotSrc}
+                alt=""
+                width={320}
+                height={320}
+                style={{
+                  position: 'relative',
+                  objectFit: 'contain',
+                }}
+              />
+            </div>
           </div>
-        </div>
+        )}
       </div>
     ),
     {
       width: 1200,
       height: 630,
-      fonts: [
-        {
-          name: 'Plus Jakarta Sans',
-          data: fontMedium,
-          weight: 500,
-          style: 'normal',
-        },
-        {
-          name: 'Plus Jakarta Sans',
-          data: fontBold,
-          weight: 700,
-          style: 'normal',
-        },
-        {
-          name: 'Tiro Telugu',
-          data: fontTiro,
-          weight: 400,
-          style: 'normal',
-        },
-      ],
+      fonts: fonts.length > 0 ? fonts : undefined,
     }
   );
 }

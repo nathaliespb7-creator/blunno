@@ -322,7 +322,7 @@ export default function PlannerPage(): ReactElement {
                   isSelected ? (isWeekend ? '#FFD080' : '#8b6bff') : isWeekend ? 'rgba(255,200,80,0.45)' : '#8b6bff'
                 }
               />
-              <span className="relative z-10 text-[10px] uppercase tracking-wide" style={{ color: isSelected ? (isWeekend ? 'rgba(255,220,120,0.95)' : 'rgba(196,181,253,0.9)') : isWeekend ? 'rgba(255,200,80,0.5)' : 'rgba(255,255,255,0.35)' }}>
+              <span className="relative z-10 text-[10px] uppercase tracking-wide" style={{ color: isSelected ? (isWeekend ? 'rgba(255,220,120,0.95)' : 'rgba(196,181,253,0.9)') : isWeekend ? 'rgba(255,200,80,0.55)' : 'rgba(255,255,255,0.55)' }}>
                 {date.toLocaleString('en-US', { weekday: 'short' })}
               </span>
               <span className="relative z-10 text-lg" style={{ fontWeight: isSelected ? 700 : 400, color: isSelected ? (isWeekend ? '#FFE5A0' : '#FFFFFF') : isWeekend ? 'rgba(255,200,80,0.65)' : 'rgba(255,255,255,0.55)' }}>
@@ -343,7 +343,7 @@ export default function PlannerPage(): ReactElement {
           <Sparkles className="h-[14px] w-[14px] text-[rgba(196,181,253,0.6)]" strokeWidth={1.5} />
           <span className="text-[13px] uppercase tracking-wide text-[rgba(196,181,253,0.55)]">Today&apos;s plan</span>
         </div>
-        <span className="text-xs text-white/25">{currentTasks.length} tasks</span>
+        <span className="text-xs text-white/40">{currentTasks.length} tasks</span>
       </div>
 
       <div className="v81-scroll-area mb-3 v81-glass-cell-list">

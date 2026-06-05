@@ -16,8 +16,13 @@ export function CookieConsent(): ReactElement | null {
 
   useEffect(() => {
     syncAnalyticsConsentFromStorage();
-    const stored = localStorage.getItem(CONSENT_STORAGE_KEY);
-    if (stored === null) {
+    try {
+      const stored = localStorage.getItem(CONSENT_STORAGE_KEY);
+      if (stored === null) {
+        setVisible(true);
+      }
+    } catch {
+      // Safari Private Browsing blocks localStorage — show consent banner anyway
       setVisible(true);
     }
   }, []);
@@ -38,6 +43,7 @@ export function CookieConsent(): ReactElement | null {
     <div
       role="dialog"
       aria-label="Cookie preferences"
+      aria-modal="true"
       className="fixed inset-x-4 bottom-4 z-[100] mx-auto max-w-lg rounded-2xl border border-white/10 bg-[#120f25]/95 p-4 shadow-[0_8px_32px_rgba(0,0,0,0.5)] backdrop-blur-md sm:inset-x-6"
     >
       <p className="text-sm leading-relaxed text-white/85">

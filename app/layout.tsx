@@ -1,5 +1,5 @@
 import './globals.css';
-import { Comfortaa, Inter, Plus_Jakarta_Sans, Poppins, Roboto, Sarabun, Tiro_Telugu } from 'next/font/google';
+import { Inter, Plus_Jakarta_Sans, Poppins, Roboto, Sarabun, Tiro_Telugu } from 'next/font/google';
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 
@@ -10,13 +10,6 @@ import { GlobalAudioIndicator } from '@/components/shared/GlobalAudioIndicator';
 import { ServiceWorkerRegister } from '@/components/shared/ServiceWorkerRegister';
 import { Notification } from '@/components/ui';
 import { GA_MEASUREMENT_ID } from '@/lib/analytics';
-
-const comfortaa = Comfortaa({
-  subsets: ['latin', 'cyrillic'],
-  variable: '--font-comfortaa',
-  display: 'swap',
-  weight: ['400', '500', '600', '700'],
-});
 
 /** Figma Welcome: заголовок (замена Toppan Bunkyu Midashi Gothic) */
 const welcomeDisplay = Poppins({
@@ -121,13 +114,13 @@ export const metadata: Metadata = {
     siteName: 'Blunno',
     locale: 'en_US',
     type: 'website',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
+    images: [{ url: '/og-image', width: 1200, height: 630 }],
   },
   twitter: {
     card: 'summary_large_image',
     title: 'Blunno – Pocket reset for study stress',
     description: 'Free offline PWA for students',
-    images: ['/og-image.png'],
+    images: ['/og-image'],
   },
   icons: {
     icon: '/icon-192.png',
@@ -143,7 +136,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${welcomeDisplay.variable} ${tiroTelugu.variable} ${plusJakartaSans.variable} ${comfortaa.variable} ${sarabun.variable} ${roboto.variable} ${inter.variable} min-h-dvh overflow-x-hidden bg-blunno-bg`}
+      className={`${welcomeDisplay.variable} ${tiroTelugu.variable} ${plusJakartaSans.variable} ${sarabun.variable} ${roboto.variable} ${inter.variable} min-h-dvh overflow-x-hidden bg-blunno-bg`}
     >
       <body className="min-h-dvh w-full max-w-[100vw] overflow-x-hidden font-ui text-blunno-foreground antialiased">
         <AudioUnlock />

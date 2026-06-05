@@ -6,6 +6,11 @@ import type { CSSProperties, ReactElement, ReactNode } from 'react';
 import { GlassCellDecor } from '@/components/shared/make-v81/GlassCellDecor';
 import { cn } from '@/lib/utils';
 
+/** Validates a color string is a safe hex value. Returns the color if valid, falls back to default. */
+function safeColor(color: string, fallback = '#ffffff'): string {
+  return /^#[0-9a-fA-F]{6}$/.test(color) ? color : fallback;
+}
+
 type GlassListCellBaseProps = {
   accentColor: string;
   className?: string;
@@ -62,26 +67,28 @@ export type GlassListCellProps =
   | GlassListCellAnchorProps;
 
 function AccentBar({ color }: { color: string }): ReactElement {
+  const safe = safeColor(color);
   return (
     <div
       className="v81-glass-cell-accent"
-      style={{ background: color, boxShadow: `0 0 8px ${color}` }}
+      style={{ background: safe, boxShadow: `0 0 8px ${safe}` }}
       aria-hidden
     />
   );
 }
 
 function IconBox({ icon: Icon, color }: { icon: LucideIcon; color: string }): ReactElement {
+  const safe = safeColor(color);
   return (
     <div
       className="v81-glass-cell-icon"
       style={{
-        background: `linear-gradient(135deg, ${color}40 0%, ${color}10 100%)`,
-        borderColor: `${color}40`,
-        boxShadow: `0 6px 18px -6px ${color}60, inset 0 0 12px ${color}20`,
+        background: `linear-gradient(135deg, ${safe}40 0%, ${safe}10 100%)`,
+        borderColor: `${safe}40`,
+        boxShadow: `0 6px 18px -6px ${safe}60, inset 0 0 12px ${safe}20`,
       }}
     >
-      <Icon className="h-5 w-5" style={{ color }} strokeWidth={1.5} />
+      <Icon className="h-5 w-5" style={{ color: safe }} strokeWidth={1.5} />
     </div>
   );
 }
@@ -199,6 +206,7 @@ export function GlassListCellAction({
   active = false,
   filled = false,
 }: GlassListCellActionProps): ReactElement {
+  const safe = safeColor(accentColor);
   return (
     <button
       type="button"
@@ -206,15 +214,15 @@ export function GlassListCellAction({
       aria-label={label}
       className="v81-glass-cell-action blunno-focus-visible"
       style={{
-        background: active ? accentColor : 'rgba(18,12,48,0.5)',
-        borderColor: accentColor,
-        boxShadow: active ? `0 0 12px ${accentColor}` : 'none',
+        background: active ? safe : 'rgba(18,12,48,0.5)',
+        borderColor: safe,
+        boxShadow: active ? `0 0 12px ${safe}` : 'none',
       }}
     >
       <Icon
         className={cn('h-4 w-4', active ? 'text-[#120F25]' : 'text-white/85')}
         strokeWidth={2}
-        fill={filled && !active ? 'rgba(255,255,255,0.85)' : filled && active ? accentColor : undefined}
+        fill={filled && !active ? 'rgba(255,255,255,0.85)' : filled && active ? safe : undefined}
       />
     </button>
   );

@@ -180,8 +180,7 @@ export function SosBreathRing({
       disabled={isCompleted || (isGuided && !guidedTapStart && !isRunning)}
     >
       <svg
-        role="img"
-        aria-hidden
+        aria-hidden="true"
         viewBox={`0 0 ${VIEW_SIZE} ${VIEW_SIZE}`}
         preserveAspectRatio="xMidYMid meet"
         className="pointer-events-none absolute inset-0 z-10 size-full overflow-visible"
