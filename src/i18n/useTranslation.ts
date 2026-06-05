@@ -12,10 +12,14 @@ const translations: Record<string, Record<string, string>> = {
 export function useTranslation() {
   const { locale } = useLocale();
 
-  function t(key: string, params?: Record<string, string | number>): string {
+  function t(key: string, fallback?: string): string;
+  function t(key: string, params?: Record<string, string | number>): string;
+  function t(key: string, arg?: string | Record<string, string | number>): string {
     let value = translations[locale]?.[key] ?? translations.en?.[key] ?? key;
-    if (params) {
-      for (const [k, v] of Object.entries(params)) {
+    if (typeof arg === 'string') {
+      value = value === key ? arg : value;
+    } else if (arg) {
+      for (const [k, v] of Object.entries(arg)) {
         value = value.replace(`{${k}}`, String(v));
       }
     }

@@ -46,7 +46,7 @@ export default function MarketingLandingPage() {
             <p className="text-[10px] sm:text-xs uppercase tracking-[0.2em] text-cyan-400/60 font-semibold">
               {t('landing.inside')}
             </p>
-            <p className="text-xs sm:text-sm md:text-base text-white/60 font-medium max-w-md text-balance leading-relaxed">
+            <p className="text-xs sm:text-sm md:text-base text-white/60 font-medium max-w-md text-balance leading-relaxed space-y-1.5">
               {t('landing.features')}
             </p>
           </div>

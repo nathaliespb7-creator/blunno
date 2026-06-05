@@ -25,6 +25,11 @@ export default function ChoosePage(): ReactElement {
     })();
   }, []);
 
+  const translatedMoods = V81_MOODS.map((mood) => ({
+    ...mood,
+    description: t(`choose.${mood.id}.desc`, mood.description),
+  }));
+
   return (
     <ScreenFrame className="v81-screen--choose">
       <ModeScreenTopBar
@@ -40,7 +45,7 @@ export default function ChoosePage(): ReactElement {
           className="v81-glass-cell-list v81-glass-cell-list--centered w-full max-w-[340px]"
           aria-label={t('choose.title')}
         >
-          {V81_MOODS.map((mood, index) => (
+          {translatedMoods.map((mood, index) => (
             <MoodTile
               key={mood.id}
               mood={mood}
