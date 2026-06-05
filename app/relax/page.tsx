@@ -1,7 +1,7 @@
 'use client';
 
 import { Pause, Play, Volume2 } from 'lucide-react';
-import { useCallback, useEffect, useState, type ReactElement } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 
 import {
   DEFAULT_RELAX_VOLUME,
@@ -48,6 +48,28 @@ export default function RelaxPage(): ReactElement {
     relaxAudioService.setVolume(id, value / 100);
   };
 
+  const makeVolumeHandlers = (id: RelaxSoundId) => {
+    const getValue = (clientX: number, trackEl: HTMLElement) => {
+      const rect = trackEl.getBoundingClientRect();
+      const x = Math.max(0, Math.min(clientX - rect.left, rect.width));
+      return Math.round((x / rect.width) * 100);
+    };
+
+    return {
+      onPointerDown: (e: React.PointerEvent<HTMLDivElement>) => {
+        const v = getValue(e.clientX, e.currentTarget);
+        updateVolume(id, v);
+        e.currentTarget.setPointerCapture(e.pointerId);
+      },
+      onPointerMove: (e: React.PointerEvent<HTMLDivElement>) => {
+        if (e.buttons === 1) {
+          const v = getValue(e.clientX, e.currentTarget);
+          updateVolume(id, v);
+        }
+      },
+    };
+  };
+
   return (
     <ScreenFrame glowVariant="relax" className="v81-screen--relax">
       <ModeScreenTopBar
@@ -81,7 +103,16 @@ export default function RelaxPage(): ReactElement {
                 isActive ? (
                   <div className="v81-relax-volume">
                     <Volume2 className="h-[18px] w-[18px] shrink-0 text-white/50" strokeWidth={2} />
-                    <div className="v81-relax-volume-track">
+                    <div
+                      className="v81-relax-volume-track"
+                      {...makeVolumeHandlers(sound.id)}
+                      role="slider"
+                      aria-label={`${sound.name} volume`}
+                      aria-valuenow={volume}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                      tabIndex={0}
+                    >
                       <div className="v81-relax-volume-rail" aria-hidden />
                       <div
                         className="v81-relax-volume-fill"
@@ -90,16 +121,6 @@ export default function RelaxPage(): ReactElement {
                           background: `linear-gradient(90deg, ${sound.color}80 0%, ${sound.color}50 100%)`,
                           boxShadow: `0 0 10px ${sound.color}60`,
                         }}
-                      />
-                      <input
-                        type="range"
-                        min={0}
-                        max={100}
-                        value={volume}
-                        onInput={(e) => updateVolume(sound.id, Number(e.currentTarget.value))}
-                        onChange={(e) => updateVolume(sound.id, Number(e.currentTarget.value))}
-                        className="v81-relax-volume-input"
-                        aria-label={`${sound.name} volume`}
                       />
                     </div>
                     <span className="min-w-[36px] shrink-0 text-right text-[13px] font-semibold text-white/60">
