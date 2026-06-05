@@ -81,34 +81,17 @@ export default function RelaxPage(): ReactElement {
                 isActive ? (
                   <div className="v81-relax-volume">
                     <Volume2 className="h-[18px] w-[18px] shrink-0 text-white/50" strokeWidth={2} />
-                    <div
-                      className="v81-relax-volume-track"
-                      role="slider"
+                    <input
+                      type="range"
+                      className="v81-relax-volume-input"
+                      min={0}
+                      max={100}
+                      value={volume}
+                      onInput={(e) => updateVolume(sound.id, Number(e.currentTarget.value))}
+                      onChange={(e) => updateVolume(sound.id, Number(e.currentTarget.value))}
                       aria-label={`${sound.name} volume`}
-                      aria-valuenow={volume}
-                      aria-valuemin={0}
-                      aria-valuemax={100}
-                    >
-                      <div className="v81-relax-volume-rail" aria-hidden />
-                      <div
-                        className="v81-relax-volume-fill"
-                        style={{
-                          width: `${volume}%`,
-                          background: `linear-gradient(90deg, ${sound.color}80 0%, ${sound.color}50 100%)`,
-                          boxShadow: `0 0 10px ${sound.color}60`,
-                        }}
-                      />
-                      <input
-                        type="range"
-                        className="v81-relax-volume-input"
-                        min={0}
-                        max={100}
-                        value={volume}
-                        onInput={(e) => updateVolume(sound.id, Number(e.currentTarget.value))}
-                        onChange={(e) => updateVolume(sound.id, Number(e.currentTarget.value))}
-                        aria-label={`${sound.name} volume slider`}
-                      />
-                    </div>
+                      style={{ accentColor: sound.color }}
+                    />
                     <span className="min-w-[36px] shrink-0 text-right text-[13px] font-semibold text-white/60">
                       {volume}%
                     </span>
