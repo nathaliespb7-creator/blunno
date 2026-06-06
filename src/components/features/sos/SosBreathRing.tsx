@@ -10,7 +10,6 @@ import {
   SOS_SCALE_MAX,
   SOS_SCALE_MIN,
   glowIntensityFromScale,
-  mascotSizePx,
   scaleFromTimedCycleProgress,
   type SosBreathStatus,
   type SosMode,
@@ -125,11 +124,6 @@ export function SosBreathRing({
     [tuning.blurPx, tuning.glowColor]
   );
 
-  const mascotPx = useMemo(
-    () => mascotSizePx(tuning.ringDiameterPx, tuning.strokeWidthPx, tuning.blunnoSizePx),
-    [tuning.ringDiameterPx, tuning.strokeWidthPx, tuning.blunnoSizePx]
-  );
-
   const progressScale = scaleFromTimedCycleProgress(cycleProgress);
   const mascotScale = isRunning || isCompleted ? progressScale : undefined;
 
@@ -150,13 +144,7 @@ export function SosBreathRing({
     return `${drawn} ${circ}`;
   }, [circ, cycleProgress]);
 
-  const ringSizeStyle = {
-    width: tuning.ringDiameterPx,
-    height: tuning.ringDiameterPx,
-    maxWidth: 'min(90vw, 100%)',
-    maxHeight: 'min(90vw, 55dvh)',
-    boxShadow: ringFilters.wrapper,
-  } as const;
+  const ringGlowStyle = { boxShadow: ringFilters.wrapper } as const;
 
   const ariaLabel = guidedTapStart
     ? t('sos.tapToStart')
@@ -168,12 +156,12 @@ export function SosBreathRing({
     <button
       type="button"
       className={cn(
-        'relative mx-auto flex shrink-0 items-center justify-center overflow-visible rounded-full aspect-square border-0 bg-transparent p-0 touch-none',
+        'sos-breath-ring relative mx-auto flex shrink-0 items-center justify-center overflow-visible rounded-full aspect-square border-0 bg-transparent p-0 touch-none',
         isCompleted && 'pointer-events-none opacity-[0.98]',
         guidedTapStart && 'cursor-pointer',
         traceActive && 'cursor-crosshair'
       )}
-      style={ringSizeStyle}
+      style={ringGlowStyle}
       aria-label={ariaLabel}
       onClick={guidedTapStart ? onStart : undefined}
       onPointerDown={isTrace ? handlePointerDown : undefined}
@@ -241,9 +229,8 @@ export function SosBreathRing({
 
       <div className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center">
         <motion.div
+          className="sos-breath-ring__mascot"
           style={{
-            width: mascotPx,
-            height: mascotPx,
             transformOrigin: 'center center',
             filter: mascotGlowFilter,
           }}
@@ -260,7 +247,7 @@ export function SosBreathRing({
             isCompleted
               ? { duration: 0.7, ease: 'easeOut' }
               : mascotScale !== undefined
-                ? { duration: 0.15, ease: 'easeOut' }
+                ? { duration: 0, ease: 'linear' }
                 : reduceMotion
                   ? { duration: 0 }
                   : { duration: 10, repeat: Infinity, ease: 'easeInOut' }
@@ -272,8 +259,6 @@ export function SosBreathRing({
               src={WELCOME_MASCOT_PNG}
               alt="Blunno character"
               data-testid="sos-mascot"
-              width={mascotPx}
-              height={mascotPx}
               decoding="async"
               fetchPriority="high"
               draggable={false}

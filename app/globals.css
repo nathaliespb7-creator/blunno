@@ -2471,6 +2471,32 @@ button.v81-glass-cell:active {
   justify-content: center;
 }
 
+/* Stable ring size — svh avoids iOS toolbar dvh jumps that jerk the ring */
+.sos-breath-ring {
+  --sos-ring-size: min(280px, 88vw, 42svh);
+  width: var(--sos-ring-size);
+  height: var(--sos-ring-size);
+  contain: layout style;
+  transform: translateZ(0);
+}
+
+@media (max-height: 740px) {
+  .v81-screen--sos .sos-breath-ring {
+    --sos-ring-size: min(248px, 86vw, 36svh);
+  }
+}
+
+@media (max-height: 600px) {
+  .v81-screen--sos .sos-breath-ring {
+    --sos-ring-size: min(228px, 84vw, 32svh);
+  }
+}
+
+.sos-breath-ring__mascot {
+  width: 43%;
+  height: 43%;
+}
+
 .v81-screen--sos .v81-sos-footer {
   flex-shrink: 0;
   padding-top: 0.75rem;

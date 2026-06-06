@@ -27,18 +27,9 @@ const DEFAULT_TUNING = {
   sectionGapPx: 16,
 } as const;
 
-const COMPACT_TUNING = {
-  ...DEFAULT_TUNING,
-  ringDiameterPx: 248,
-  strokeWidthPx: 24,
-  blunnoSizePx: 108,
-  sectionGapPx: 12,
-} as const;
-
 export default function SosPage(): ReactElement {
   const { t } = useTranslation();
   const [mode, setMode] = useState<SosMode>('guided');
-  const [compactViewport, setCompactViewport] = useState(false);
   const guided = useSosBreathEngine();
   const trace = useSosTraceEngine();
   const traceStartTracked = useRef(false);
@@ -86,14 +77,6 @@ export default function SosPage(): ReactElement {
     }
   }, [status, isGuided]);
 
-  useEffect(() => {
-    const mq = window.matchMedia('(max-height: 740px)');
-    const update = () => setCompactViewport(mq.matches);
-    update();
-    mq.addEventListener('change', update);
-    return () => mq.removeEventListener('change', update);
-  }, []);
-
   const handleModeChange = (next: SosMode) => {
     if (status !== 'idle') return;
     guided.reset();
@@ -127,11 +110,10 @@ export default function SosPage(): ReactElement {
   const displayPhaseLabel =
     status === 'completed' ? t('sos.complete') : status === 'idle' ? t('sos.ready') : phaseLabel;
 
-  const baseTuning = compactViewport ? COMPACT_TUNING : DEFAULT_TUNING;
   const ringTuning =
     status === 'completed'
-      ? { ...baseTuning, ringDiameterPx: baseTuning.ringDiameterPx - 20, blunnoSizePx: 104 }
-      : baseTuning;
+      ? { ...DEFAULT_TUNING, blunnoOffsetYPx: -4 }
+      : DEFAULT_TUNING;
 
   return (
     <ScreenFrame className="v81-screen--sos overflow-hidden">
