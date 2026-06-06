@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 
+import { BLUNNO_MASCOT_WEBP } from '@/lib/assets';
 import { routeMetadata } from '@/lib/seo';
 
 export const metadata = routeMetadata({
@@ -11,5 +12,10 @@ export const metadata = routeMetadata({
 });
 
 export default function SosLayout({ children }: { children: ReactNode }) {
-  return children;
+  return (
+    <>
+      <link rel="preload" as="image" href={BLUNNO_MASCOT_WEBP} type="image/webp" fetchPriority="high" />
+      {children}
+    </>
+  );
 }

@@ -5,7 +5,7 @@ import { useCallback, useMemo, type PointerEvent, type ReactElement } from 'reac
 
 import { useTranslation } from '@/i18n/useTranslation';
 
-import { WELCOME_MASCOT_PNG } from '@/lib/assets';
+import { WELCOME_MASCOT_PNG, WELCOME_MASCOT_WEBP } from '@/lib/assets';
 import {
   SOS_SCALE_MAX,
   SOS_SCALE_MIN,
@@ -266,16 +266,21 @@ export function SosBreathRing({
                   : { duration: 10, repeat: Infinity, ease: 'easeInOut' }
           }
         >
-          <img
-            src={WELCOME_MASCOT_PNG}
-            alt="Blunno character"
-            data-testid="sos-mascot"
-            width={mascotPx}
-            height={mascotPx}
-            draggable={false}
-            className="size-full object-contain object-center"
-            style={{ transform: `translateY(${tuning.blunnoOffsetYPx}px)` }}
-          />
+          <picture>
+            <source srcSet={WELCOME_MASCOT_WEBP} type="image/webp" />
+            <img
+              src={WELCOME_MASCOT_PNG}
+              alt="Blunno character"
+              data-testid="sos-mascot"
+              width={mascotPx}
+              height={mascotPx}
+              decoding="async"
+              fetchPriority="high"
+              draggable={false}
+              className="size-full object-contain object-center"
+              style={{ transform: `translateY(${tuning.blunnoOffsetYPx}px)` }}
+            />
+          </picture>
         </motion.div>
       </div>
     </button>
