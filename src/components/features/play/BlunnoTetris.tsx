@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type ReactElement } from 'react';
 
+import { useTranslation } from '@/i18n/useTranslation';
+
 type Piece = {
   shape: number[][];
   x: number;
@@ -140,6 +142,7 @@ function clearLines(board: number[][]): { board: number[][]; lines: number } {
 }
 
 export function BlunnoTetris(): ReactElement {
+  const { t } = useTranslation();
   const [board, setBoard] = useState<number[][]>(() => emptyBoard());
   const [piece, setPiece] = useState<Piece>(() => createPiece());
   const [running, setRunning] = useState(true);
@@ -363,10 +366,10 @@ export function BlunnoTetris(): ReactElement {
                   type="button"
                   onClick={togglePause}
                   className="absolute inset-0 z-10 flex cursor-pointer flex-col items-center justify-center gap-1 rounded-[22px] border border-white/15 bg-[var(--overlay-scrim)] px-4 backdrop-blur-[2px] touch-manipulation sm:rounded-[24px]"
-                  aria-label="Resume game"
+                  aria-label={t('play.tetris.resumeGame')}
                 >
-                  <span className="text-sm font-extrabold uppercase tracking-wider text-white">Paused</span>
-                  <span className="text-xs text-white/80">Tap to continue</span>
+                  <span className="text-sm font-extrabold uppercase tracking-wider text-white">{t('play.paused')}</span>
+                  <span className="text-xs text-white/80">{t('play.tapContinue')}</span>
                 </button>
               )}
             </div>
@@ -381,23 +384,23 @@ export function BlunnoTetris(): ReactElement {
           ].join(' ')}
         >
           <div className="tetris-chip">
-            <p className="tetris-chip-label">Level</p>
+            <p className="tetris-chip-label">{t('play.level')}</p>
             <p className="tetris-chip-value">{level}</p>
           </div>
           <div className="tetris-chip">
-            <p className="tetris-chip-label">Score</p>
+            <p className="tetris-chip-label">{t('play.score')}</p>
             <p className="tetris-chip-value text-[var(--color-accent-primary)]">{score}</p>
           </div>
           <div className="tetris-chip">
-            <p className="tetris-chip-label">Lines</p>
+            <p className="tetris-chip-label">{t('play.lines')}</p>
             <p className="tetris-chip-value">{lines}</p>
           </div>
           <div className="tetris-chip">
-            <p className="tetris-chip-label">Top</p>
+            <p className="tetris-chip-label">{t('play.top')}</p>
             <p className="tetris-chip-value">{topScore}</p>
           </div>
           <div className="tetris-chip">
-            <p className="tetris-chip-label">Speed</p>
+            <p className="tetris-chip-label">{t('play.speed')}</p>
             <p className="tetris-chip-value">{speed}</p>
           </div>
 
@@ -408,10 +411,10 @@ export function BlunnoTetris(): ReactElement {
               disabled={!running}
               className={`${actionBtnClass} tetris-action-btn--pause disabled:cursor-not-allowed disabled:opacity-50`}
             >
-              {paused ? 'Resume' : 'Pause'}
+              {paused ? t('play.resume') : t('play.pause')}
             </button>
             <button type="button" onClick={reset} className={`${actionBtnClass} tetris-action-btn--stop`}>
-              {running ? 'Restart' : 'Start'}
+              {running ? t('play.restart') : t('play.startGame')}
             </button>
           </div>
         </aside>
@@ -419,20 +422,20 @@ export function BlunnoTetris(): ReactElement {
 
       <div className="flex shrink-0 flex-col gap-2 [@media(max-height:700px)]:gap-1.5">
         <div className="grid grid-cols-4 gap-1.5 text-center sm:gap-2 [@media(max-height:700px)]:gap-1">
-          <button type="button" className={dpadBtnClass} onClick={() => move(-1)} aria-label="Move left">
+          <button type="button" className={dpadBtnClass} onClick={() => move(-1)} aria-label={t('play.tetris.moveLeft')}>
             ←
           </button>
-          <button type="button" className={dpadBtnClass} onClick={stepDown} aria-label="Move down">
+          <button type="button" className={dpadBtnClass} onClick={stepDown} aria-label={t('play.tetris.moveDown')}>
             ↓
           </button>
-          <button type="button" className={dpadBtnClass} onClick={() => move(1)} aria-label="Move right">
+          <button type="button" className={dpadBtnClass} onClick={() => move(1)} aria-label={t('play.tetris.moveRight')}>
             →
           </button>
           <button
             type="button"
             className={`${dpadBtnClass} text-[var(--tetris-accent-secondary)]`}
             onClick={rotate}
-            aria-label="Rotate piece"
+            aria-label={t('play.tetris.rotate')}
           >
             ↻
           </button>
@@ -442,9 +445,9 @@ export function BlunnoTetris(): ReactElement {
           type="button"
           onClick={hardDrop}
           className="blunno-focus-visible tetris-drop-btn min-h-[46px] w-full rounded-2xl px-3 py-2 text-sm font-bold tracking-[0.08em] text-white"
-          aria-label="Hard drop — instant fall"
+          aria-label={t('play.tetris.hardDrop')}
         >
-          Drop
+          {t('play.drop')}
         </button>
       </div>
     </div>

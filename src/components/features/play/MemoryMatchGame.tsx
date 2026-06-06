@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, 
 
 import { MEMORY_PAIRS, TOTAL_PAIRS } from '@/components/features/play/memoryPairs';
 import { PlayGameShell } from '@/components/features/play/PlayGameShell';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 type CardState = 'faceDown' | 'faceUp' | 'matched';
@@ -37,6 +38,7 @@ function createDeck(): Card[] {
 }
 
 export function MemoryMatchGame(): ReactElement {
+  const { t } = useTranslation();
   const [deck, setDeck] = useState<Card[]>(() => createDeck());
   const [flippedIds, setFlippedIds] = useState<number[]>([]);
   const [locked, setLocked] = useState(false);
@@ -124,18 +126,14 @@ export function MemoryMatchGame(): ReactElement {
     [allMatched, clearResetTimer]
   );
 
-  const status = allMatched ? 'All matched!' : 'Find matching pairs';
+  const status = allMatched ? t('play.memory.allMatched') : t('play.memory.findPairs');
 
   return (
     <PlayGameShell
       testId="memory-game"
       scoreTestId="memory-score"
       fieldTestId="memory-grid"
-      scoreLabel={
-        <>
-          Pairs: {pairsFound} / {TOTAL_PAIRS}
-        </>
-      }
+      scoreLabel={t('play.pairsCount', { found: pairsFound, total: TOTAL_PAIRS })}
       status={status}
       showRestart={allMatched}
       onRestart={restart}
@@ -143,6 +141,7 @@ export function MemoryMatchGame(): ReactElement {
       <div className="grid w-full max-w-[18rem] grid-cols-4 gap-2 sm:max-w-[20rem] sm:gap-2.5">
         {deck.map((card) => {
           const pair = MEMORY_PAIRS[card.pairId];
+          const pairLabel = t(`play.memory.pair.${card.pairId}` as 'play.memory.pair.0');
           const isFaceUp = card.state === 'faceUp' || card.state === 'matched';
           const PairIcon = pair.Icon;
           const faceStyle = isFaceUp
@@ -162,7 +161,7 @@ export function MemoryMatchGame(): ReactElement {
                 card.state === 'matched' && 'memory-card--matched'
               )}
               style={faceStyle}
-              aria-label={isFaceUp ? `${pair.label} card` : 'Face-down card'}
+              aria-label={isFaceUp ? t('play.memory.card', { label: pairLabel }) : t('play.memory.faceDown')}
               aria-pressed={isFaceUp}
             >
               {isFaceUp && (

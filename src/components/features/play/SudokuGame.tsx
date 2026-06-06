@@ -2,6 +2,8 @@
 
 import { useCallback, useMemo, useRef, useState, type ReactElement } from 'react';
 
+import { useTranslation } from '@/i18n/useTranslation';
+
 type Board = number[][];
 type Cell = { row: number; col: number } | null;
 
@@ -73,6 +75,7 @@ function isSolved(board: Board): boolean {
 }
 
 export function SudokuGame(): ReactElement {
+  const { t } = useTranslation();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
   const headerRef = useRef<HTMLElement | null>(null);
@@ -137,9 +140,9 @@ export function SudokuGame(): ReactElement {
     <div ref={rootRef} className="mx-auto flex h-full min-h-0 w-full max-w-xl flex-col overflow-hidden px-1 py-1 text-white">
       <div ref={cardRef} className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[24px] border border-white/10 bg-[rgba(10,8,20,0.4)] p-2 backdrop-blur-xl sm:p-3">
         <header ref={headerRef} className="shrink-0 text-center">
-          <h2 className="font-sans text-sm font-extrabold uppercase tracking-wide text-white sm:text-lg">Sudoku</h2>
+          <h2 className="font-sans text-sm font-extrabold uppercase tracking-wide text-white sm:text-lg">{t('play.sudoku')}</h2>
           <p className="mt-0.5 text-[11px] text-white/70 sm:mt-1 sm:text-sm">
-            Fill each row, column and 3x3 box with digits 1-9.
+            {t('play.sudoku.hint')}
           </p>
         </header>
 
@@ -153,7 +156,7 @@ export function SudokuGame(): ReactElement {
             tabIndex={0}
             onKeyDown={onKeyDown}
             className="grid aspect-square mx-auto h-auto w-full min-w-0 max-h-full max-w-[min(94vw,500px)] sm:max-w-[min(92vw,540px)] grid-cols-9 rounded-xl border border-white/25 bg-[var(--sudoku-board-bg)] p-1 outline-none"
-            aria-label="Sudoku board"
+            aria-label={t('play.sudoku.board')}
           >
             {board.map((row, rowIndex) =>
               row.map((value, colIndex) => {
@@ -180,7 +183,11 @@ export function SudokuGame(): ReactElement {
                       rowIndex === 8 ? 'border-b-white/40' : '',
                       colIndex === 8 ? 'border-r-white/40' : '',
                     ].join(' ')}
-                    aria-label={`Row ${rowIndex + 1} Column ${colIndex + 1} value ${value || 'empty'}`}
+                    aria-label={t('play.sudoku.cellAria', {
+                      row: rowIndex + 1,
+                      col: colIndex + 1,
+                      value: value || t('play.sudoku.cellEmpty'),
+                    })}
                   >
                     {value === 0 ? '' : value}
                   </button>
@@ -208,25 +215,25 @@ export function SudokuGame(): ReactElement {
                 onClick={() => setCellValue(0)}
                 className="blunno-focus-visible glass-button col-span-2 min-h-[36px] rounded-xl text-[10px] font-bold uppercase tracking-wide text-white/90 sm:min-h-[40px] sm:text-xs"
               >
-                Clear cell
+                {t('play.sudoku.clearCell')}
               </button>
               <button
                 type="button"
                 onClick={newPuzzle}
                 className="blunno-focus-visible glass-button col-span-3 min-h-[36px] rounded-xl text-[10px] font-bold uppercase tracking-wide text-[var(--color-accent-primary)] sm:min-h-[40px] sm:text-xs"
               >
-                New puzzle
+                {t('play.sudoku.newPuzzle')}
               </button>
             </div>
           </div>
 
           <div ref={statusRef} className="text-center text-xs font-semibold sm:text-sm">
             {solved ? (
-              <p className="text-[var(--color-semantic-success)]">Solved. Great focus.</p>
+              <p className="text-[var(--color-semantic-success)]">{t('play.sudoku.solved')}</p>
             ) : conflicts.size > 0 ? (
-              <p className="text-[var(--color-semantic-danger)]">There are conflicts in the highlighted cells.</p>
+              <p className="text-[var(--color-semantic-danger)]">{t('play.sudoku.conflicts')}</p>
             ) : (
-              <p className="text-white/70">Select a cell and use keypad or keyboard (1-9).</p>
+              <p className="text-white/70">{t('play.sudoku.selectCell')}</p>
             )}
           </div>
         </section>

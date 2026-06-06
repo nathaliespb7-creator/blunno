@@ -3,6 +3,7 @@
 import { useCallback, useMemo, useState, type ReactElement } from 'react';
 
 import { PlayGameShell } from '@/components/features/play/PlayGameShell';
+import { useTranslation } from '@/i18n/useTranslation';
 import { cn } from '@/lib/utils';
 
 const COLS = 3;
@@ -48,6 +49,7 @@ function isSolved(board: number[]): boolean {
 }
 
 export function SlidePuzzleGame(): ReactElement {
+  const { t } = useTranslation();
   const [board, setBoard] = useState<number[]>(() => shuffleSolvable());
   const [moves, setMoves] = useState(0);
 
@@ -81,14 +83,14 @@ export function SlidePuzzleGame(): ReactElement {
     [complete]
   );
 
-  const status = complete ? 'Complete!' : 'Slide tiles into order';
+  const status = complete ? t('play.slide.complete') : t('play.slide.hint');
 
   return (
     <PlayGameShell
       testId="slide-game"
       scoreTestId="slide-moves"
       fieldTestId="slide-grid"
-      scoreLabel={<>Moves: {moves}</>}
+      scoreLabel={t('play.movesCount', { count: moves })}
       status={status}
       showRestart={complete}
       onRestart={restart}
@@ -111,7 +113,7 @@ export function SlidePuzzleGame(): ReactElement {
                       background: `radial-gradient(circle at 30% 30%, #ffffff99, ${ACCENT})`,
                     }
               }
-              aria-label={isEmpty ? 'Empty tile slot' : `Tile ${value}`}
+              aria-label={isEmpty ? t('play.slide.emptyTile') : t('play.slide.tile', { value })}
             >
               {!isEmpty ? value : null}
             </button>

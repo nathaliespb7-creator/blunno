@@ -10,6 +10,7 @@ import {
   type ReactElement,
 } from 'react';
 
+import { useTranslation } from '@/i18n/useTranslation';
 import { audioService } from '@/services/audioService';
 
 export const POPIT_BUBBLE_COUNT = 30;
@@ -158,6 +159,7 @@ function hitTest(bubbles: Bubble[], x: number, y: number): Bubble | null {
 }
 
 export function BalloonPop(): ReactElement {
+  const { t } = useTranslation();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const fieldRef = useRef<HTMLDivElement | null>(null);
   const bubblesRef = useRef<Bubble[]>([]);
@@ -435,18 +437,18 @@ export function BalloonPop(): ReactElement {
   };
 
   const status = useMemo(() => {
-    if (phase === 'idle') return 'Tap Blow to inflate the bubble-wrap film';
-    if (phase === 'inflating') return 'Keep blowing…';
-    return 'Tap bubbles as they appear on the film';
-  }, [phase]);
+    if (phase === 'idle') return t('play.balloon.statusIdle');
+    if (phase === 'inflating') return t('play.balloon.statusInflating');
+    return t('play.balloon.statusPlaying');
+  }, [phase, t]);
 
   return (
     <div className="popit-game mx-auto flex h-full min-h-0 w-full max-w-md flex-col" data-testid="popit-game">
       <div className="popit-score-bar mb-2 flex shrink-0 items-center justify-between px-3 py-2 text-sm font-semibold">
-        <span data-testid="popit-score">Popped: {score}</span>
+        <span data-testid="popit-score">{t('play.poppedCount', { count: score })}</span>
         {phase === 'playing' && (
           <span className="text-xs font-medium text-[#d7d2ea]" data-testid="popit-live-count">
-            Live: {liveBubbleCount}
+            {t('play.liveCount', { count: liveBubbleCount })}
           </span>
         )}
       </div>
@@ -459,18 +461,18 @@ export function BalloonPop(): ReactElement {
       >
         {(phase === 'idle' || phase === 'inflating') && (
           <div className="popit-blow-panel">
-            <p className="popit-blow-hint">Hold or tap Blow — bubbles will rise on the film like real bubble wrap</p>
+            <p className="popit-blow-hint">{t('play.balloon.blowHint')}</p>
             <button
               type="button"
               data-testid="popit-blow"
               className="popit-blow-btn blunno-focus-visible"
-              aria-label="Blow bubbles"
+              aria-label={t('play.balloon.blowAria')}
               onPointerDown={handleBlowPointerDown}
               onPointerUp={handleBlowPointerUp}
               onPointerCancel={handleBlowPointerUp}
               onClick={handleBlowClick}
             >
-              <span className="popit-blow-btn-label">Blow</span>
+              <span className="popit-blow-btn-label">{t('play.blow')}</span>
               <span className="popit-blow-progress" style={{ width: `${inflateProgress}%` }} aria-hidden />
             </button>
           </div>
@@ -482,7 +484,7 @@ export function BalloonPop(): ReactElement {
               ref={canvasRef}
               className="popit-canvas blunno-focus-visible"
               data-testid="popit-canvas"
-              aria-label="Bubble wrap film"
+              aria-label={t('play.balloon.filmAria')}
               onPointerDown={handleCanvasPointerDown}
             />
             <div className="popit-film-overlay pointer-events-none" aria-hidden />
@@ -499,7 +501,7 @@ export function BalloonPop(): ReactElement {
             onClick={restart}
             className="popit-restart-btn blunno-focus-visible px-4 py-2 text-sm font-semibold"
           >
-            Restart
+            {t('play.restart')}
           </button>
         </div>
       )}
