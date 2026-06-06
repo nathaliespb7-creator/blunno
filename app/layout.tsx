@@ -1,6 +1,7 @@
 import './globals.css';
 import { Inter, Plus_Jakarta_Sans, Poppins, Roboto, Sarabun, Tiro_Telugu } from 'next/font/google';
 import type { Metadata, Viewport } from 'next';
+import { cookies, headers } from 'next/headers';
 import Script from 'next/script';
 
 import { AudioUnlock } from '@/components/shared/AudioUnlock';
@@ -10,6 +11,8 @@ import { GlobalAudioIndicator } from '@/components/shared/GlobalAudioIndicator';
 import { ServiceWorkerRegister } from '@/components/shared/ServiceWorkerRegister';
 import { Notification } from '@/components/ui';
 import { I18nProvider } from '@/i18n/I18nProvider';
+import { LOCALE_BOOTSTRAP_SCRIPT, localeFromAcceptLanguage, parseLocale } from '@/i18n/locale';
+import type { Locale } from '@/i18n/types';
 import { GA_MEASUREMENT_ID } from '@/lib/analytics';
 
 /** Figma Welcome: заголовок (замена Toppan Bunkyu Midashi Gothic) */
@@ -80,6 +83,9 @@ export const viewport: Viewport = {
   viewportFit: 'cover',
 };
 
+/** Locale from cookie / Accept-Language must be resolved per request, not at build time. */
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   metadataBase: new URL('https://blunno.app'),
   title: {
@@ -129,18 +135,32 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+async function getServerLocale(): Promise<Locale> {
+  const cookieStore = await cookies();
+  const fromCookie = parseLocale(cookieStore.get('blunno_lang')?.value);
+  if (fromCookie) return fromCookie;
+  const headerStore = await headers();
+  return localeFromAcceptLanguage(headerStore.get('accept-language'));
+}
+
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const initialLocale = await getServerLocale();
+
   return (
     <html
-      lang="en"
+      lang={initialLocale}
+      suppressHydrationWarning
       className={`${welcomeDisplay.variable} ${tiroTelugu.variable} ${plusJakartaSans.variable} ${sarabun.variable} ${roboto.variable} ${inter.variable} min-h-dvh overflow-x-hidden bg-blunno-bg`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: LOCALE_BOOTSTRAP_SCRIPT }} />
+      </head>
       <body className="min-h-dvh w-full max-w-[100vw] overflow-x-hidden font-ui text-blunno-foreground antialiased">
-        <I18nProvider>
+        <I18nProvider initialLocale={initialLocale}>
         <AudioUnlock />
         <ServiceWorkerRegister />
         <DevCacheReset />

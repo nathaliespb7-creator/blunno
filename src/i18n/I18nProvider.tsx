@@ -1,20 +1,20 @@
 'use client';
 
-import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useState,
+  type ReactNode,
+} from 'react';
+
+import {
+  LOCALE_COOKIE_KEY,
+  LOCALE_STORAGE_KEY,
+} from './locale';
 import type { Locale } from './types';
-
-const STORAGE_KEY = 'blunno_lang';
-
-function detectLocale(): Locale {
-  if (typeof window === 'undefined') return 'en';
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored === 'ru' || stored === 'en') return stored;
-  } catch {}
-  const nav = navigator.language || (navigator as any).userLanguage || '';
-  if (nav.startsWith('ru')) return 'ru';
-  return 'en';
-}
 
 type I18nContextType = {
   locale: Locale;
@@ -27,22 +27,39 @@ export function useLocale() {
   return useContext(I18nContext);
 }
 
-export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(() => detectLocale());
+function persistLocale(locale: Locale) {
+  try {
+    localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+  } catch {
+    /* private browsing */
+  }
+  document.documentElement.lang = locale;
+  document.documentElement.dataset.locale = locale;
+  document.cookie = `${LOCALE_COOKIE_KEY}=${locale};path=/;max-age=31536000;samesite=lax`;
+}
+
+type I18nProviderProps = {
+  children: ReactNode;
+  initialLocale?: Locale;
+};
+
+export function I18nProvider({ children, initialLocale = 'en' }: I18nProviderProps) {
+  const [locale, setLocaleState] = useState<Locale>(initialLocale);
+
+  useLayoutEffect(() => {
+    persistLocale(locale);
+  }, [locale]);
+
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7876/ingest/c382d466-b827-4be9-8387-43085e568544',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'127c83'},body:JSON.stringify({sessionId:'127c83',location:'I18nProvider.tsx:mount',message:'locale hydrated',data:{initialLocale,locale,htmlLang:document.documentElement.lang,datasetLocale:document.documentElement.dataset.locale},timestamp:Date.now(),hypothesisId:'A',runId:'post-fix'})}).catch(()=>{});
+    // #endregion
+  }, [initialLocale, locale]);
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
-    try { localStorage.setItem(STORAGE_KEY, l); } catch {}
+    persistLocale(l);
   }, []);
 
-  // Update html lang attribute (safe direct DOM mutation for lang)
-  if (typeof document !== 'undefined') {
-    document.documentElement.lang = locale;
-  }
-
-  return (
-    <I18nContext.Provider value={{ locale, setLocale }}>
-      {children}
-    </I18nContext.Provider>
-  );
+  return <I18nContext.Provider value={{ locale, setLocale }}>{children}</I18nContext.Provider>;
 }

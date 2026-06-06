@@ -1,7 +1,6 @@
 'use client';
 
 import { Check, ChevronLeft, ChevronRight, Home, Lock, Pencil, Plus, Sparkles } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react';
 
 import { GlassCellDecor } from '@/components/shared/make-v81/GlassCellDecor';
@@ -115,7 +114,6 @@ function readPersistedTasksMap(): TasksMap | null {
 }
 
 export default function PlannerPage(): ReactElement {
-  const router = useRouter();
   const { t, locale } = useTranslation();
   const dateLocale = locale === 'ru' ? 'ru-RU' : 'en-US';
   const [selectedKey, setSelectedKey] = useState<string>(getTodayKey());
@@ -275,7 +273,7 @@ export default function PlannerPage(): ReactElement {
   return (
     <ScreenFrame className="v81-screen--planner">
       <div className="v81-top-bar">
-        <GlassIconButton onClick={() => router.back()} icon={ChevronLeft} label={t('nav.back')} />
+        <GlassIconButton href="/choose" icon={ChevronLeft} label={t('nav.back')} />
         <GradientTitle size="lg">{formatMonthTitle(weekDays, dateLocale)}</GradientTitle>
         <GlassIconButton href="/choose" icon={Home} label={t('nav.exit')} />
       </div>

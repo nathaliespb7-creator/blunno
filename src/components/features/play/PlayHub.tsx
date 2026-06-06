@@ -80,8 +80,11 @@ export function PlayHub(): ReactElement {
   };
 
   const backToGames = () => {
-    // Triggers popstate which sets selectedGame to null
-    window.history.back();
+    // #region agent log
+    fetch('http://127.0.0.1:7876/ingest/c382d466-b827-4be9-8387-43085e568544',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'127c83'},body:JSON.stringify({sessionId:'127c83',location:'PlayHub.tsx:backToGames',message:'instant back to games hub',data:{game:selectedGame,t:performance.now()},timestamp:Date.now(),hypothesisId:'B',runId:'post-fix'})}).catch(()=>{});
+    // #endregion
+    setSelectedGame(null);
+    window.history.replaceState(null, '', window.location.pathname);
   };
 
   if (selectedGame !== null) {

@@ -55,7 +55,7 @@ export default function RelaxPage(): ReactElement {
       <ModeScreenTopBar
         title={t('relax.title')}
         backHref="/choose"
-        backLabel={t('nav.exit')}
+        backLabel={t('nav.back')}
         homeHref="/choose"
         homeLabel={t('nav.exit')}
       />

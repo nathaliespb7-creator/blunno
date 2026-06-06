@@ -10,11 +10,17 @@ import { useTranslation } from '@/i18n/useTranslation';
 import { trackEvent } from '@/lib/analytics';
 
 export default function ChoosePage(): ReactElement {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
+
+  useEffect(() => {
+    // #region agent log
+    fetch('http://127.0.0.1:7876/ingest/c382d466-b827-4be9-8387-43085e568544',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'127c83'},body:JSON.stringify({sessionId:'127c83',location:'choose/page.tsx:mount',message:'choose page mounted',data:{locale,title:t('choose.title'),htmlLang:document.documentElement.lang},timestamp:Date.now(),hypothesisId:'A',runId:'post-fix'})}).catch(()=>{});
+    // #endregion
+  }, [locale, t]);
   useEffect(() => {
     if (!navigator.onLine) return;
 
-    void (async () => {
+    const prefetchRoutes = async () => {
       for (const route of Object.values(MOOD_HREFS)) {
         try {
           await fetch(route, { credentials: 'same-origin' });
@@ -22,11 +28,30 @@ export default function ChoosePage(): ReactElement {
           /* prefetch is best-effort */
         }
       }
-    })();
+    };
+
+    let idleId: number | undefined;
+    let timeoutId: number | undefined;
+
+    if (typeof window.requestIdleCallback === 'function') {
+      idleId = window.requestIdleCallback(() => void prefetchRoutes(), { timeout: 4000 });
+    } else {
+      timeoutId = window.setTimeout(() => void prefetchRoutes(), 2500);
+    }
+
+    return () => {
+      if (idleId !== undefined && typeof window.cancelIdleCallback === 'function') {
+        window.cancelIdleCallback(idleId);
+      }
+      if (timeoutId !== undefined) {
+        window.clearTimeout(timeoutId);
+      }
+    };
   }, []);
 
   const translatedMoods = V81_MOODS.map((mood) => ({
     ...mood,
+    label: t(`choose.${mood.id}`, mood.label),
     description: t(`choose.${mood.id}.desc`, mood.description),
   }));
 

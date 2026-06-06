@@ -1,9 +1,9 @@
 /* eslint-disable no-restricted-globals */
 /* Generated from sw.template.js by scripts/generate-sw.mjs — do not edit public/sw.js directly. */
 
-const STATIC_CACHE = 'blunno-static-v38';
-const RUNTIME_CACHE = 'blunno-runtime-v38';
-const OFFLINE_SW_VERSION = 38;
+const STATIC_CACHE = 'blunno-static-v39';
+const RUNTIME_CACHE = 'blunno-runtime-v39';
+const OFFLINE_SW_VERSION = 39;
 const OFFLINE_URL = '/offline';
 const MAX_RUNTIME_ENTRIES = 64;
 

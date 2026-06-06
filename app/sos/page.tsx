@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, type ReactElement } from 'react';
 import { ChevronLeft, Home } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 import { SosBreathRing } from '@/components/features/sos/SosBreathRing';
 import { SosCompletionStars } from '@/components/features/sos/SosCompletionStars';
@@ -37,7 +36,6 @@ const COMPACT_TUNING = {
 } as const;
 
 export default function SosPage(): ReactElement {
-  const router = useRouter();
   const { t } = useTranslation();
   const [mode, setMode] = useState<SosMode>('guided');
   const [compactViewport, setCompactViewport] = useState(false);
@@ -142,7 +140,7 @@ export default function SosPage(): ReactElement {
       <div className="v81-sos-layout relative z-10 flex min-h-0 flex-1 flex-col overflow-x-hidden">
         <header className="v81-sos-header shrink-0">
           <div className="v81-top-bar v81-sos-top-bar">
-            <GlassIconButton onClick={() => router.back()} icon={ChevronLeft} label={t('nav.back')} />
+            <GlassIconButton href="/choose" icon={ChevronLeft} label={t('nav.back')} />
             <GlassIconButton href="/choose" icon={Home} label={t('nav.exit')} />
           </div>
 
