@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { GlassCellDecor } from '@/components/shared/make-v81/GlassCellDecor';
 import { useTranslation } from '@/i18n/useTranslation';
 import { trackEvent, type AnalyticsEventName } from '@/lib/analytics';
@@ -30,9 +29,9 @@ export function WelcomeCTA({
   };
 
   return (
-    <Link href={href} onClick={handleClick} className={cn('welcome-cta group', className)}>
+    <a href={href} onClick={handleClick} className={cn('welcome-cta group', className)}>
       <GlassCellDecor />
       <span className="relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{displayLabel}</span>
-    </Link>
+    </a>
   );
 }
