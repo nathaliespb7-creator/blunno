@@ -30,7 +30,7 @@ export function WelcomeCTA({
   };
 
   return (
-    <Link href={href} prefetch onClick={handleClick} className={cn('welcome-cta group', className)}>
+    <Link href={href} onClick={handleClick} className={cn('welcome-cta group', className)}>
       <GlassCellDecor />
       <span className="relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)]">{displayLabel}</span>
     </Link>
