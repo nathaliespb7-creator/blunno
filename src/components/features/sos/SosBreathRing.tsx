@@ -3,6 +3,8 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { useCallback, useMemo, type PointerEvent, type ReactElement } from 'react';
 
+import { useTranslation } from '@/i18n/useTranslation';
+
 import { WELCOME_MASCOT_PNG } from '@/lib/assets';
 import {
   SOS_SCALE_MAX,
@@ -69,6 +71,7 @@ export function SosBreathRing({
   onTraceEnd,
 }: SosBreathRingProps): ReactElement {
   const reduceMotion = useReducedMotion();
+  const { t } = useTranslation();
   const isGuided = mode === 'guided';
   const isTrace = mode === 'trace';
   const isIdle = status === 'idle';
@@ -156,10 +159,10 @@ export function SosBreathRing({
   } as const;
 
   const ariaLabel = guidedTapStart
-    ? 'Tap to start breathing exercise'
+    ? t('sos.tapToStart')
     : isTrace && isIdle
-      ? 'Trace the ring with your finger to begin'
-      : 'Breathing progress ring';
+      ? t('sos.tapToTrace')
+      : t('sos.breathingProgress');
 
   return (
     <button
