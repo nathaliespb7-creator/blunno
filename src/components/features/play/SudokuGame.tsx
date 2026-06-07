@@ -138,24 +138,24 @@ export function SudokuGame(): ReactElement {
 
   return (
     <div ref={rootRef} className="mx-auto flex h-full min-h-0 w-full max-w-xl flex-col overflow-hidden px-1 py-1 text-white">
-      <div ref={cardRef} className="flex min-h-0 w-full flex-1 flex-col overflow-hidden rounded-[24px] border border-white/10 bg-[rgba(10,8,20,0.4)] p-2 backdrop-blur-xl sm:p-3">
+      <div
+        ref={cardRef}
+        className="grid min-h-0 w-full flex-1 grid-rows-[auto_minmax(0,1fr)_auto] overflow-hidden rounded-[24px] border border-white/10 bg-[rgba(10,8,20,0.4)] p-2 backdrop-blur-xl sm:p-3"
+      >
         <header ref={headerRef} className="shrink-0 text-center">
-          <h2 className="font-sans text-sm font-extrabold uppercase tracking-wide text-white sm:text-lg">{t('play.sudoku')}</h2>
-          <p className="mt-0.5 text-[11px] text-white/70 sm:mt-1 sm:text-sm">
-            {t('play.sudoku.hint')}
-          </p>
+          <p className="text-[11px] text-white/70 sm:text-sm">{t('play.sudoku.hint')}</p>
         </header>
 
         <section
           ref={boardRegionRef}
-          className="flex min-h-0 min-w-0 flex-1 items-center justify-center overflow-hidden py-1.5 sm:py-2 [@media(max-height:620px)]:py-1"
+          className="flex min-h-0 items-center justify-center overflow-hidden py-1 sm:py-1.5"
         >
           <div
             ref={boardGridRef}
             role="application"
             tabIndex={0}
             onKeyDown={onKeyDown}
-            className="grid aspect-square mx-auto h-auto w-full min-w-0 max-h-full max-w-[min(94vw,500px)] sm:max-w-[min(92vw,540px)] grid-cols-9 rounded-xl border border-white/25 bg-[var(--sudoku-board-bg)] p-1 outline-none"
+            className="grid aspect-square h-full max-h-full w-auto max-w-full grid-cols-9 rounded-xl border border-white/25 bg-[var(--sudoku-board-bg)] p-1 outline-none"
             aria-label={t('play.sudoku.board')}
           >
             {board.map((row, rowIndex) =>
@@ -197,8 +197,8 @@ export function SudokuGame(): ReactElement {
           </div>
         </section>
 
-        <section ref={controlsRef} className="shrink-0 space-y-1 sm:space-y-1.5">
-          <div className="mx-auto w-full max-w-[min(94vw,500px)] sm:max-w-[min(92vw,540px)]">
+        <section ref={controlsRef} className="shrink-0 space-y-1 pt-1 sm:space-y-1.5">
+          <div className="mx-auto w-full max-w-full">
             <div className="grid grid-cols-5 gap-1 sm:gap-1.5">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                 <button

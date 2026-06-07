@@ -124,8 +124,8 @@ export function PlayHub(): ReactElement {
 
       <p className="v81-play-intro">{t('play.subtitle')}</p>
 
-      <div className="v81-glass-cell-list v81-glass-cell-list--centered" data-testid="play-game-grid">
-        {GAMES.map((game, index) => (
+      <div className="v81-scroll-area v81-glass-cell-list v81-glass-cell-list--centered" data-testid="play-game-grid">
+        {GAMES.map((game) => (
           <GlassListCell
             key={game.id}
             as="div"
@@ -135,7 +135,6 @@ export function PlayHub(): ReactElement {
             subtitleVariant="category"
             titleAs="h3"
             icon={game.icon}
-            animationDelay={`${0.1 + index * 0.1}s`}
             trailing={
               <GlassListCellAction
                 icon={Play}

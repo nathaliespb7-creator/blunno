@@ -2111,8 +2111,24 @@ button.v81-glass-cell:active {
 }
 
 .v81-glass-cell-list--centered {
-  justify-content: center;
-  overflow: hidden;
+  justify-content: flex-start;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  padding-block: 0.25rem;
+}
+
+.v81-glass-cell-list--centered::-webkit-scrollbar {
+  display: none;
+}
+
+/* Menu lists: no fade-in — cells must be visible immediately after navigation */
+.v81-screen--choose .v81-glass-cell,
+.v81-screen--play .v81-glass-cell {
+  animation: none;
+  opacity: 1;
 }
 
 /* Choose screen — calmer ambient glow only */

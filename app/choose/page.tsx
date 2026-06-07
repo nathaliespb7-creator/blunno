@@ -60,17 +60,16 @@ export default function ChoosePage(): ReactElement {
         homeLabel={t('nav.exit')}
       />
 
-      <div className="flex min-h-0 flex-1 flex-col items-center">
+      <div className="v81-scroll-area flex min-h-0 flex-1 flex-col items-center">
         <nav
           className="v81-glass-cell-list v81-glass-cell-list--centered w-full max-w-[340px]"
           aria-label={t('choose.title')}
         >
-          {translatedMoods.map((mood, index) => (
+          {translatedMoods.map((mood) => (
             <MoodTile
               key={mood.id}
               mood={mood}
               href={MOOD_HREFS[mood.id] ?? '/choose'}
-              delayIndex={index}
               onNavigate={() => trackEvent('mood_select', { mood_id: mood.id })}
             />
           ))}
