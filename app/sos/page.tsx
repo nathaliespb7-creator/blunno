@@ -149,7 +149,7 @@ export default function SosPage(): ReactElement {
             'v81-sos-content flex min-h-0 flex-1 flex-col items-center touch-none select-none',
             status === 'completed' ? 'justify-start pt-1 pb-2' : 'justify-center'
           )}
-          aria-label="SOS breathing exercise"
+          aria-label={t('sos.exercise')}
         >
           <div
             className="v81-sos-ring-stack mx-auto flex w-full max-w-sm flex-col items-center"

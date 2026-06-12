@@ -1,4 +1,4 @@
-import { expect, gotoAndSettle, test } from './helpers';
+import { expect, gotoAndSettle, test, T } from './helpers';
 
 const VIEWPORTS = [
   { name: 'iPhone SE', width: 375, height: 667 },
@@ -13,8 +13,8 @@ for (const viewport of VIEWPORTS) {
     test('hero, CTA, and no horizontal overflow', async ({ page }) => {
       await gotoAndSettle(page, '/');
 
-      const headline = page.getByRole('heading', { name: 'Blunno', level: 1 });
-      const tryBlunno = page.getByRole('link', { name: 'Try Blunno' });
+      const headline = page.getByRole('heading', { name: T.landingTitle, level: 1 });
+      const tryBlunno = page.getByRole('link', { name: T.tryBlunno });
 
       await expect(headline).toBeVisible();
       await expect(tryBlunno).toBeVisible();

@@ -111,9 +111,7 @@ export function ViewportDebugProbe() {
   const [overlay, setOverlay] = useState<string>('');
 
   useEffect(() => {
-    const enabled =
-      typeof window !== 'undefined' &&
-      (window.location.search.includes('debugViewport=1') || process.env.NODE_ENV === 'development');
+    const enabled = typeof window !== 'undefined' && process.env.NODE_ENV === 'development';
 
     if (!enabled) return;
 

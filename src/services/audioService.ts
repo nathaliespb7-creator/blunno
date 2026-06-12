@@ -93,6 +93,15 @@ class AudioService {
     await this.ensureUnlocked();
     this.getHowl(name).play();
   }
+
+  dispose(): void {
+    for (const howl of this.sounds.values()) {
+      howl.unload();
+    }
+    this.sounds.clear();
+    this.unlocked = false;
+    this.unlockPromise = null;
+  }
 }
 
 export const audioService = new AudioService();

@@ -7,7 +7,7 @@ const OFFLINE_SW_VERSION = __OFFLINE_SW_VERSION__;
 const OFFLINE_URL = '/offline';
 const MAX_RUNTIME_ENTRIES = 64;
 
-const APP_ROUTES = new Set(['/', '/app', '/choose', '/planner', '/play', '/relax', '/sos', '/offline']);
+const APP_ROUTES = new Set(['/', '/app', '/choose', '/planner', '/play', '/relax', '/sos', '/offline', '/privacy']);
 
 function extractAssetUrls(html) {
   const matches = html.match(/\/_next\/static\/[^"'\s)]+/g) ?? [];
@@ -263,16 +263,43 @@ self.addEventListener('install', (event) => {
       const relaxMedia =
         manifest?.relaxMedia ??
         (manifest?.media ?? []).filter((url) => isRelaxMedia(url));
-      const relaxResults = await Promise.allSettled(
-        relaxMedia.map((url) => cache.add(url))
-      );
-      relaxResults.forEach((result, index) => {
-        if (result.status === 'rejected') {
-          console.warn('[sw] relax precache failed:', relaxMedia[index], result.reason);
-        }
-      });
+      await Promise.allSettled(relaxMedia.map((url) => cache.add(url)));
 
-      const routeUrls = manifest?.routes ?? ['/', '/choose', '/planner', '/play', '/relax', '/sos', OFFLINE_URL];
+      try {
+        await cache.add(OFFLINE_URL);
+      } catch {
+        /* offline shell is best-effort in install */
+      }
+
+      await self.skipWaiting();
+    })()
+  );
+});
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(
+    (async () => {
+      const keys = await caches.keys();
+      await Promise.all(
+        keys
+          .filter((key) => key !== STATIC_CACHE && key !== RUNTIME_CACHE)
+          .map((key) => caches.delete(key))
+      );
+      await self.clients.claim();
+
+      const cache = await caches.open(STATIC_CACHE);
+      let manifest = null;
+      try {
+        manifest = await fetch(`/precache-manifest.json?v=${OFFLINE_SW_VERSION}`, {
+          credentials: 'same-origin',
+          cache: 'no-store',
+        }).then((response) => response.json());
+      } catch {
+        /* fall back to defaults below */
+      }
+
+      const routeUrls =
+        manifest?.routes ?? ['/', '/app', '/choose', '/planner', '/play', '/relax', '/sos', '/privacy', OFFLINE_URL];
       for (const url of routeUrls) {
         try {
           await precacheRouteWithAssets(cache, url);
@@ -289,32 +316,7 @@ self.addEventListener('install', (event) => {
           /* best-effort */
         }
       }
-
-      for (const assetUrl of manifest?.assets ?? []) {
-        try {
-          await cache.add(assetUrl);
-        } catch {
-          /* best-effort */
-        }
-      }
-
-      await self.skipWaiting();
     })()
-  );
-});
-
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches
-      .keys()
-      .then((keys) =>
-        Promise.all(
-          keys
-            .filter((key) => key !== STATIC_CACHE && key !== RUNTIME_CACHE)
-            .map((key) => caches.delete(key))
-        )
-      )
-      .then(() => self.clients.claim())
   );
 });
 

@@ -445,7 +445,7 @@ export default function PlannerPage(): ReactElement {
               className="v81-planner-composer-inline-input blunno-focus-visible"
               maxLength={60}
               disabled={isAtLimit}
-              aria-label="Add a new task"
+              aria-label={t('planner.addTask')}
             />
           </div>
           <div className="relative z-10 ml-3 flex shrink-0 items-center">
@@ -459,7 +459,7 @@ export default function PlannerPage(): ReactElement {
                 background: newTaskText.trim() && !isAtLimit ? `${composerAccent}40` : 'rgba(18,12,48,0.5)',
                 boxShadow: newTaskText.trim() && !isAtLimit ? `0 0 12px ${composerAccent}55` : 'none',
               }}
-              aria-label="Add Task"
+              aria-label={t('planner.addTask')}
             >
               <Plus className="h-4 w-4 text-white/90" strokeWidth={2.5} />
             </button>

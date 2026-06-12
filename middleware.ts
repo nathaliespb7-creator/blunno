@@ -28,6 +28,6 @@ export function middleware(request: NextRequest) {
 export const config = {
   matcher: [
     '/og-image.png',
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|webp|mp3|wav|ogg|woff2?|ico)$).*)',
+    '/((?!_next/static|_next/image|favicon.ico|sw\\.js|precache-manifest\\.json|manifest\\.webmanifest|\\.well-known|.*\\.(?:svg|png|jpg|jpeg|webp|mp3|wav|ogg|woff2?|ico|webmanifest)$).*)',
   ],
 };

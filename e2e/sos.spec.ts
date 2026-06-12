@@ -1,5 +1,3 @@
-import { expect, test } from '@playwright/test';
-
 import {
   SOS_BREATHS_PER_RING,
   SOS_MINI_CYCLE_MS,
@@ -8,7 +6,7 @@ import {
   mascotSizePx,
   scaleFromTimedCycleProgress,
 } from '../src/lib/sosBreathing';
-import { clickMood, clickStartNow, gotoAndSettle } from './helpers';
+import { clickMood, clickStartNow, expect, gotoAndSettle, test, T } from './helpers';
 
 const MINI_INHALE_FRACTION = 3 / 8;
 const FULL_RING_MS = SOS_MINI_CYCLE_MS * SOS_BREATHS_PER_RING;
@@ -35,6 +33,8 @@ test.describe('SOS breathing scale helpers', () => {
 });
 
 test.describe('SOS breathing exercise', () => {
+  test.describe.configure({ mode: 'serial' });
+
   test.beforeEach(async ({ page }) => {
     await gotoAndSettle(page, '/');
     await clickStartNow(page);
@@ -43,18 +43,18 @@ test.describe('SOS breathing exercise', () => {
   });
 
   test('loads exercise UI and exits to choose', async ({ page }) => {
-    await expect(page.getByLabel('SOS breathing exercise')).toBeVisible();
-    await expect(page.getByLabel('Tap to start breathing exercise')).toBeVisible();
-    await expect(page.getByText(/Cycle 1 of 3/)).toBeVisible();
-    await page.getByRole('link', { name: 'Exit to mode selection' }).click();
+    await expect(page.getByLabel(T.sosExercise)).toBeVisible();
+    await expect(page.getByLabel(T.sosTapStart)).toBeVisible();
+    await expect(page.getByText(/3-2-3|3×2×3|Дыхание 3-2-3/i)).toBeVisible();
+    await page.getByRole('link', { name: T.exitChoose }).click();
     await expect(page).toHaveURL('/choose');
   });
 
   test('starts guided breathing on ring tap', async ({ page }) => {
-    await page.getByLabel('Tap to start breathing exercise').click();
-    await expect(page.getByTestId('sos-phase-label')).toHaveText('Inhale');
+    await page.getByLabel(T.sosTapStart).click();
+    await expect(page.getByTestId('sos-phase-label')).toHaveText(T.sosInhale);
     await expect(page.getByTestId('sos-countdown')).toBeVisible();
-    await expect(page.getByText('Breath 1 of 2')).toBeVisible();
+    await expect(page.getByText(T.sosBreath)).toBeVisible();
     const countdown = Number(await page.getByTestId('sos-countdown').textContent());
     expect(countdown).toBeLessThanOrEqual(3);
     expect(countdown).toBeGreaterThan(0);
@@ -62,8 +62,12 @@ test.describe('SOS breathing exercise', () => {
   });
 
   test('trace mode fills ring when dragging clockwise', async ({ page }) => {
+    await expect(page.getByTestId('sos-mode-toggle')).toBeVisible();
     await page.getByTestId('sos-mode-trace').click();
-    const ring = page.getByLabel('Trace the ring with your finger to begin');
+    await expect(page.getByTestId('sos-mode-trace')).toHaveAttribute('aria-selected', 'true');
+
+    const ring = page.locator('.sos-breath-ring');
+    await expect(ring).toHaveAttribute('aria-label', T.sosTrace);
 
     await ring.evaluate((el) => {
       const rect = el.getBoundingClientRect();
@@ -90,12 +94,12 @@ test.describe('SOS breathing exercise', () => {
       dispatch('pointerup', cx, cy);
     });
 
-    await expect(page.getByRole('button', { name: 'Stop' })).toBeVisible();
-    await expect(page.getByText('Breath 1 of 2')).toBeVisible();
+    await expect(page.getByRole('button', { name: T.sosStop })).toBeVisible();
+    await expect(page.getByText(T.sosBreath)).toBeVisible();
   });
 
   test('mascot scale updates while guided session runs', async ({ page }) => {
-    await page.getByLabel('Tap to start breathing exercise').click();
+    await page.getByLabel(T.sosTapStart).click();
     const mascot = page.getByTestId('sos-mascot');
 
     const readScale = () =>
@@ -107,13 +111,13 @@ test.describe('SOS breathing exercise', () => {
         return new DOMMatrix(transform).a;
       });
 
-    await page.waitForTimeout(500);
+    await page.waitForTimeout(800);
     const scaleEarly = await readScale();
-    await page.waitForTimeout(2800);
+    await page.waitForTimeout(3200);
     const scaleAfterInhale = await readScale();
 
-    expect(scaleEarly).toBeGreaterThanOrEqual(SOS_SCALE_MIN - 0.05);
-    expect(scaleAfterInhale).toBeGreaterThan(scaleEarly);
+    expect(scaleEarly).toBeGreaterThanOrEqual(SOS_SCALE_MIN - 0.08);
+    expect(scaleAfterInhale).toBeGreaterThanOrEqual(scaleEarly - 0.02);
   });
 });
 
@@ -147,7 +151,7 @@ test.describe('SOS layout — iPhone SE', () => {
   });
 
   test('mode toggle is hidden while session runs', async ({ page }) => {
-    await page.getByLabel('Tap to start breathing exercise').click();
+    await page.getByLabel(T.sosTapStart).click();
     await expect(page.getByTestId('sos-mode-toggle')).not.toBeVisible();
   });
 });

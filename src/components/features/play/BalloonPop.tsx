@@ -369,6 +369,14 @@ export function BalloonPop(): ReactElement {
   }, [resizeCanvas]);
 
   useEffect(() => {
+    if (phase !== 'playing') {
+      if (rafRef.current !== null) {
+        cancelAnimationFrame(rafRef.current);
+        rafRef.current = null;
+      }
+      return undefined;
+    }
+
     const loop = (timestamp: number) => {
       renderFrame(timestamp);
       rafRef.current = requestAnimationFrame(loop);
@@ -377,8 +385,9 @@ export function BalloonPop(): ReactElement {
     rafRef.current = requestAnimationFrame(loop);
     return () => {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      rafRef.current = null;
     };
-  }, [renderFrame]);
+  }, [phase, renderFrame]);
 
   const ensureAudioReady = useCallback(async (): Promise<boolean> => {
     if (audioUnlockedRef.current) return true;

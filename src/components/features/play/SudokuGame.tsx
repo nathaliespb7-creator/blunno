@@ -152,6 +152,7 @@ export function SudokuGame(): ReactElement {
         >
           <div
             ref={boardGridRef}
+            data-testid="sudoku-board"
             role="application"
             tabIndex={0}
             onKeyDown={onKeyDown}
@@ -197,7 +198,7 @@ export function SudokuGame(): ReactElement {
           </div>
         </section>
 
-        <section ref={controlsRef} className="shrink-0 space-y-1 pt-1 sm:space-y-1.5">
+        <section ref={controlsRef} data-testid="sudoku-keypad" className="shrink-0 space-y-1 pt-1 sm:space-y-1.5">
           <div className="mx-auto w-full max-w-full">
             <div className="grid grid-cols-5 gap-1 sm:gap-1.5">
               {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (

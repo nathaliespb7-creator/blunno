@@ -14,6 +14,7 @@ export default defineConfig({
   use: {
     baseURL,
     browserName: 'chromium',
+    serviceWorkers: 'allow',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
     viewport: { width: 393, height: 852 },
