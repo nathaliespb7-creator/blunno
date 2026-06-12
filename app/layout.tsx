@@ -13,6 +13,8 @@ import { Notification } from '@/components/ui';
 import { I18nProvider } from '@/i18n/I18nProvider';
 import { LOCALE_BOOTSTRAP_SCRIPT, localeFromAcceptLanguage, parseLocale } from '@/i18n/locale';
 import type { Locale } from '@/i18n/types';
+import en from '@/i18n/en.json';
+import ru from '@/i18n/ru.json';
 import { GA_MEASUREMENT_ID } from '@/lib/analytics';
 
 /** Figma Welcome: заголовок (замена Toppan Bunkyu Midashi Gothic) */
@@ -86,54 +88,77 @@ export const viewport: Viewport = {
 /** Locale from cookie / Accept-Language must be resolved per request, not at build time. */
 export const dynamic = 'force-dynamic';
 
-export const metadata: Metadata = {
-  metadataBase: new URL('https://blunno.app'),
-  title: {
-    default: 'Blunno – Pocket reset for study stress',
-    template: '%s – Blunno',
-  },
-  description:
-    'Free offline PWA for students: calm exam panic with SOS breathing, focus with study sounds, take mini breaks. No signup required.',
-  keywords:
-    'student stress, exam panic, adhd focus, study sounds, mental health, breathing exercise, offline pwa',
-  authors: [{ name: 'Blunno Team' }],
-  creator: 'Blunno',
-  publisher: 'Blunno',
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
+function getSeoStrings(locale: Locale) {
+  const t = locale === 'ru' ? ru : en;
+  return {
+    defaultTitle: (t as Record<string, string>)['seo.defaultTitle'] || 'Blunno – Pocket reset for study stress',
+    defaultDesc: (t as Record<string, string>)['seo.defaultDesc'] || 'Free offline PWA for students: calm exam panic with SOS breathing, focus with study sounds, take mini breaks. No signup required.',
+    keywords: (t as Record<string, string>)['seo.keywords'] || 'student stress, exam panic, adhd focus, study sounds, mental health, breathing exercise, offline pwa',
+    ogTitle: (t as Record<string, string>)['seo.ogTitle'] || 'Blunno – Pocket reset for study stress',
+    ogDesc: (t as Record<string, string>)['seo.ogDesc'] || 'Free offline PWA for students. Calm exam panic, focus with sounds, take mini breaks.',
+  };
+}
+
+const OG_LOCALE_MAP: Record<Locale, string> = { en: 'en_US', ru: 'ru_RU' };
+
+export async function generateMetadata(): Promise<Metadata> {
+  const headerStore = await headers();
+  const cookieStore = await cookies();
+  const fromCookie = parseLocale(cookieStore.get('blunno_lang')?.value);
+  const locale: Locale = fromCookie ?? localeFromAcceptLanguage(headerStore.get('accept-language'));
+  const seo = getSeoStrings(locale);
+
+  return {
+    metadataBase: new URL('https://blunno.app'),
+    title: {
+      default: seo.defaultTitle,
+      template: '%s – Blunno',
+    },
+    description: seo.defaultDesc,
+    keywords: seo.keywords,
+    authors: [{ name: 'Blunno Team' }],
+    creator: 'Blunno',
+    publisher: 'Blunno',
+    robots: {
       index: true,
       follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
     },
-  },
-  alternates: {
-    canonical: 'https://blunno.app',
-  },
-  openGraph: {
-    title: 'Blunno – Pocket reset for study stress',
-    description:
-      'Free offline PWA for students. Calm exam panic, focus with sounds, take mini breaks.',
-    url: 'https://blunno.app',
-    siteName: 'Blunno',
-    locale: 'en_US',
-    type: 'website',
-    images: [{ url: '/og-image', width: 1200, height: 630 }],
-  },
-  twitter: {
-    card: 'summary_large_image',
-    title: 'Blunno – Pocket reset for study stress',
-    description: 'Free offline PWA for students',
-    images: ['/og-image'],
-  },
-  icons: {
-    icon: '/icon-192.png',
-    apple: '/apple-touch-icon.png',
-  },
-};
+    alternates: {
+      canonical: 'https://blunno.app',
+      languages: {
+        en: 'https://blunno.app',
+        ru: 'https://blunno.app',
+        'x-default': 'https://blunno.app',
+      },
+    },
+    openGraph: {
+      title: seo.ogTitle,
+      description: seo.ogDesc,
+      url: 'https://blunno.app',
+      siteName: 'Blunno',
+      locale: OG_LOCALE_MAP[locale],
+      type: 'website',
+      images: [{ url: '/og-image', width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: seo.ogTitle,
+      description: seo.ogDesc,
+      images: ['/og-image'],
+    },
+    icons: {
+      icon: '/icon-192.png',
+      apple: '/apple-touch-icon.png',
+    },
+  };
+}
 
 async function getServerLocale(): Promise<Locale> {
   const cookieStore = await cookies();

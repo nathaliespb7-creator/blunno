@@ -1,6 +1,6 @@
 {
   "version": 46,
-  "generatedAt": "2026-06-12T18:07:40.496Z",
+  "generatedAt": "2026-06-12T20:52:26.429Z",
   "routes": [
     "/",
     "/app",
@@ -60,9 +60,9 @@
     "/window.svg"
   ],
   "assets": [
-    "/_next/static/_Y1CF6FSpCRD7Opuubzuh/_buildManifest.js",
-    "/_next/static/_Y1CF6FSpCRD7Opuubzuh/_clientMiddlewareManifest.js",
-    "/_next/static/_Y1CF6FSpCRD7Opuubzuh/_ssgManifest.js",
+    "/_next/static/0VjoL4Ch7dKqtaxXV-OMz/_buildManifest.js",
+    "/_next/static/0VjoL4Ch7dKqtaxXV-OMz/_clientMiddlewareManifest.js",
+    "/_next/static/0VjoL4Ch7dKqtaxXV-OMz/_ssgManifest.js",
     "/_next/static/chunks/0-vdmrp85eqcy.js",
     "/_next/static/chunks/01xlw8hd842-c.js",
     "/_next/static/chunks/03~yq9q893hmn.js",

@@ -5,14 +5,27 @@ const BASE = 'https://blunno.app';
 export default function sitemap(): MetadataRoute.Sitemap {
   const lastModified = new Date();
 
-  return [
-    { url: BASE, lastModified, changeFrequency: 'weekly', priority: 1 },
-    { url: `${BASE}/app`, lastModified, changeFrequency: 'monthly', priority: 0.9 },
-    { url: `${BASE}/choose`, lastModified, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${BASE}/sos`, lastModified, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${BASE}/relax`, lastModified, changeFrequency: 'monthly', priority: 0.8 },
-    { url: `${BASE}/planner`, lastModified, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${BASE}/play`, lastModified, changeFrequency: 'monthly', priority: 0.7 },
-    { url: `${BASE}/privacy`, lastModified, changeFrequency: 'yearly', priority: 0.3 },
+  const paths = [
+    { path: '', changeFrequency: 'weekly' as const, priority: 1 },
+    { path: '/app', changeFrequency: 'monthly' as const, priority: 0.9 },
+    { path: '/choose', changeFrequency: 'monthly' as const, priority: 0.8 },
+    { path: '/sos', changeFrequency: 'monthly' as const, priority: 0.8 },
+    { path: '/relax', changeFrequency: 'monthly' as const, priority: 0.8 },
+    { path: '/planner', changeFrequency: 'monthly' as const, priority: 0.7 },
+    { path: '/play', changeFrequency: 'monthly' as const, priority: 0.7 },
+    { path: '/privacy', changeFrequency: 'yearly' as const, priority: 0.3 },
   ];
+
+  return paths.map(({ path, changeFrequency, priority }) => ({
+    url: `${BASE}${path}`,
+    lastModified,
+    changeFrequency,
+    priority,
+    alternates: {
+      languages: {
+        en: `${BASE}${path}`,
+        ru: `${BASE}${path}`,
+      },
+    },
+  }));
 }
