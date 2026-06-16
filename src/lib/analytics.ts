@@ -1,5 +1,7 @@
 /** GA4 measurement ID — also configured in app/layout.tsx */
 export const GA_MEASUREMENT_ID = 'G-QH796CJ4ZX';
+/** Yandex Metrika counter ID */
+export const YM_COUNTER_ID = 109890943;
 
 const CONSENT_STORAGE_KEY = 'blunno_analytics_consent';
 
@@ -29,6 +31,7 @@ declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
     dataLayer?: unknown[];
+    ym?: (counterId: number, action: string, ...args: unknown[]) => void;
   }
 }
 
@@ -67,5 +70,11 @@ export function trackEvent(
   params?: AnalyticsEventParams
 ): void {
   if (typeof window === 'undefined' || !hasAnalyticsConsent()) return;
+  // Google Analytics
   window.gtag?.('event', name, params ?? {});
+  // Yandex Metrika
+  window.ym?.(YM_COUNTER_ID, 'reachGoal', name);
+  if (params) {
+    window.ym?.(YM_COUNTER_ID, 'params', params);
+  }
 }
