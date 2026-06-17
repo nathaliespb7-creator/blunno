@@ -46,7 +46,7 @@ test.describe('SOS breathing exercise', () => {
     await expect(page.getByLabel(T.sosExercise)).toBeVisible();
     await expect(page.getByLabel(T.sosTapStart)).toBeVisible();
     await expect(page.getByText(/3-2-3|3×2×3|Дыхание 3-2-3/i)).toBeVisible();
-    await page.getByRole('link', { name: T.exitChoose }).click();
+    await page.getByRole('button', { name: T.exitChoose }).click();
     await expect(page).toHaveURL('/choose');
   });
 

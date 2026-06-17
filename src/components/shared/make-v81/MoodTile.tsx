@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import type { ReactElement } from 'react';
 
 import { GlassListCell } from '@/components/shared/make-v81/GlassListCell';
@@ -19,15 +20,21 @@ type MoodTileProps = {
 };
 
 export function MoodTile({ mood, href, onNavigate }: MoodTileProps): ReactElement {
+  const router = useRouter();
+
+  const handleClick = () => {
+    onNavigate?.();
+    router.push(href);
+  };
+
   return (
     <GlassListCell
-      as="a"
-      href={href}
+      as="button"
+      onClick={handleClick}
       accentColor={mood.borderColor}
       title={mood.label}
       subtitle={mood.description}
       subtitleVariant="description"
-      onClick={onNavigate}
       aria-label={mood.label}
       className="[&_.v81-glass-cell-title]:uppercase [&_.v81-glass-cell-title]:tracking-wide"
     />

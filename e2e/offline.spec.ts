@@ -11,7 +11,7 @@ import {
 
 const OFFLINE_ROUTES = [
   { path: '/app', assert: async (page: import('@playwright/test').Page) => {
-    await expect(page.getByRole('link', { name: T.startNow })).toBeVisible();
+    await expect(page.getByRole('button', { name: T.startNow })).toBeVisible();
   }},
   { path: '/choose', assert: async (page: import('@playwright/test').Page) => {
     await expect(page.getByRole('heading', { name: T.chooseTitle })).toBeVisible();
@@ -77,7 +77,7 @@ test.describe('Offline transitions', () => {
     await page.reload({ waitUntil: 'domcontentloaded' });
     await clickMood(page, 'PLAY');
     await expect(page).toHaveURL('/play');
-    await page.getByRole('link', { name: T.exitChoose }).click();
+    await page.getByRole('button', { name: T.exitChoose }).click();
     await expect(page).toHaveURL('/choose');
   });
 });

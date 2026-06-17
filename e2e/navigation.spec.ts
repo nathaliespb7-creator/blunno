@@ -15,9 +15,9 @@ test.describe('Navigation matrix', () => {
 
   test('Choose → App via Home', async ({ page }) => {
     await clickStartNow(page);
-    await page.getByRole('link', { name: T.homeExit }).click();
+    await page.getByRole('button', { name: T.homeExit }).click();
     await expect(page).toHaveURL('/app');
-    await expect(page.getByRole('link', { name: T.startNow })).toBeVisible();
+    await expect(page.getByRole('button', { name: T.startNow })).toBeVisible();
   });
 
   test('Choose → SOS → back to Choose', async ({ page }) => {
@@ -25,7 +25,7 @@ test.describe('Navigation matrix', () => {
     await clickMood(page, 'SOS');
     await expect(page).toHaveURL('/sos');
     await expect(page.getByLabel(T.sosExercise)).toBeVisible();
-    await page.getByRole('link', { name: T.exitChoose }).click();
+    await page.getByRole('button', { name: T.exitChoose }).click();
     await expect(page).toHaveURL('/choose');
   });
 
@@ -34,7 +34,7 @@ test.describe('Navigation matrix', () => {
     await clickMood(page, 'PLANNER');
     await expect(page).toHaveURL('/planner');
     await expect(page.getByText(T.plannerToday)).toBeVisible();
-    await page.getByRole('link', { name: T.exitChoose }).click();
+    await page.getByRole('button', { name: T.exitChoose }).click();
     await expect(page).toHaveURL('/choose');
   });
 
@@ -43,7 +43,7 @@ test.describe('Navigation matrix', () => {
     await clickMood(page, 'PLAY');
     await expect(page).toHaveURL('/play');
     await expect(page.getByRole('heading', { name: T.playTitle })).toBeVisible();
-    await page.getByRole('link', { name: T.exitChoose }).click();
+    await page.getByRole('button', { name: T.exitChoose }).click();
     await expect(page).toHaveURL('/choose');
   });
 
@@ -52,7 +52,7 @@ test.describe('Navigation matrix', () => {
     await clickMood(page, 'RELAX');
     await expect(page).toHaveURL('/relax');
     await expect(page.getByRole('heading', { name: T.relaxTitle })).toBeVisible();
-    await page.getByRole('link', { name: T.backChoose }).click();
+    await page.getByRole('button', { name: T.backChoose }).click();
     await expect(page).toHaveURL('/choose');
   });
 });

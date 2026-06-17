@@ -21,7 +21,7 @@ for (const viewport of VIEWPORTS) {
       await expect(tiles).toHaveCount(4);
 
       for (const mood of Object.values(T.moods)) {
-        const tile = page.getByRole('link', { name: new RegExp(`^${mood}$`, 'i') });
+        const tile = page.getByRole('button', { name: new RegExp(`^${mood}$`, 'i') });
         await expect(tile).toBeVisible();
         await expect(tile).toBeInViewport();
       }
@@ -29,9 +29,9 @@ for (const viewport of VIEWPORTS) {
 
     test('survives repeated navigation to play and back', async ({ page }) => {
       for (let cycle = 0; cycle < 3; cycle += 1) {
-        await page.getByRole('link', { name: new RegExp(`^${T.moods.PLAY}$`, 'i') }).click();
+        await page.getByRole('button', { name: new RegExp(`^${T.moods.PLAY}$`, 'i') }).click();
         await expect(page).toHaveURL('/play');
-        await page.getByRole('link', { name: T.exitChoose }).click();
+        await page.getByRole('button', { name: T.exitChoose }).click();
         await expect(page).toHaveURL('/choose');
         await expect(page.locator('.v81-glass-cell')).toHaveCount(4);
       }

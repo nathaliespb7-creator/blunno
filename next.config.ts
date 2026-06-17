@@ -23,6 +23,7 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ['framer-motion', 'lucide-react'],
+    viewTransition: true,
   },
   typescript: {
     ignoreBuildErrors: false,
