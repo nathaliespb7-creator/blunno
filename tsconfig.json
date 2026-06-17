@@ -58,6 +58,7 @@
     "build",
     "coverage",
     ".turbo",
-    ".cache"
+    ".cache",
+    "canvases"
   ]
 }

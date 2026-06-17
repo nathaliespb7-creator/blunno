@@ -264,7 +264,7 @@
   --color-blunno-relax: var(--color-core-relax);
 
   --font-sans: var(--font-plus-jakarta), var(--font-inter), ui-sans-serif, system-ui, sans-serif;
-  --font-body: var(--font-roboto), ui-sans-serif, system-ui, sans-serif;
+  --font-body: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-ui: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
 
   --radius-card: var(--radius-card);
@@ -364,7 +364,7 @@ body::after {
 }
 
 .text-blunno-title {
-  font-family: var(--font-sarabun), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
   font-weight: 800;
   font-size: var(--text-xl);
   line-height: var(--leading-title);
@@ -1171,7 +1171,7 @@ body::after {
 
 .landing-section-title {
   margin: 0;
-  font-family: var(--font-welcome-display), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
   font-size: clamp(1.35rem, 4.5vw, 1.75rem);
   font-weight: 700;
   line-height: 1.2;
@@ -1193,7 +1193,7 @@ body::after {
 .landing-hero-headline {
   margin: 0;
   max-width: 20rem;
-  font-family: var(--font-welcome-display), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
   font-size: clamp(1.75rem, 6.5vw, 2.35rem);
   font-weight: 700;
   line-height: 1.12;

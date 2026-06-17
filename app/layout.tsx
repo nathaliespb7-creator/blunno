@@ -1,5 +1,5 @@
 import './globals.css';
-import { Inter, Plus_Jakarta_Sans, Poppins, Roboto, Sarabun, Tiro_Telugu } from 'next/font/google';
+import { Inter, Plus_Jakarta_Sans, Tiro_Telugu } from 'next/font/google';
 import type { Metadata, Viewport } from 'next';
 import { cookies, headers } from 'next/headers';
 import Script from 'next/script';
@@ -17,21 +17,6 @@ import en from '@/i18n/en.json';
 import ru from '@/i18n/ru.json';
 import { GA_MEASUREMENT_ID, YM_COUNTER_ID } from '@/lib/analytics';
 
-/** Figma Welcome: заголовок (замена Toppan Bunkyu Midashi Gothic) */
-const welcomeDisplay = Poppins({
-  subsets: ['latin'],
-  variable: '--font-welcome-display',
-  display: 'swap',
-  weight: ['700'],
-});
-
-const sarabun = Sarabun({
-  subsets: ['latin'],
-  variable: '--font-sarabun',
-  display: 'swap',
-  weight: ['400', '700', '800'],
-});
-
 /** Слово BLUNNO на Welcome */
 const tiroTelugu = Tiro_Telugu({
   subsets: ['latin'],
@@ -45,13 +30,6 @@ const plusJakartaSans = Plus_Jakarta_Sans({
   variable: '--font-plus-jakarta',
   display: 'swap',
   weight: ['400', '500', '600', '700'],
-});
-
-const roboto = Roboto({
-  subsets: ['latin', 'cyrillic'],
-  variable: '--font-roboto',
-  display: 'swap',
-  weight: ['400', '700'],
 });
 
 const inter = Inter({
@@ -179,7 +157,7 @@ export default async function RootLayout({
     <html
       lang={initialLocale}
       suppressHydrationWarning
-      className={`${welcomeDisplay.variable} ${tiroTelugu.variable} ${plusJakartaSans.variable} ${sarabun.variable} ${roboto.variable} ${inter.variable} min-h-dvh overflow-x-hidden bg-blunno-bg`}
+      className={`${tiroTelugu.variable} ${plusJakartaSans.variable} ${inter.variable} min-h-dvh overflow-x-hidden bg-blunno-bg`}
     >
       <head>
         <script dangerouslySetInnerHTML={{ __html: LOCALE_BOOTSTRAP_SCRIPT }} />
