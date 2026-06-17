@@ -1,6 +1,5 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import type { ReactElement, ReactNode } from 'react';
 
 import { GlassCellDecor } from '@/components/shared/make-v81/GlassCellDecor';
@@ -29,7 +28,6 @@ export function GlassActionButton({
   type = 'button',
   disabled,
 }: GlassActionButtonProps): ReactElement {
-  const router = useRouter();
   const style = {
     '--v81-action-border': borderColor,
     '--v81-action-gradient': borderGradient,
@@ -46,15 +44,10 @@ export function GlassActionButton({
   );
 
   if (href) {
-    const handleNavigate = () => {
-      onClick?.();
-      router.push(href);
-    };
-
     return (
-      <button type="button" onClick={handleNavigate} disabled={disabled} className={classes} style={style}>
+      <a href={href} className={classes} style={style}>
         {inner}
-      </button>
+      </a>
     );
   }
 

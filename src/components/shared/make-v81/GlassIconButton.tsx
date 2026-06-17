@@ -1,7 +1,6 @@
 'use client';
 
 import type { LucideIcon } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 import type { ReactElement } from 'react';
 
 import { GlassCellDecor } from '@/components/shared/make-v81/GlassCellDecor';
@@ -16,7 +15,6 @@ type GlassIconButtonProps = {
 };
 
 export function GlassIconButton({ href, onClick, icon: Icon, label, className }: GlassIconButtonProps): ReactElement {
-  const router = useRouter();
   const classes = cn('v81-glass-icon-btn blunno-focus-visible', className);
 
   const inner = (
@@ -27,15 +25,10 @@ export function GlassIconButton({ href, onClick, icon: Icon, label, className }:
   );
 
   if (href) {
-    const handleNavigate = () => {
-      onClick?.();
-      router.push(href);
-    };
-
     return (
-      <button type="button" aria-label={label} className={classes} onClick={handleNavigate}>
+      <a href={href} aria-label={label} className={classes} onClick={onClick}>
         {inner}
-      </button>
+      </a>
     );
   }
 

@@ -1,8 +1,6 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
-import { SeoLandingCta } from '@/components/features/seo/SeoLandingCta';
-
 type SeoLandingShellProps = {
   children: ReactNode;
   ctaLabel: string;
@@ -31,7 +29,9 @@ export function SeoLandingShell({
         <article className="landing-section space-y-8 pt-4">{children}</article>
 
         <section className="landing-section flex justify-center pb-8">
-          <SeoLandingCta href={ctaHref} label={ctaLabel} />
+          <a href={ctaHref} className="welcome-btn-primary w-full max-w-sm text-center">
+            {ctaLabel}
+          </a>
         </section>
 
         <footer className="landing-footer">

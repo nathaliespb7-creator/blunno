@@ -177,26 +177,26 @@ export async function expectChooseMoodsVisible(page: Page): Promise<void> {
   await expect(page.getByRole('heading', { name: T.chooseTitle })).toBeVisible();
   await expect(page.locator('.v81-glass-cell')).toHaveCount(4);
   for (const mood of Object.values(T.moods)) {
-    await expect(page.getByRole('button', { name: new RegExp(`^${mood}$`, 'i') })).toBeVisible();
+    await expect(page.getByRole('link', { name: new RegExp(`^${mood}$`, 'i') })).toBeVisible();
   }
 }
 
 export async function clickTryBlunno(page: Page): Promise<void> {
-  const btn = page.getByRole('button', { name: T.tryBlunno });
-  await btn.scrollIntoViewIfNeeded();
-  await btn.click();
+  const link = page.getByRole('link', { name: T.tryBlunno });
+  await link.scrollIntoViewIfNeeded();
+  await link.click();
   await page.waitForURL(/\/app\/?$/, { waitUntil: 'commit' });
 }
 
 export async function clickStartNow(page: Page): Promise<void> {
-  const tryBlunno = page.getByRole('button', { name: T.tryBlunno });
+  const tryBlunno = page.getByRole('link', { name: T.tryBlunno });
   if (await tryBlunno.isVisible().catch(() => false)) {
     await clickTryBlunno(page);
   }
 
-  const btn = page.getByRole('button', { name: T.startNow });
-  await btn.scrollIntoViewIfNeeded();
-  await btn.click();
+  const link = page.getByRole('link', { name: T.startNow });
+  await link.scrollIntoViewIfNeeded();
+  await link.click();
   await page.waitForURL(/\/choose\/?$/, { waitUntil: 'commit' });
 }
 
@@ -206,7 +206,7 @@ export async function clickOpenBlunno(page: Page): Promise<void> {
 }
 
 export async function clickMood(page: Page, moodKey: keyof typeof T.moods): Promise<void> {
-  await page.getByRole('button', { name: new RegExp(`^${T.moods[moodKey]}$`, 'i') }).click();
+  await page.getByRole('link', { name: new RegExp(`^${T.moods[moodKey]}$`, 'i') }).click();
   await page.waitForURL((url) => url.pathname !== '/choose', { waitUntil: 'commit' });
 }
 

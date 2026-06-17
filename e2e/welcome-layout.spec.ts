@@ -14,7 +14,7 @@ for (const viewport of VIEWPORTS) {
       await gotoAndSettle(page, '/');
 
       const headline = page.getByRole('heading', { name: T.landingTitle, level: 1 });
-      const tryBlunno = page.getByRole('button', { name: T.tryBlunno });
+      const tryBlunno = page.getByRole('link', { name: T.tryBlunno });
 
       await expect(headline).toBeVisible();
       await expect(tryBlunno).toBeVisible();

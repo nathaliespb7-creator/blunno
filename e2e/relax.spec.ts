@@ -62,7 +62,7 @@ test.describe('Relax sound controls', () => {
 
     await clickRelaxPlay(page, first);
 
-    await page.getByRole('button', { name: T.backChoose }).click();
+    await page.getByRole('link', { name: T.backChoose }).click();
     await expect(page).toHaveURL('/choose');
 
     await clickMood(page, 'RELAX');

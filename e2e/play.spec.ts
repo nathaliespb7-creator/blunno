@@ -90,7 +90,7 @@ test.describe('Play hub and games', () => {
         await expect(page.getByRole('heading', { name: title, level: 1 })).toBeVisible({ timeout: 2000 });
       }).toPass({ timeout: 15000 });
 
-      await page.getByRole('button', { name: T.exitChoose }).click();
+      await page.getByRole('link', { name: T.exitChoose }).click();
       await expect(page).toHaveURL('/choose');
     });
   }
