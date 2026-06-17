@@ -40,6 +40,11 @@ export function routeMetadata({
     ...(noIndex ? { robots: { index: false, follow: false } } : {}),
     alternates: {
       canonical,
+      languages: {
+        en: canonical,
+        ru: canonical,
+        'x-default': canonical,
+      },
     },
     openGraph: {
       title: resolvedOgTitle,
