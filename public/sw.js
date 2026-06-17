@@ -1,9 +1,9 @@
 /* eslint-disable no-restricted-globals */
 /* Generated from sw.template.js by scripts/generate-sw.mjs — do not edit public/sw.js directly. */
 
-const STATIC_CACHE = 'blunno-static-v46';
-const RUNTIME_CACHE = 'blunno-runtime-v46';
-const OFFLINE_SW_VERSION = 46;
+const STATIC_CACHE = 'blunno-static-v47';
+const RUNTIME_CACHE = 'blunno-runtime-v47';
+const OFFLINE_SW_VERSION = 47;
 const OFFLINE_URL = '/offline';
 const MAX_RUNTIME_ENTRIES = 64;
 
@@ -141,11 +141,45 @@ async function matchCachedDocument(cache, request, pathname) {
   );
 }
 
+/** Stale-while-revalidate: refresh HTML in background without blocking response. */
+async function revalidateDocument(request) {
+  try {
+    const response = await fetch(request);
+    if (isCacheableDocumentResponse(response)) {
+      await putRuntimeCache(request, response);
+    }
+  } catch {
+    /* background refresh failed — cached copy remains valid */
+  }
+}
+
+/** Stale-while-revalidate: refresh JS/CSS/fonts in background without blocking response. */
+async function revalidateStaticAsset(request, pathname) {
+  try {
+    const response = await fetch(request);
+    if (isCacheableAssetResponse(response, pathname)) {
+      await putRuntimeCache(request, response);
+    }
+  } catch {
+    /* background refresh failed — cached copy remains valid */
+  }
+}
+
+function isAudioAsset(pathname) {
+  return pathname.startsWith('/audio/') || /\.(?:mp3|wav|ogg)$/i.test(pathname);
+}
+
 async function handleAppRoute(request, pathname) {
   const staticCache = await caches.open(STATIC_CACHE);
+  const runtimeCache = await caches.open(RUNTIME_CACHE);
   const cached =
     (await matchCachedDocument(staticCache, request, pathname)) ??
-    (await matchCachedDocument(await caches.open(RUNTIME_CACHE), request, pathname));
+    (await matchCachedDocument(runtimeCache, request, pathname));
+
+  if (cached) {
+    void revalidateDocument(request);
+    return cached;
+  }
 
   try {
     const response = await fetch(request);
@@ -154,8 +188,6 @@ async function handleAppRoute(request, pathname) {
     }
     return response;
   } catch {
-    if (cached) return cached;
-
     const offlineFallback = await staticCache.match(OFFLINE_URL);
     return offlineFallback ?? Response.error();
   }
@@ -164,39 +196,24 @@ async function handleAppRoute(request, pathname) {
 async function handleMediaAsset(request, pathname) {
   const staticCache = await caches.open(STATIC_CACHE);
   const cached = await matchCachedMedia(staticCache, request, pathname);
-  const relax = isRelaxMedia(pathname);
-  const online = self.navigator.onLine;
+  const audio = isAudioAsset(pathname);
 
-  const revalidate = async () => {
-    if (relax && !online) return;
-    try {
-      const response = await fetch(request);
-      if (isCacheableAssetResponse(response, pathname)) {
-        await staticCache.put(request, response.clone());
-      }
-    } catch {
-      /* offline or flaky network — cached copy remains valid */
-    }
-  };
-
-  if (cached) {
-    if (!relax || online) {
-      void revalidate();
-    }
+  if (cached && audio) {
     return cached;
   }
 
-  if (relax) {
-    try {
-      const response = await fetch(request);
-      if (isCacheableAssetResponse(response, pathname)) {
-        await staticCache.put(request, response.clone());
+  if (cached) {
+    void (async () => {
+      try {
+        const response = await fetch(request);
+        if (isCacheableAssetResponse(response, pathname)) {
+          await staticCache.put(request, response.clone());
+        }
+      } catch {
+        /* offline or flaky network — cached copy remains valid */
       }
-      return response;
-    } catch {
-      const lateCached = await matchCachedMedia(staticCache, request, pathname);
-      return lateCached ?? Response.error();
-    }
+    })();
+    return cached;
   }
 
   try {
@@ -206,16 +223,24 @@ async function handleMediaAsset(request, pathname) {
     }
     return response;
   } catch {
-    return Response.error();
+    const lateCached = await matchCachedMedia(staticCache, request, pathname);
+    return lateCached ?? Response.error();
   }
 }
 
 async function handleStaticAsset(request, pathname) {
   const staticCache = await caches.open(STATIC_CACHE);
+  const runtimeCache = await caches.open(RUNTIME_CACHE);
   const cached =
     (await caches.match(request)) ??
     (await staticCache.match(pathname)) ??
-    (await staticCache.match(new URL(pathname, self.location.origin).href));
+    (await staticCache.match(new URL(pathname, self.location.origin).href)) ??
+    (await runtimeCache.match(request));
+
+  if (cached) {
+    void revalidateStaticAsset(request, pathname);
+    return cached;
+  }
 
   try {
     const response = await fetch(request);
@@ -224,7 +249,7 @@ async function handleStaticAsset(request, pathname) {
     }
     return response;
   } catch {
-    return cached ?? Response.error();
+    return Response.error();
   }
 }
 
