@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useState, type ReactElement } from 'react';
 
 import {
@@ -50,9 +49,9 @@ export function CookieConsent(): ReactElement | null {
     >
       <p className="text-sm leading-relaxed text-white/85">
         {t('cookie.text')}{' '}
-        <Link href="/privacy" className="text-[#00FFFF] underline-offset-2 hover:underline">
+        <a href="/privacy" className="text-[#00FFFF] underline-offset-2 hover:underline">
           {t('landing.privacy')}
-        </Link>
+        </a>
       </p>
       <div className="mt-3 flex flex-wrap gap-2">
         <button

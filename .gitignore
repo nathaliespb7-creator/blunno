@@ -30,7 +30,11 @@
 # misc
 .DS_Store
 *.pem
-.cursor/
+
+# Cursor: version project rules, ignore machine-local config and artifacts
+/.cursor/*
+!/.cursor/rules/
+!/.cursor/rules/*.mdc
 
 # debug
 *.log

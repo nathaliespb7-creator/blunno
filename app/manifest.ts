@@ -3,10 +3,10 @@ import type { MetadataRoute } from 'next';
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: 'blunno-app',
-    name: 'Blunno – Pocket Reset for Study Stress',
+    name: 'Blunno — карманный ресет для учебного стресса',
     short_name: 'Blunno',
     description:
-      'Free offline PWA for study stress. SOS breathing exercises, focus sounds, mindful planner, and mini breaks for students. No signup required.',
+      'Бесплатное офлайн-приложение для студентов: дыхательные упражнения SOS, звуки для фокуса, ежедневник и мини-игры. Без регистрации.',
     start_url: '/app',
     scope: '/',
     display: 'standalone',
@@ -14,7 +14,7 @@ export default function manifest(): MetadataRoute.Manifest {
     background_color: '#120f25',
     theme_color: '#120f25',
     orientation: 'portrait',
-    lang: 'en',
+    lang: 'ru',
     dir: 'ltr',
     categories: ['health', 'education', 'productivity', 'lifestyle'],
     screenshots: [

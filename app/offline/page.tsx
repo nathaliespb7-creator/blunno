@@ -1,7 +1,6 @@
 'use client';
 
 import type { ReactElement } from 'react';
-import Link from 'next/link';
 import { useTranslation } from '@/i18n/useTranslation';
 
 export default function OfflinePage(): ReactElement {
@@ -14,12 +13,12 @@ export default function OfflinePage(): ReactElement {
         <p className="mb-4 text-sm text-white/75">
           {t('offline.text')}
         </p>
-        <Link
+        <a
           href="/"
           className="inline-flex items-center justify-center rounded-full border border-white/25 px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10"
         >
           {t('error.tryAgain')}
-        </Link>
+        </a>
       </div>
     </main>
   );

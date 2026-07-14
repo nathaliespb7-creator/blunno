@@ -1,5 +1,4 @@
 import { warmRelaxMediaInCache } from '@/lib/relaxMediaWarmup';
-
 import { DEFAULT_RELAX_VOLUME } from '@/config/relaxSounds';
 
 export type RelaxSoundId = 'birch-wind' | 'ocean' | 'rain' | 'meditation' | 'soft-storm';
@@ -8,21 +7,8 @@ type WarmupSound = { id: RelaxSoundId; audioSrc?: string };
 
 const DEFAULT_VOLUME = DEFAULT_RELAX_VOLUME / 100;
 
-let audioCtx: AudioContext | null = null;
-
-function getAudioContext(): AudioContext {
-  if (!audioCtx) {
-    audioCtx = new AudioContext();
-  }
-  if (audioCtx.state === 'suspended') {
-    void audioCtx.resume();
-  }
-  return audioCtx;
-}
-
 class RelaxAudioService {
   private pool = new Map<RelaxSoundId, HTMLAudioElement>();
-  private gainNodes = new Map<RelaxSoundId, GainNode>();
   private soundVolumes = new Map<RelaxSoundId, number>();
   private activeAudio: HTMLAudioElement | null = null;
   private currentId: RelaxSoundId | null = null;
@@ -56,10 +42,11 @@ class RelaxAudioService {
     void warmRelaxMediaInCache(urls);
   }
 
-  play(id: RelaxSoundId, src: string): void {
+  play(id: RelaxSoundId, src: string, title?: string): void {
     const next = this.getOrCreate(id, src);
     const volume = this.getVolume(id);
 
+    // Same track already playing — just adjust volume
     if (
       this.currentId === id &&
       this.activeAudio === next &&
@@ -72,15 +59,18 @@ class RelaxAudioService {
 
     const generation = ++this.playGeneration;
 
+    // Stop previous audio synchronously
     if (this.activeAudio && this.activeAudio !== next) {
       this.activeAudio.pause();
       this.activeAudio.currentTime = 0;
     }
 
-    // Resume AudioContext (required on iOS)
-    const ctx = getAudioContext();
-    if (ctx.state === 'suspended') {
-      void ctx.resume();
+    // Set up MediaSession for OS audio priority (iOS requires action handlers)
+    if (title && 'mediaSession' in navigator) {
+      navigator.mediaSession.metadata = new MediaMetadata({ title, artist: 'Blunno', album: 'Relax' });
+      navigator.mediaSession.setActionHandler('play', () => this.play(id, src, title));
+      navigator.mediaSession.setActionHandler('pause', () => this.stop());
+      navigator.mediaSession.playbackState = 'playing';
     }
 
     this.applyVolume(id, volume);
@@ -122,10 +112,12 @@ class RelaxAudioService {
     }
     this.activeAudio = null;
     this.currentId = null;
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'none';
+    }
     this.emit(null);
   }
 
-  /** Set volume for a specific sound (0–1). Uses GainNode for iOS compatibility. */
   setVolume(id: RelaxSoundId, v: number): void {
     const clamped = Math.max(0, Math.min(1, v));
     this.soundVolumes.set(id, clamped);
@@ -133,14 +125,9 @@ class RelaxAudioService {
   }
 
   private applyVolume(id: RelaxSoundId, volume: number): void {
-    const gain = this.gainNodes.get(id);
-    if (gain) {
-      gain.gain.value = volume;
-    } else {
-      const audio = this.pool.get(id);
-      if (audio) {
-        audio.volume = volume;
-      }
+    const audio = this.pool.get(id);
+    if (audio) {
+      audio.volume = volume;
     }
   }
 
@@ -157,20 +144,6 @@ class RelaxAudioService {
       audio.loop = true;
       audio.preload = 'auto';
       audio.volume = this.getVolume(id);
-
-      // Create GainNode for iOS volume control
-      try {
-        const ctx = getAudioContext();
-        const source = ctx.createMediaElementSource(audio);
-        const gainNode = ctx.createGain();
-        gainNode.gain.value = this.getVolume(id);
-        source.connect(gainNode);
-        gainNode.connect(ctx.destination);
-        this.gainNodes.set(id, gainNode);
-      } catch {
-        // Fallback: use audio.volume if AudioContext fails
-      }
-
       this.pool.set(id, audio);
       return audio;
     }

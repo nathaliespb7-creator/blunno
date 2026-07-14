@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import type { ReactElement } from 'react';
 
 import { routeMetadata } from '@/lib/seo';
@@ -14,9 +13,9 @@ export default function PrivacyPage(): ReactElement {
   return (
     <main className="min-h-dvh bg-[#05050A] font-sans text-white/90 px-6 py-10">
       <div className="mx-auto max-w-lg space-y-6">
-        <Link href="/" className="text-sm text-[#00FFFF] hover:underline">
+        <a href="/" className="text-sm text-[#00FFFF] hover:underline">
           ← Back to Blunno
-        </Link>
+        </a>
 
         <h1 className="text-2xl font-semibold text-white">Privacy</h1>
         <p className="text-sm text-[#9CA3AF]">Last updated: June 2026</p>

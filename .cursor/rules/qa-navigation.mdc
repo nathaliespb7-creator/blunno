@@ -1,0 +1,44 @@
+---
+description: Run Blunno E2E navigation QA before production deploy
+globs:
+  - app/**
+  - src/components/**
+  - e2e/**
+alwaysApply: false
+---
+
+# Blunno navigation QA
+
+Before any production deploy (`vercel deploy --prod`), run:
+
+```bash
+npm run build
+npm run test:e2e
+```
+
+Do **not** deploy if E2E is red. Fix failures first, then re-run until green.
+
+## Route checklist
+
+| Route | Entry | Exit buttons |
+|-------|-------|--------------|
+| `/` | — | Start Now → `/choose` |
+| `/choose` | from Welcome or mode Home | Home → `/`; mood tiles → modes |
+| `/sos` | SOS tile | Exit to mode selection → `/choose` |
+| `/planner` | PLANNER tile | Exit to mode selection → `/choose` |
+| `/play` | PLAY tile | Exit to mode selection; Play → game; Back to games |
+| `/relax` | RELAX tile | Back to mode selection → `/choose` |
+
+## What E2E covers
+
+- All routes and back-navigation links
+- Play hub: Sudoku, Tetris, Pop It open/close
+- Planner: week nav, add/complete/edit tasks
+- Relax: play/pause/volume for all sounds
+- SOS: exercise UI loads, ring pointer interaction
+
+## When changing navigation or buttons
+
+1. Update affected spec in `e2e/` if selectors or flows change
+2. Run `npm run test:e2e` locally
+3. Prefer `aria-label` on interactive controls for stable selectors

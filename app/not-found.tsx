@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useTranslation } from '@/i18n/useTranslation';
 
 export default function NotFound() {
@@ -12,12 +11,12 @@ export default function NotFound() {
       <p className="mt-4 text-lg text-white/60">
         {t('error.404')}
       </p>
-      <Link
+      <a
         href="/"
         className="mt-8 rounded-full bg-gradient-to-r from-cyan-400/90 to-fuchsia-600/90 px-6 py-3 text-sm font-medium text-white transition hover:opacity-90"
       >
         {t('error.goHome')}
-      </Link>
+      </a>
     </main>
   );
 }

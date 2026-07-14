@@ -90,11 +90,11 @@ export async function generateMetadata(): Promise<Metadata> {
     metadataBase: new URL('https://blunno.app'),
     title: {
       default: seo.defaultTitle,
-      template: '%s – Blunno',
+      template: '%s — Blunno',
     },
     description: seo.defaultDesc,
     keywords: seo.keywords,
-    authors: [{ name: 'Blunno Team' }],
+    authors: [{ name: 'Blunno' }],
     creator: 'Blunno',
     publisher: 'Blunno',
     robots: {
@@ -111,8 +111,8 @@ export async function generateMetadata(): Promise<Metadata> {
     alternates: {
       canonical: 'https://blunno.app',
       languages: {
-        en: 'https://blunno.app',
         ru: 'https://blunno.app',
+        en: 'https://blunno.app',
         'x-default': 'https://blunno.app',
       },
     },

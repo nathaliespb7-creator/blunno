@@ -1,0 +1,102 @@
+# Project: blunno
+
+## Tech stack
+- Next.js 15+ (App Router)
+- TypeScript (strict mode, no `any`)
+- Tailwind CSS
+- Turbopack for dev
+
+## Code conventions (specific to blunno)
+- Components: PascalCase, default export
+- Utilities: camelCase, named exports
+- Imports: absolute paths with `@/`
+- Tailwind classes order: layout → spacing → sizing → typography → colors → effects → states
+
+## Forbidden
+- Using `any` type – use `unknown` or concrete types instead
+
+## Project structure
+- `app/` – routes and layouts
+- `src/` – components, hooks, utils
+- `public/` – static files
+
+## Testing
+- Use Jest + React Testing Library
+- Place tests next to components (`*.test.tsx`)
+
+## Next.js 16 specific
+- **Breaking changes** relative to Next.js 13/14: APIs, conventions, file structure may differ.
+- Before writing code that uses Next.js APIs, consult local docs: `node_modules/next/dist/docs/`.
+- Pay attention to deprecation warnings in console/build.
+
+---
+
+## Дизайн-токены
+
+5-цветная система из `app/globals.css` (source of truth):
+
+| Token | Hex | Роль |
+|-------|-----|------|
+| `core-bg` | `#0b0b1a` | Базовый фон приложения |
+| `shell` | `#120f25` | Shell / overscroll / theme-color |
+| `sos` | `#905e8c` | Режим SOS |
+| `planner` | `#83a9ad` | Режим Planner |
+| `play` | `#6a3cae` | Режим Play |
+| `relax` | `#e7b453` | Режим Relax |
+
+Все остальные UI-цвета — производные через `color-mix`, rgba или семантические алиасы в `:root` / `@theme inline`. Не вводить новые «шестые» акцентные цвета без согласования.
+
+**UI-компоненты:** только из `src/components/ui/`. Если нужного примитива нет — создай его там (Button, Input, Card, Modal, Notification и т.д.), не дублируй inline в feature-компонентах.
+
+## Стек технологий
+
+- **Next.js 16** — App Router, Turbopack (`next dev` / `next build`)
+- **React 19**
+- **TypeScript** — `strict`, без `any`
+- **Tailwind CSS 4** — `@import "tailwindcss"`, токены в `app/globals.css`
+- **Framer Motion** — анимации экранов и микро-интеракции
+- **Zustand 5** — клиентский стейт (planner, audio и др.)
+- **Howler** — звуки Relax / SOS
+- **Vercel** — production deploy
+- **PWA** — Service Worker, offline precache, `manifest.webmanifest`
+
+## Шрифты
+
+Загружаются только через `next/font/google` в `app/layout.tsx`:
+
+| Шрифт | CSS-переменная | Назначение |
+|-------|----------------|------------|
+| Plus Jakarta Sans | `--font-plus-jakarta` | UI, заголовки, landing |
+| Tiro Telugu | `--font-tiro-telugu` | Бренд, слово «Blunno» на Welcome |
+| Inter | `--font-inter` | body (`--font-body`), `font-ui` |
+
+**Запрещено** добавлять новые шрифты без явного одобрения — каждый вес увеличивает bundle и LCP.
+
+## Безопасность
+
+- **CSP** — заголовки в `next.config.ts`: `default-src 'self'`, `script-src` только с явно перечисленными доменами (Google Analytics, Yandex Metrika и т.д.)
+- **`.env*`** — в `.gitignore`, секреты только на сервере / в Vercel env
+- **Никаких API-ключей** в клиентском коде, `'use client'` компонентах и публичных бандлах
+- **`productionBrowserSourceMaps: false`** — не включать source maps в production
+
+## i18n
+
+- Локали: **EN / RU** (`src/i18n/en.json`, `ru.json`)
+- Сервер: locale из cookie `blunno_lang` или `Accept-Language` в `app/layout.tsx`
+- Клиент: `I18nProvider` с `initialLocale` с сервера — без flash неправильного языка
+- **`WelcomeCTA`** — использовать нативный `<a href>`, не `<Link>` (баг Next.js 16 с client navigation на Welcome)
+- **Нет дубликатов ключей** в JSON-файлах переводов
+
+## PWA
+
+- Service Worker: `scripts/generate-sw.mjs` → `public/sw.js`
+- Precache manifest: `scripts/generate-precache-manifest.mjs` (build assets + public media + routes)
+- **Перед деплоем:** `npm run build && npm run test:e2e`
+- **Без зелёных E2E не деплоить** — см. `.cursor/rules/qa-navigation.mdc`
+
+## Код-стиль
+
+- **Компоненты:** PascalCase + `export default` (или named export для мелких UI-примитивов в `components/ui/`)
+- **Утилиты / хуки:** camelCase + named exports
+- **Импорты:** абсолютные через `@/` (`@/components/...`, `@/lib/...`, `@/i18n/...`)
+- **Tailwind классы** (порядок): layout → spacing → sizing → typography → colors → effects → states

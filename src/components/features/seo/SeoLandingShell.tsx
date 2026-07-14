@@ -1,4 +1,3 @@
-import Link from 'next/link';
 import type { ReactNode } from 'react';
 
 type SeoLandingShellProps = {
@@ -18,12 +17,12 @@ export function SeoLandingShell({
       <div className="v81-ambient-glow-b" aria-hidden />
       <div className="landing-inner">
         <header className="landing-section pt-8 pb-2">
-          <Link
+          <a
             href="/"
             className="text-sm font-semibold text-[color:var(--color-core-planner)] transition-colors hover:text-white"
           >
             ← Blunno
-          </Link>
+          </a>
         </header>
 
         <article className="landing-section space-y-8 pt-4">{children}</article>
@@ -37,9 +36,9 @@ export function SeoLandingShell({
         <footer className="landing-footer">
           <p className="landing-footer-copy">Blunno — карманный ресет для учебного стресса</p>
           <p className="landing-footer-tagline">Бесплатно · Офлайн · Без регистрации</p>
-          <Link href="/privacy" className="landing-footer-link">
+          <a href="/privacy" className="landing-footer-link">
             Privacy
-          </Link>
+          </a>
         </footer>
       </div>
     </div>

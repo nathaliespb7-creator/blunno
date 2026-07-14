@@ -16,6 +16,9 @@ import { ScreenFrame } from '@/components/shared/make-v81/ScreenFrame';
 import { trackEvent } from '@/lib/analytics';
 import { relaxAudioService, type RelaxSoundId } from '@/services/relaxAudioService';
 
+// iOS blocks programmatic volume control — show hint instead of fake slider
+const isIOS = typeof navigator !== 'undefined' && /iPhone|iPad|iPod/.test(navigator.userAgent);
+
 export default function RelaxPage(): ReactElement {
   const { t } = useTranslation();
   const [activeSound, setActiveSound] = useState<RelaxSoundId | null>(null);
@@ -39,16 +42,16 @@ export default function RelaxPage(): ReactElement {
 
       const volumePercent = volumes[sound.id] ?? DEFAULT_RELAX_VOLUME;
       relaxAudioService.setVolume(sound.id, volumePercent / 100);
-      relaxAudioService.play(sound.id, sound.audioSrc);
+      relaxAudioService.play(sound.id, sound.audioSrc, sound.name);
       trackEvent('relax_play', { sound_id: sound.id, sound_name: sound.name });
     },
     [volumes]
   );
 
-  const updateVolume = (id: RelaxSoundId, value: number) => {
+  const updateVolume = useCallback((id: RelaxSoundId, value: number) => {
     setVolumes((prev) => ({ ...prev, [id]: value }));
     relaxAudioService.setVolume(id, value / 100);
-  };
+  }, []);
 
   return (
     <ScreenFrame glowVariant="relax" className="v81-screen--relax">
@@ -85,21 +88,29 @@ export default function RelaxPage(): ReactElement {
               footer={
                 isActive ? (
                   <div className="v81-relax-volume">
-                    <Volume2 className="h-[18px] w-[18px] shrink-0 text-white/50" strokeWidth={2} />
-                    <input
-                      type="range"
-                      className="v81-relax-volume-input"
-                      min={0}
-                      max={100}
-                      value={volume}
-                      onInput={(e) => updateVolume(sound.id, Number(e.currentTarget.value))}
-                      onChange={(e) => updateVolume(sound.id, Number(e.currentTarget.value))}
-                      aria-label={`${soundName} ${t('relax.volume')}`}
-                      style={{ accentColor: sound.color }}
-                    />
-                    <span className="min-w-[36px] shrink-0 text-right text-[13px] font-semibold text-white/60">
-                      {volume}%
-                    </span>
+                    {isIOS ? (
+                      <p className="text-[13px] text-white/40 italic flex items-center gap-1.5">
+                        <Volume2 className="h-[14px] w-[14px] shrink-0" strokeWidth={2} />
+                        Используйте кнопки громкости
+                      </p>
+                    ) : (
+                      <>
+                        <Volume2 className="h-[18px] w-[18px] shrink-0 text-white/50" strokeWidth={2} />
+                        <input
+                          type="range"
+                          className="v81-relax-volume-input"
+                          min={0}
+                          max={100}
+                          value={volume}
+                          onInput={(e) => updateVolume(sound.id, Number(e.currentTarget.value))}
+                          aria-label={`${soundName} ${t('relax.volume')}`}
+                          style={{ accentColor: sound.color }}
+                        />
+                        <span className="min-w-[36px] shrink-0 text-right text-[13px] font-semibold text-white/60">
+                          {volume}%
+                        </span>
+                      </>
+                    )}
                   </div>
                 ) : undefined
               }
