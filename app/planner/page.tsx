@@ -302,6 +302,7 @@ export default function PlannerPage(): ReactElement {
               type="button"
               onClick={() => selectDay(dayKey)}
               aria-pressed={isSelected}
+              data-day-key={dayKey}
               className="v81-planner-day blunno-focus-visible"
               style={{
                 background: isSelected
