@@ -54,11 +54,11 @@ export function useSosBreathEngine() {
     }
   }, []);
 
-  function cycleFeedbackMessage(completedCycle: number): string {
+  const cycleFeedbackMessage = useCallback((completedCycle: number): string => {
     if (completedCycle === 1) return t('sos.feedbackCycle1');
     if (completedCycle === 2) return t('sos.feedbackCycle2');
     return t('sos.feedbackCycle3');
-  }
+  }, [t]);
 
   const tick = useCallback(function tickFrame() {
     const startedAt = startedAtRef.current;
@@ -106,7 +106,7 @@ export function useSosBreathEngine() {
     });
 
     rafRef.current = requestAnimationFrame(tickFrame);
-  }, [cancelLoop, t]);
+  }, [cancelLoop, cycleFeedbackMessage, t]);
 
   const start = useCallback(async () => {
     cancelLoop();

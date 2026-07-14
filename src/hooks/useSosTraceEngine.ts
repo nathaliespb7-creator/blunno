@@ -51,11 +51,11 @@ export function useSosTraceEngine() {
     statusRef.current = state.status;
   }, [state.status]);
 
-  function cycleFeedbackMessage(completedCycle: number): string {
+  const cycleFeedbackMessage = useCallback((completedCycle: number): string => {
     if (completedCycle === 1) return t('sos.feedbackCycle1');
     if (completedCycle === 2) return t('sos.feedbackCycle2');
     return t('sos.feedbackCycle3');
-  }
+  }, [t]);
 
   const applyTotalProgress = useCallback((total: number) => {
     const completedCycles = Math.floor(total);
@@ -97,7 +97,7 @@ export function useSosTraceEngine() {
       cycleProgress,
       feedback,
     });
-  }, [t]);
+  }, [cycleFeedbackMessage, t]);
 
   const beginPointer = useCallback(
     (clientX: number, clientY: number, rect: DOMRect) => {
@@ -147,7 +147,7 @@ export function useSosTraceEngine() {
     lastCompletedCyclesRef.current = 0;
     isTracingRef.current = false;
     setState(initialState);
-  }, []);
+  }, [initialState]);
 
   const stop = useCallback(() => {
     reset();
