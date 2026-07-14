@@ -72,8 +72,8 @@ export default function RelaxPage(): ReactElement {
           const Icon = sound.icon;
           const hasAudio = Boolean(sound.audioSrc);
           const soundKey = sound.id === 'birch-wind' ? 'birchWind' : sound.id === 'soft-storm' ? 'softStorm' : sound.id;
-          const soundName = t(`relax.${soundKey}` as any);
-          const soundDesc = t(`relax.${soundKey}.desc` as any);
+          const soundName = t(`relax.${soundKey}`);
+          const soundDesc = t(`relax.${soundKey}.desc`);
 
           return (
             <GlassListCell

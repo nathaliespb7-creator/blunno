@@ -20,10 +20,12 @@ export function CookieConsent(): ReactElement | null {
     try {
       const stored = localStorage.getItem(CONSENT_STORAGE_KEY);
       if (stored === null) {
+        // eslint-disable-next-line react-hooks/set-state-in-effect -- consent is read from client-only storage after hydration
         setVisible(true);
       }
     } catch {
       // Safari Private Browsing blocks localStorage — show consent banner anyway
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- storage availability is only known after hydration
       setVisible(true);
     }
   }, []);

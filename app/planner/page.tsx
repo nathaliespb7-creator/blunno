@@ -168,7 +168,7 @@ export default function PlannerPage(): ReactElement {
       tasks[index] = { ...tasks[index], text: nextText };
       return { ...prev, [state.day]: tasks };
     });
-  }, []);
+  }, [t]);
 
   const commitEditingIfNeeded = useCallback(() => {
     const state = editingRef.current;

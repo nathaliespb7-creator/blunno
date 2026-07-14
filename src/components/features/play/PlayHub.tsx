@@ -1,7 +1,7 @@
 'use client';
 
 import { ChevronLeft, Copy, Grid3X3, Grip, Home, LayoutGrid, Play, Shapes } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState, type ReactElement } from 'react';
+import { useEffect, useState, type ReactElement } from 'react';
 
 import { BalloonPop } from '@/components/features/play/BalloonPop';
 import { BlunnoTetris } from '@/components/features/play/BlunnoTetris';
@@ -86,7 +86,7 @@ export function PlayHub(): ReactElement {
 
   if (selectedGame !== null) {
     const isPopIt = selectedGame === 'balloon';
-    const gameTitle = t(`play.${selectedGame}` as any);
+    const gameTitle = t(`play.${selectedGame}`);
 
     return (
       <ScreenFrame className={isPopIt ? 'v81-screen--play-game v81-screen--play-game-popit' : '!overflow-y-auto'}>
@@ -130,8 +130,8 @@ export function PlayHub(): ReactElement {
             key={game.id}
             as="div"
             accentColor={game.themeColor}
-            title={t(`play.${game.id}` as any)}
-            subtitle={t(`play.${game.id}.desc` as any)}
+            title={t(`play.${game.id}`)}
+            subtitle={t(`play.${game.id}.desc`)}
             subtitleVariant="category"
             titleAs="h3"
             icon={game.icon}
