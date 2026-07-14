@@ -33,10 +33,10 @@ Verify at **360**, **375**, **393**, **768** px width:
 ## E2E release gate
 
 ```bash
-npm run test:e2e
+npm run verify
 ```
 
-Uses production build + `next start`. Default locale is Russian (`E2E_LOCALE=ru`). For English smoke:
+This runs lint, type checking, one production build, and all nine Playwright specs with `next start`. Default locale is Russian (`E2E_LOCALE=ru`). For an additional English E2E run:
 
 ```bash
 E2E_LOCALE=en npm run test:e2e

@@ -1,15 +1,14 @@
 # PWA Builder → RuStore release checklist
 
-Use this after `npm run build` and a green `npm run test:e2e`.
+Use this after a green `npm run verify`.
 
 ## 1. Web release gate (automated)
 
 ```bash
-npm run build
-npm run test:e2e
+npm run verify
 ```
 
-Covers: navigation, games, SOS, planner, relax, offline routes, PWA assets, choose layout regressions.
+This runs lint, type checking, one production build, and all nine Playwright specs covering navigation, games, SOS, planner, relax, offline routes, PWA assets, and layout regressions.
 
 ## 2. PWA Builder packaging
 
