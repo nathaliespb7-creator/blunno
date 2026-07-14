@@ -12,33 +12,41 @@ alwaysApply: false
 Before any production deploy (`vercel deploy --prod`), run:
 
 ```bash
-npm run build
-npm run test:e2e
+npm run verify
 ```
 
-Do **not** deploy if E2E is red. Fix failures first, then re-run until green.
+`verify` runs lint, TypeScript, one production build, and all Playwright specs. `test:e2e` owns that single build, so do not run `npm run build` separately before `verify`.
+
+Do **not** deploy if verification is red. Fix failures first, then re-run until green.
 
 ## Route checklist
 
 | Route | Entry | Exit buttons |
 |-------|-------|--------------|
-| `/` | — | Start Now → `/choose` |
-| `/choose` | from Welcome or mode Home | Home → `/`; mood tiles → modes |
+| `/` | — | Try Blunno → `/app` |
+| `/app` | from landing | Start Now → `/choose` |
+| `/choose` | from app or mode exit | Home → `/app`; mood tiles → modes |
 | `/sos` | SOS tile | Exit to mode selection → `/choose` |
 | `/planner` | PLANNER tile | Exit to mode selection → `/choose` |
 | `/play` | PLAY tile | Exit to mode selection; Play → game; Back to games |
 | `/relax` | RELAX tile | Back to mode selection → `/choose` |
 
-## What E2E covers
+## Playwright scenarios
 
-- All routes and back-navigation links
-- Play hub: Sudoku, Tetris, Pop It open/close
-- Planner: week nav, add/complete/edit tasks
-- Relax: play/pause/volume for all sounds
-- SOS: exercise UI loads, ring pointer interaction
+The release gate runs exactly these nine spec files:
+
+1. `navigation.spec.ts` — routes and back-navigation
+2. `welcome-layout.spec.ts` — landing layouts
+3. `choose-layout.spec.ts` — mood tiles and repeated navigation
+4. `sos.spec.ts` — breathing behavior and mobile layout
+5. `planner.spec.ts` — navigation, task limits, editing, and persistence
+6. `play.spec.ts` — five games, controls, and mobile layout
+7. `relax.spec.ts` — audio controls, navigation, and offline playback
+8. `offline.spec.ts` — offline routes and online/offline transitions
+9. `pwa-assets.spec.ts` — manifest, icons, service worker, precache, and sounds
 
 ## When changing navigation or buttons
 
 1. Update affected spec in `e2e/` if selectors or flows change
-2. Run `npm run test:e2e` locally
+2. Run `npm run verify` locally
 3. Prefer `aria-label` on interactive controls for stable selectors

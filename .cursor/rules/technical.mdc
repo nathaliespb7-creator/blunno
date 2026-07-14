@@ -1,0 +1,41 @@
+---
+description: Blunno technical stack and code conventions
+globs:
+  - app/**
+  - src/**
+  - scripts/**
+  - next.config.ts
+  - tsconfig.json
+alwaysApply: false
+---
+
+# Blunno technical rules
+
+## Stack
+
+- Next.js **16.2.6**, App Router, Turbopack
+- React **19.2.4**
+- TypeScript 5 in strict mode; do not use `any`
+- Tailwind CSS 4, Framer Motion 12, Zustand 5, Howler 2
+
+## Conventions
+
+- Components: PascalCase and default exports; small UI primitives may use named exports.
+- Utilities and hooks: camelCase and named exports.
+- Use absolute `@/` imports for code under `src/`.
+- Keep reusable UI primitives in `src/components/ui/`; do not duplicate them inside features.
+- Order Tailwind classes as layout → spacing → sizing → typography → colors → effects → states.
+
+## Security and runtime
+
+- Keep secrets in ignored `.env*` files or deployment environment variables.
+- Never expose API keys from client components or public bundles.
+- Keep production browser source maps disabled.
+- Maintain CSP changes in `next.config.ts` with explicit origins.
+
+## Internationalization
+
+- Supported locales are EN and RU in `src/i18n/en.json` and `src/i18n/ru.json`.
+- Server locale comes from `blunno_lang` or `Accept-Language`; pass it to `I18nProvider` to avoid a language flash.
+- Do not add duplicate translation keys.
+- Keep the Welcome CTA as a native `<a href>` unless the documented navigation regression is proven fixed.

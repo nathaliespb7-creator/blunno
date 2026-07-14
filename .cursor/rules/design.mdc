@@ -1,0 +1,41 @@
+---
+description: Blunno visual system and UI implementation rules
+globs:
+  - app/globals.css
+  - app/**/*.tsx
+  - src/components/**/*.tsx
+alwaysApply: false
+---
+
+# Blunno design rules
+
+`app/globals.css` is the source of truth for design tokens.
+
+## Color system
+
+| Token | Hex | Role |
+| --- | --- | --- |
+| `core-bg` | `#0b0b1a` | Application background |
+| `shell` | `#120f25` | Shell, overscroll, theme color |
+| `sos` | `#905e8c` | SOS mode |
+| `planner` | `#83a9ad` | Planner mode |
+| `play` | `#6a3cae` | Play mode |
+| `relax` | `#e7b453` | Relax mode |
+
+Derive other UI colors with `color-mix`, rgba, or semantic aliases in `:root` and `@theme inline`. Do not add another accent color without approval.
+
+## Typography
+
+Load fonts only through `next/font/google` in `app/layout.tsx`:
+
+- Plus Jakarta Sans (`--font-plus-jakarta`) for UI and headings
+- Tiro Telugu (`--font-tiro-telugu`) for the Blunno wordmark
+- Inter (`--font-inter`, `--font-body`) for body and UI text
+
+Do not add fonts or weights without approval because they affect bundle size and LCP.
+
+## Components and interaction
+
+- Reuse primitives from `src/components/ui/`.
+- Preserve touch-friendly controls, visible focus states, safe-area padding, and reduced-motion behavior.
+- Check mobile layouts at 360, 375, and 393 px widths.

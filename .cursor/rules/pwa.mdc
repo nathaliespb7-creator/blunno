@@ -1,0 +1,25 @@
+---
+description: Blunno PWA build, cache, and offline rules
+globs:
+  - app/manifest.ts
+  - app/offline/**
+  - public/sw.template.js
+  - src/components/shared/ServiceWorkerRegister.tsx
+  - scripts/generate-sw.mjs
+  - scripts/generate-precache-manifest.mjs
+  - scripts/offline-version.mjs
+  - docs/PWA-*.md
+alwaysApply: false
+---
+
+# Blunno PWA rules
+
+- `app/manifest.ts` defines the installable manifest and `/app` start URL.
+- `scripts/generate-sw.mjs` generates `public/sw.js` after `next build`.
+- `scripts/generate-precache-manifest.mjs` generates `public/precache-manifest.json` from routes, build assets, icons, and media.
+- `src/components/shared/ServiceWorkerRegister.tsx` registers the worker in production.
+- Bump `scripts/offline-version.mjs` for cache-breaking releases.
+- Keep `/offline` as the navigation fallback and keep the documented core routes precached.
+- Do not hand-edit generated service worker or precache output when the template or generator is the source of truth.
+
+Run the full release gate with `npm run verify`; it creates the production PWA assets once and exercises offline behavior through Playwright.
