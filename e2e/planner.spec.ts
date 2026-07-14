@@ -41,9 +41,9 @@ test.describe('Planner interactions', () => {
     const count = await dayButtons.count();
     expect(count).toBeGreaterThan(1);
 
-    const secondDay = dayButtons.nth(1);
-    await secondDay.click();
-    await expect(secondDay).toBeVisible();
+    const otherDay = page.locator('.v81-planner-day[aria-pressed="false"]').first();
+    await otherDay.click();
+    await expect(otherDay).toHaveAttribute('aria-pressed', 'true');
   });
 
   test('blocks adding more than 8 tasks', async ({ page }) => {
@@ -64,7 +64,7 @@ test.describe('Planner interactions', () => {
       timeout: 10_000,
     });
 
-    await page.locator('.v81-planner-day').nth(1).click();
+    await page.locator('.v81-planner-day[aria-pressed="false"]').first().click();
     await expect(page.getByRole('button', { name: taskText, exact: true })).toHaveCount(0, {
       timeout: 10_000,
     });
