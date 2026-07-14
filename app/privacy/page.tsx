@@ -13,6 +13,8 @@ export default function PrivacyPage(): ReactElement {
   return (
     <main className="min-h-dvh bg-[#05050A] font-sans text-white/90 px-6 py-10">
       <div className="mx-auto max-w-lg space-y-6">
+        {/* Return through a full landing-page navigation. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a href="/" className="text-sm text-[#00FFFF] hover:underline">
           ← Back to Blunno
         </a>

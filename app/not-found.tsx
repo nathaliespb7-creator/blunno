@@ -11,6 +11,8 @@ export default function NotFound() {
       <p className="mt-4 text-lg text-white/60">
         {t('error.404')}
       </p>
+      {/* A full navigation recovers cleanly from an unknown route. */}
+      {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
       <a
         href="/"
         className="mt-8 rounded-full bg-gradient-to-r from-cyan-400/90 to-fuchsia-600/90 px-6 py-3 text-sm font-medium text-white transition hover:opacity-90"

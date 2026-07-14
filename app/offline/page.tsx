@@ -13,6 +13,8 @@ export default function OfflinePage(): ReactElement {
         <p className="mb-4 text-sm text-white/75">
           {t('offline.text')}
         </p>
+        {/* Retry with a document request so the service worker can handle recovery. */}
+        {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
         <a
           href="/"
           className="inline-flex items-center justify-center rounded-full border border-white/25 px-4 py-2 text-sm font-medium text-white/90 hover:bg-white/10"

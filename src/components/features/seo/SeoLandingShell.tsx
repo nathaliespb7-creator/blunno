@@ -17,6 +17,8 @@ export function SeoLandingShell({
       <div className="v81-ambient-glow-b" aria-hidden />
       <div className="landing-inner">
         <header className="landing-section pt-8 pb-2">
+          {/* Keep SEO landing exits as full document navigations. */}
+          {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
           <a
             href="/"
             className="text-sm font-semibold text-[color:var(--color-core-planner)] transition-colors hover:text-white"
