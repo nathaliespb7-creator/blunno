@@ -42,8 +42,13 @@ test.describe('Planner interactions', () => {
     expect(count).toBeGreaterThan(1);
 
     const otherDay = page.locator('.v81-planner-day[aria-pressed="false"]').first();
+    const otherDayKey = await otherDay.getAttribute('data-day-key');
+    expect(otherDayKey).not.toBeNull();
     await otherDay.click();
-    await expect(otherDay).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator(`.v81-planner-day[data-day-key="${otherDayKey}"]`)).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    );
   });
 
   test('blocks adding more than 8 tasks', async ({ page }) => {
@@ -81,9 +86,7 @@ test.describe('Planner interactions', () => {
     const row = page.locator('.v81-glass-cell').filter({ hasText: taskText });
     await row.getByRole('button', { name: T.plannerEdit }).click();
     const editInput = page.locator('.v81-glass-cell input.rounded-lg');
-    await editInput.click();
-    await editInput.press('Meta+a');
-    await editInput.pressSequentially(editedText);
+    await editInput.fill(editedText);
     await editInput.press('Enter');
     await expect(page.getByRole('button', { name: editedText, exact: true })).toBeVisible();
 

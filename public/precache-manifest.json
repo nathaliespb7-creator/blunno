@@ -1,6 +1,6 @@
 {
   "version": 47,
-  "generatedAt": "2026-07-14T16:11:25.037Z",
+  "generatedAt": "2026-07-14T16:12:32.664Z",
   "routes": [
     "/",
     "/app",
@@ -72,7 +72,6 @@
     "/_next/static/chunks/0cyc6~2wfh.le.js",
     "/_next/static/chunks/0dcqp3fj8e53j.js",
     "/_next/static/chunks/0fs-j4ukcgf19.js",
-    "/_next/static/chunks/0ghv8x-pvd87w.js",
     "/_next/static/chunks/0h8vndsf6iq50.js",
     "/_next/static/chunks/0l66l9v-2p1ed.js",
     "/_next/static/chunks/0o-hyv6einep9.js",
@@ -84,6 +83,7 @@
     "/_next/static/chunks/0sathdzi0bnot.js",
     "/_next/static/chunks/0stc6kdl2~h_a.js",
     "/_next/static/chunks/0yc7xxb_3w6e2.js",
+    "/_next/static/chunks/0~1nwpfvfomgv.js",
     "/_next/static/chunks/17p84m_a6n_30.js",
     "/_next/static/chunks/turbopack-0cfrzgvbvmjpq.js",
     "/_next/static/media/0b1dc8ddaa74ba49-s.04o39dzmj.ey..woff2",
@@ -102,8 +102,8 @@
     "/_next/static/media/e629b5bc06499d58-s.0b_~8bw~gzh90.woff2",
     "/_next/static/media/fba5a26ea33df6a3-s.p.0eehd8tgys7nv.woff2",
     "/_next/static/media/icon.0z.jvmbiw6d5b.png",
-    "/_next/static/wxDpoa-GPg5Sh8T1UezvB/_buildManifest.js",
-    "/_next/static/wxDpoa-GPg5Sh8T1UezvB/_clientMiddlewareManifest.js",
-    "/_next/static/wxDpoa-GPg5Sh8T1UezvB/_ssgManifest.js"
+    "/_next/static/qRxWTb4tXVZz0F6kYY30z/_buildManifest.js",
+    "/_next/static/qRxWTb4tXVZz0F6kYY30z/_clientMiddlewareManifest.js",
+    "/_next/static/qRxWTb4tXVZz0F6kYY30z/_ssgManifest.js"
   ]
 }
