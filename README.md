@@ -11,12 +11,13 @@ Production: [https://blunno.app](https://blunno.app)
 ## Main user flow
 
 1. `Welcome` (`/`) - intro screen with mascot interaction.
-2. `Choose` (`/choose`) - pick current mood/activity mode.
-3. Mode screens:
+2. `App` (`/app`) - product welcome and Start Now entry.
+3. `Choose` (`/choose`) - pick current mood/activity mode.
+4. Mode screens:
    - `/sos` - 3-cycle breathing exercise with progress ring.
    - `/planner` - daily task list and week navigation.
-   - `/play` - game hub (Sudoku, Tetris, Balloon Pop).
-   - `/relax` - lightweight relax placeholder screen.
+   - `/play` - game hub (Sudoku, Tetris, Pop It, Memory Match, Slide Puzzle).
+   - `/relax` - ambient audio player.
 
 ## Features
 
@@ -33,8 +34,8 @@ Production: [https://blunno.app](https://blunno.app)
 
 ## Tech stack
 
-- Next.js 16 (App Router)
-- React 19 + TypeScript
+- Next.js 16.2.6 (App Router)
+- React 19.2.4 + TypeScript 5
 - Tailwind CSS 4
 - Framer Motion
 - Zustand
@@ -52,7 +53,7 @@ Production: [https://blunno.app](https://blunno.app)
 
 ### Requirements
 
-- Node.js 20+ recommended
+- Node.js 20.9+
 - npm
 
 ### Install
@@ -76,15 +77,19 @@ npm run build
 npm run start
 ```
 
-### Lint
+### Verify
 
 ```bash
-npm run lint
+npm run verify
 ```
+
+This runs ESLint, TypeScript, one production build, and all nine Playwright spec files.
 
 ## Deployment
 
 Blunno is deployed on Vercel.
+
+Do not deploy unless `npm run verify` is green.
 
 Typical production deploy command:
 
@@ -98,5 +103,5 @@ See [`docs/PWA-OFFLINE.md`](docs/PWA-OFFLINE.md).
 
 Current status:
 - Manifest is configured.
-- `next-pwa` dependency exists but service worker integration is not fully wired in `next.config.ts`.
-- Planner data is not yet persisted across reloads (in-memory for now).
+- A custom generated service worker precaches core routes and static assets.
+- Planner tasks persist locally across reloads.
